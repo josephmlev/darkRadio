@@ -6,4 +6,14 @@ https://github.com/josephmlev/darkRadioDaqAndAnalysis.git
 
 https://github.com/ucdavis/DarkRadioSimulations.git
 
-I'm not taking everything from DarkRadioSimulations. I have been on the project for 2.5 years and not used most of the things in it. 
+I'm not taking everything from DarkRadioSimulations. I have been on the project for 2.5 years and not used most of the things in it.
+
+
+### Commit prefix
+`SIM:` Simulation related. New comsol file, change of parameters in existing file, etc.
+
+`DAT:` Data/analysis related. New derived value files from comsol, python plot scripts, plots, etc.
+
+`FILE:` Changes file structure or organization 
+
+No prefix indicates the commit was before 3/31/21 or someone was lazy and should be given a stern talking to. 
