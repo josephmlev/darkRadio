@@ -1,0 +1,1 @@
+best guess for transmission line length is 12" + 9/16"

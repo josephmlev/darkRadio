@@ -1,0 +1,1 @@
+These files were generated around 3/30/21. The goal is to see the effect of the conductivity of the walls on the room modes and antenna factor.
