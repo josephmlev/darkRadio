@@ -7,17 +7,19 @@ Created on Tue Mar  2 11:04:06 2021
 import numpy as np
 import matplotlib.pyplot as plt
 #plt.close('all')
-'''
-#actual room
-x = 3.048
-y = 2.438
-z = 3.657
-'''
 
-#proposed room in room as of 10/1/21
-x = 2.8368
-y = 2.2798
-z = 3.353
+#nate room
+if 0:
+    print("Nate")
+    x = 3.048
+    y = 2.438
+    z = 3.657
+else:
+    #actual room
+    print("measured")
+    x = 3.0697
+    y = 2.4566
+    z = 3.6840
 
 
 c = 2.99E8
@@ -37,8 +39,8 @@ print("n = ",n, "\n m = ", m, "\n p =", p, \
 '''
     
 maxMode = 7
-sf = 150 #search frequency 
-df = 150  #delta frequency
+sf = 137 #search frequency 
+df = 20  #delta frequency
 
 fp = sf + df
 fm = sf - df
