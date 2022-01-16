@@ -1,0 +1,36 @@
+[Configuration file]
+
+# The acquisition time in milliseconds
+ACQ TIME = 100
+
+# The IP address of the spectrum analyzer
+ADDRESS = TCPIP0::169.254.125.188::INSTR
+
+# The end frequency 
+END FREQUENCY = 300000000
+
+# The gain of the preamplifiers
+GAIN = 70
+
+# The number of averages done on the Rigol
+NUM AVERAGES = 100
+
+# The prefix for your save files. All save files are saved as PREFIX_# where # is the
+# total number of files written
+PREFIX = TRACE
+
+# The resolution over span constant for a rectangular window
+RATIO = 0.0012475
+
+# The required resolution
+RESOLUTION = 1E-5
+
+# The relative level displayed on the screen. It is important to get this right or else
+# the output is clipped for large values
+RLEV = -125DBM
+
+# The name of the file where the current status of the program is stored
+SAVEFILE = status.txt
+
+# Total amount of time for each window (in minutes)
+TOTAL TIME = 0.3
