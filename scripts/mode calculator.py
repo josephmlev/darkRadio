@@ -40,7 +40,7 @@ print("n = ",n, "\n m = ", m, "\n p =", p, \
     
 maxMode = 7
 sf = 137 #search frequency 
-df = 20  #delta frequency
+df = 100  #delta frequency
 
 fp = sf + df
 fm = sf - df
