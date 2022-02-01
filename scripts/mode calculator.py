@@ -9,14 +9,14 @@ import matplotlib.pyplot as plt
 #plt.close('all')
 
 #nate room
-if 0:
-    print("Nate")
+if 1:
+    print("Nate dimensions")
     x = 3.048
     y = 2.438
     z = 3.657
 else:
     #actual room
-    print("measured")
+    print("measured dimensions Jan 2022")
     x = 3.0697
     y = 2.4566
     z = 3.6840
@@ -24,9 +24,7 @@ else:
 
 c = 2.99E8
 
-#n = 5
-#m = 2
-#p = 0
+
 
 
 def f(m, n, p, x, y, z):
@@ -38,9 +36,9 @@ print("n = ",n, "\n m = ", m, "\n p =", p, \
       "\n f =",  round(f(n,m,p,x,y,z,c), 2), "MHz")
 '''
     
-maxMode = 7
-sf = 137 #search frequency 
-df = 100  #delta frequency
+maxMode = 8
+sf = 150 #search frequency 
+df = 150  #delta frequency
 
 fp = sf + df
 fm = sf - df
