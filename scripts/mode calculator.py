@@ -36,17 +36,17 @@ print("n = ",n, "\n m = ", m, "\n p =", p, \
       "\n f =",  round(f(n,m,p,x,y,z,c), 2), "MHz")
 '''
     
-maxMode = 8
-sf = 150 #search frequency 
-df = 150  #delta frequency
+maxMode = 9
+sf = 246 #search frequency 
+df = 4  #delta frequency
 
 fp = sf + df
 fm = sf - df
 
 freqarr =[]
-for m in range(1):
-    for n in range(1,maxMode):
-        for p in range(1,maxMode):
+for m in range(0,maxMode):
+    for n in range(0,maxMode):
+        for p in range(0,maxMode):
             freq = f(m, n, p, x, y, z)
             freqarr.append(freq)
             if freq < fp and freq > fm:
