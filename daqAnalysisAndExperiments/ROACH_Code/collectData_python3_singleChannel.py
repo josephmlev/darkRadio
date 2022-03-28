@@ -5,6 +5,7 @@ import corr
 import ctypes
 import cupy as cp
 import cupyx as cpx
+import glob
 import h5py
 import logging
 import numba as nb
@@ -36,6 +37,8 @@ import usb.util
 
 ser = serial.Serial('/dev/ttyACM0', 115200)
 ser.write(b'0b0')
+#sigGen = visa.ResourceManager().open_resource('USB0::1689::851::1625504::0::INSTR')
+#sigGen.write('OUTPUT2:STATE ON')
 
 #sigGen = pyvisa.ResourceManager().open_resource('USB0::1689::836::C020120::0::INSTR')
 #sigGen = ScpiInstrumentWrapper.ScpiInstrumentWrapper('PROLOGIX::/dev/ttyUSB4::GPIB::10')
@@ -83,6 +86,35 @@ def nb_einsum(A):
 		#acc=0
 	return res
 
+def is_number(x):
+	try:
+		float(x)
+		return True
+	except Exception as e:
+		return False
+
+
+def getTemp():
+	totalTries = 0
+	maxTries = 20
+	totalAvg = 5
+	tempCount = 0
+	totalTemp = 0
+	while tempCount < totalAvg:
+		ser.write(b'0b2')
+		possibleTemp = ser.readline()
+		totalTries = totalTries + 1
+		if(is_number(possibleTemp)):
+			totalTemp = totalTemp + float(possibleTemp)
+			tempCount = tempCount + 1
+		if totalTries > maxTries:
+			print('TOO MANY READS TO GET TEMPERATURE')
+			break
+	if tempCount == 0:
+		return 0
+	else:
+		return totalTemp / tempCount + 273.15
+
 def write_read(x):
 	arduino.write(bytes(x, 'utf-8'))
 
@@ -96,7 +128,7 @@ def _pin_memory(array):
 #sock1 = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 #sock1.setblocking(1)
 
-def gbe0(memName, writeName, startName):
+def gbe0(memName, writeName, startName, endName):
 
 	startTime = time.time()
 	toggle = False
@@ -110,11 +142,14 @@ def gbe0(memName, writeName, startName):
 	start_mem = shared_memory.SharedMemory(name=startName.name)
 	startArr = np.ndarray((1,), dtype=np.dtype('B'), buffer=start_mem.buf)
 
+	end_mem = shared_memory.SharedMemory(name = endName.name)
+	endArr = np.ndarray((1,), dtype = np.dtype('B'), buffer = end_mem.buf)
+
 	firstRun = True
 	#sock0.setblocking(1)
 	i = 0
 	totalClears = 1
-	while time.time() - startTime < ROACH_SETUP.TOTAL_TIME:
+	while not(endArr[0]) and (time.time() - startTime < ROACH_SETUP.TOTAL_TIME):
 		newStartTime = time.time()
 		try:
 			while i < ROACH_SETUP.NUM_BUFFERS:
@@ -182,6 +217,7 @@ def gbe0(memName, writeName, startName):
 						pos = 0
 						view = memoryview(sharedData[i][j])
 						view = view[pos:]
+						#sigGen.write('OUTPUT2:STATE ON')
 						while pos < int((ROACH_SETUP.PAYLOAD_LEN)*8*ROACH_SETUP.DATA_ITS*ROACH_SETUP.EXTRA_MULT):
 							#cr0 = sock0.recv_into(memoryview(sharedData[i][j])[pos:])
 							cr0 = sock0.recv_into(view, 8192)
@@ -231,12 +267,12 @@ def createNewFile(fileName):
 	earliestTime = datetime(9999, 12, 31, 0, 0)
 	runInfo.attrs['date range'] = str(earliestTime.strftime('%m/%d/%Y %H:%M:%SUTC')) + '-' + str(latestTime.strftime('%m/%d/%Y %H:%M:%SUTC'))
 	runInfo.attrs['extra description'] = ''
-	runInfo.attrs['packet length'] = '756'
-	runInfo.attrs['packet period'] = '760'
-	runInfo.attrs['temperature'] = '0K'
-	runInfo.attrs['time format'] = 'UTC'
+	runInfo.attrs['packet length'] = '8192'
+	runInfo.attrs['packet period'] = '8192'
+	runInfo.attrs['temperature'] = str(round(getTemp(), 2)) + 'K'
+	runInfo.attrs['time format'] = 'PDT'
 	runInfo.attrs['version'] = 'ROACH v00.1'
-	runInfo.attrs['window'] = 'Kaiser'
+	runInfo.attrs['window'] = 'Rectangular'
 	hf.create_group('0-300')
 	#hf['0-300'].create_dataset('freqs', dtype=np.float64, data = np.linspace(0, 1000, 2**25))
 	#hf['31.25-62.5'].create_dataset('freqs', dtype=np.float64, data = np.linspace(31.25, 62.5, 2**20))
@@ -357,10 +393,10 @@ def writeData(dataMem):
 			print('\n\n\n\n\n\n\n\n\nWRITING TOOK ' + str(round(stoppingTime-testTime, 3)) + 'S TO COMPLETE\n\n\n\n\n\n\n\n\n') 
 	hf.close()
 
-def takeRigolData(rigolQueue):
+def takeRigolData(rigolQueue, endName):
 	# Initialize the Rigol
 	RM = visa.ResourceManager('@py')
-	INST = RM.open_resource('TCPIP0::169.254.128.64::INSTR')
+	INST = RM.open_resource('TCPIP0::169.254.18.64::INSTR')
 	INST.write(':INST SA')
 	time.sleep(8)
 	INST.write(':DET:POS')
@@ -391,30 +427,45 @@ def takeRigolData(rigolQueue):
 	INST.write(':FREQ:CENT 150000000')
 	print(INST.query(':SWE:TIME?'))
 	acqTime = float(INST.query(':SWE:TIME?'))
-	numRigolAvg = int(10/acqTime)
+	numRigolAvg = 10 #int(10/acqTime)
 	INST.write(':TRAC:AVER:COUN ' + str(numRigolAvg))
 	time.sleep(0.1)
 	INST.write(':INIT')
 	checkRigolTime = time.time()
 	#while time.time() - testTime < ROACH_SETUP.TOTAL_TIME:
 	oldRigolTime = time.time()
-	while(True):
+	
+	end_mem = shared_memory.SharedMemory(name = endName.name)
+	endArr = np.ndarray((1,), dtype = np.dtype('B'), buffer = end_mem.buf)
+
+	while(not(endArr[0])):
 		if time.time() - oldRigolTime > 1:
 			if int(INST.query(':TRAC:AVER:COUNT:CURR?')) >= numRigolAvg:
 				rigolTime = str(datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3])
-				rigolQueue.put((rigolTime, [np.float32(x) for x in (INST.query('TRAC:DATA? TRACE1')).split(',')]))
+				if not(endArr[0]):
+					rigolQueue.put((rigolTime, [np.float32(x) for x in (INST.query('TRAC:DATA? TRACE1')).split(',')]))
 				INST.write(':INIT')
 				print('STARTED A NEW RIGOL SCAN')
-			else:
-				print('CHECKED BUT NOT READY FOR RIGOL WRITE')
+			#else:
+			#	print('CHECKED BUT NOT READY FOR RIGOL WRITE')
 			oldRigolTime = time.time()
+	print('WAITING FOR 20s TO CLEAR THE QUEUE')
+	for sleepIncrement in range(4):
+		time.sleep(5)
+		print(str(20 - sleepIncrement*5) + 'S...')
+	
+	while rigolQueue.qsize() > 0:
+		rigolQueue.get()
 
-def writeDataNew(dataMem, rigolQueue):
+def writeDataNew(dataMem, rigolQueue, endName):
 	
 	data_mem = shared_memory.SharedMemory(name=dataMem.name)
 	dataArr = np.ndarray((2, 2**(ROACH_SETUP.FFT_POW - 1)), dtype = np.dtype('float32'), buffer=data_mem.buf)
 	fileArr = np.zeros((4, 2**(ROACH_SETUP.FFT_POW - 1)), dtype = np.dtype('float32'))
 	avgArr = np.zeros(2**(ROACH_SETUP.FFT_POW - 1), dtype = np.dtype('float32'))
+	end_mem = shared_memory.SharedMemory(name = endName.name)
+	endArr = np.ndarray((1,), dtype = np.dtype('B'), buffer = end_mem.buf) 
+
 	#colNames = np.empty(ROACH_SETUP.NUM_DATASETS_PER_FILE, dtype = 'S25')
 	colNames = []
 	subColNames = ['SUB A', 'SUB B', 'DIFF', 'BAD']
@@ -423,12 +474,25 @@ def writeDataNew(dataMem, rigolQueue):
 	#		Sub-group: YYYY-MM identifying year and month
 	#		Sub-sub-group: MM-DD identifying month and day
 	#		Sub-sub-sub group: Center frequency range to 
-
+	writeDir = '/home/dark-radio/HASHPIPE/ROACH/PYTHON/TermData_2-21-22/'
 	dataCounter = 0
 	fileCounter = 0
+	allFiles = glob.glob(writeDir + '/' + 'data_*.h5')
+	if len(allFiles) > 0:
+		startFile = max([int(x[x.index('data_') + 5: x.index('.h5')]) for x in allFiles]) + 1
+		allKeys = [aKey for  aKey in h5py.File(writeDir + '/' + 'data_' + str(startFile - 1) + '.h5', 'r').keys()]
+		if len(allKeys) > 0:
+			startDataset = max([int(x[x.index('_')+1:]) for x in allKeys]) + 1
+		else:
+			startDataset = 0
+	else:
+		startFile = 0
+		startDataset = 0
+	
+	
 	datasetCounter = 0
-
-	fileName = 'data' + '_' + str(fileCounter) + '.h5'
+	
+	fileName = writeDir + '/' + 'data' + '_' + str(fileCounter + startFile) + '.h5'
 	#hf = h5py.File(fileName, 'w')
 
 	#groupNames = ['31.25-62.5', '62.5-125', '125-250', '250-500', '500-1000']
@@ -442,7 +506,7 @@ def writeDataNew(dataMem, rigolQueue):
 
 
 	holderRigol = {}
-	while True:
+	while not(endArr[0]):
 		if dataArr[0][0] != oldFirst:
 			oldFirst = dataArr[0][0]	
 			print('WRITING DATA NOW!!!!')
@@ -453,22 +517,23 @@ def writeDataNew(dataMem, rigolQueue):
 				#allCols = pd.MultiIndex.from_product([[colNames[0]], subColNames])
 				#hf['runInfo'].attrs['date range'] = str(earliestTime.strftime('%H:%M:%S:%f')) + '-' + str(currentTime.strftime('%H:%M:%S:%f'))
 				#hf.close()
-				fileName = 'data' + '_' + str(fileCounter) + '.h5'
+				fileName = writeDir + '/'+ 'data' + '_' + str(fileCounter + startFile) + '.h5'
 				hf = h5py.File(fileName, 'w')
-				hf.attrs['amplifer'] = 'Pasternack PE15A1012'
-				hf.attrs['antenna'] = 'AB-900A Biconical'
-				hf.attrs['averages'] = ROACH_SETUP.NUM_TOGGLES
+				hf.attrs['amplifer'] = 'PE15A1012_OLD-PE15A1014-10dB Attenuator'
+				hf.attrs['antenna'] = 'SMA Resistor'
+				hf.attrs['averages'] = ROACH_SETUP.NUM_TOGGLES * 1000
 				acquisitionLength = 1000*2**ROACH_SETUP.FFT_POW / ROACH_SETUP.CLOCK_SPEED
 				hf.attrs['acquisition length'] = str(round(acquisitionLength, 3)) + 'ms' 
 				hf.attrs['clock speed'] = str(ROACH_SETUP.CLOCK_SPEED/10**6) + 'MHz'
 				hf.attrs['extra description'] = ''
 				hf.attrs['packet length'] = str(ROACH_SETUP.PKT_PERIOD - 8)
 				hf.attrs['packet period'] = str(ROACH_SETUP.PKT_PERIOD)
-				hf.attrs['temperature'] = '0K'
-				hf.attrs['time format'] = 'PST'
+
+				hf.attrs['temperature'] = str(round(getTemp(), 2)) + 'K'
+				hf.attrs['time format'] = 'PDT'
 				hf.attrs['version'] = 'ROACH v00.1'
 				hf.attrs['window'] = 'Rectangular'
-				hf.create_group('RIGOL')
+				#hf.create_group('RIGOL')
 				fileCounter = fileCounter + 1
 				
 				#newDF = pd.read_hdf('data' + '_' + str(fileCounter) + '.h5')
@@ -489,8 +554,6 @@ def writeDataNew(dataMem, rigolQueue):
 			elif (datasetCounter + 1)%ROACH_SETUP.NUM_DATASETS_PER_FILE == 0:
 				latestTime = colNames[0]
 				hf.attrs['date range'] = str(earliestTime) + 'PST' + '-' + str(latestTime) + 'PST'
-
-
 
 			#fileArr[4*(datasetCounter)] = dataArr[0]
 			#fileArr[4*(datasetCounter) + 1] = dataArr[1]
@@ -514,24 +577,26 @@ def writeDataNew(dataMem, rigolQueue):
 			#print(df.index.get_level_values(0))
 			#print(df.index.levels)
 			#.astype(dataframeConvertDict)
-			df.to_hdf(fileName, key = 'measdata_' + str(datasetCounter), mode='a', format = 'table', complevel = 9)
+			df.to_hdf(fileName, key = 'measdata_' + str(datasetCounter + startDataset), mode='a', format = 'table', complevel = 9)
 			#hf['measdata_' + str(datasetCounter)]
 			#hf['RIGOL'].create_group('measdata_' + str(datasetCounter))
 			RigolCounter = 0
-			while not rigolQueue.empty():
+			while rigolQueue.qsize() > 0:
 				rigolData = rigolQueue.get()
-				dset = hf['measdata_'+str(datasetCounter)].create_dataset('RIGOL_' + str(RigolCounter), data = rigolData[1], dtype = np.float32) #compression = 'gzip', compression_opts = 9, 
+				dset = hf['measdata_'+str(datasetCounter + startDataset)].create_dataset('RIGOL_' + str(RigolCounter), data = rigolData[1], dtype = np.float32) #compression = 'gzip', compression_opts = 9, 
 				dset.attrs['time'] = rigolData[0]
 				RigolCounter = RigolCounter + 1
 			datasetCounter = datasetCounter + 1
 			RigolCounter = 0
 			print('\n\n\n\n\n\n\n\n\nWRITING TOOK ' + str(round(time.time()-testTime, 3)) + 'S TO COMPLETE\n\n\n\n\n\n\n\n\n') 
-
+			if (datasetCounter % ROACH_SETUP.NUM_DATASETS_PER_FILE) == 0 and fileCounter == 1:
+				endArr[0] = True
+				print('ENDING RUNNING')	
 @cp.fuse
 def squareMag(x):
 	return cp.square(cp.abs(x))
 
-def performFFT(memName, writeName, windowData, startName, fftName, saveName):
+def performFFT(memName, writeName, startName, fftName, saveName, endName):
 
 	startTime = time.time()
 	#write_mem = [shared_memory.SharedMemory(name=writeName[i].name) for i in range(len(writeName))]
@@ -561,6 +626,10 @@ def performFFT(memName, writeName, windowData, startName, fftName, saveName):
 	save_mem = shared_memory.SharedMemory(name=saveName.name)
 	saveArr = np.ndarray((2, 2**(ROACH_SETUP.FFT_POW - 1)), dtype = np.dtype('float32'), buffer=save_mem.buf)
 
+	end_mem = shared_memory.SharedMemory(name = endName.name)
+	endArr = np.ndarray((1,), dtype = np.dtype('B'), buffer = end_mem.buf) 
+	endArr[0] = False
+
 	plan = cpx.scipy.fftpack.get_fft_plan((sharedData[0][0][0:2**ROACH_SETUP.FFT_POW].astype(np.float32)).reshape(1, 2**ROACH_SETUP.FFT_POW), axes = 1, value_type = 'C2C')
 	#plan = cpx.scipy.fftpack.get_fft_plan(sharedData[0][0].astype(np.float32).reshape(8, 2**23), axes = 1, value_type = 'C2C')
 	
@@ -584,7 +653,8 @@ def performFFT(memName, writeName, windowData, startName, fftName, saveName):
 	#x_pinned_cpu_dst = [_pin_memory(x) for x in total]
 
 	injectedFreq = 10
-	windowGPU = cp.array(windowData)
+	# Using a rectangular window for right now
+	#windowGPU = cp.array(windowData)
 	currentBuf = 0
 	totalBuf = ROACH_SETUP.NUM_BUFFERS
 	#sos = butter(9, 200*10**6, 'lp', fs = 2*10**9, output = 'sos')
@@ -607,7 +677,7 @@ def performFFT(memName, writeName, windowData, startName, fftName, saveName):
 	maxExtra = ((ROACH_SETUP.DATA_ITS*(ROACH_SETUP.PAYLOAD_LEN+4)*8*ROACH_SETUP.EXTRA_MULT - 2**ROACH_SETUP.FFT_POW)) / ((ROACH_SETUP.PAYLOAD_LEN+4)*4)
 	print('MAX EXTRA: ' + str(maxExtra))
 
-	while time.time() - startTime < ROACH_SETUP.TOTAL_TIME:
+	while not(endArr[0]) and (time.time() - startTime < ROACH_SETUP.TOTAL_TIME):
 		while currentBuf < ROACH_SETUP.NUM_BUFFERS:
 			fillStart = time.time()
 			#toggle = not(toggle) 
@@ -697,8 +767,14 @@ def performFFT(memName, writeName, windowData, startName, fftName, saveName):
 										#plt.plot()
 										#plt.show()
 
+										#plotData = x_gpu_dst_old.astype(np.float32).get()
+										#plt.plot(plotData)
+										#plt.show()
+
 										aTest = cp.abs(cpx.scipy.fftpack.fft((x_gpu_dst_old.astype(np.float32)-127)*0.940 / 256., overwrite_x = False, n = 2**ROACH_SETUP.FFT_POW, plan = plan)[:int(2**ROACH_SETUP.FFT_POW/2)])**2
+										#sigGen.write('OUTPUT2:STATE OFF')
 										
+										#time.sleep(0.5)
 										#if totalIts%2 == 0:
 										#	plotVals = x_gpu_dst_old.astype(np.float32).get()
 											#if len(blah) == 0:
@@ -755,7 +831,8 @@ def performFFT(memName, writeName, windowData, startName, fftName, saveName):
 										if (totalIts-10)%(2*numOn) < (numOn):
 											#x_gpu_fft[1] = cp.add(x_gpu_fft[1], aTest)
 											x_gpu_fft[1] = x_gpu_fft[1] + aTest
-
+											#plt.plot(10*np.log10(x_gpu_fft[1].get()[1000:]/(totalCounter[1]+1)))
+											#plt.show()
 											totalCounter[1] += 1
 											#print('STORED IN A TOOK FFT OF (' + str(currentBuf) + ', ' + str(currentFFT) + '): TOGGLE IS ' + str(toggle))
 										else:
@@ -765,38 +842,43 @@ def performFFT(memName, writeName, windowData, startName, fftName, saveName):
 											totalCounter[0] += 1
 												#print('STORED IN B TOOK FFT OF (' + str(currentBuf) + ', ' + str(currentFFT) + '): TOGGLE IS ' + str(toggle))
 
-											#total[totalIts%2] = cp.add(total[totalIts%2], aTest)	
-											#totalCounter[totalIts%2] += 1
-										#if (totalIts) > 5:
-										#	if totalIts == 6:
-												#testAcq = cp.divide(aTest, aTestOld).get()
-												#numSmall = 0
-												#for rat in testAcq:
-												#	if rat < 1:
-												#		numSmall += 1
-												#print(str(numSmall) + ' LESS THAN ONE OUT OF ' + str(len(testAcq)) + '. THIS IS ' + str(numSmall/len(testAcq)*100) + '%')
-												#plt.plot(testAcq)
-												#plt.show()
-										#		x_gpu_fft[2] = cp.divide(aTest, aTestOld)
-
-										#	elif not(totalIts%2):
-										#		x_gpu_fft[2] = cp.add(x_gpu_fft[2], cp.divide(aTest, aTestOld))
-										#		print(str(totalCounter))
-
+										if (totalIts-10) % numOn == numOn - 1:
+											time.sleep(0.1) # Important
+											if toggle:
+												ser.write(b'0b1')	
+											else:
+												ser.write(b'0b0')
+											
+								
+											print('TOGGLED ' + str(totalIts))
 										
-										#aTestOld = cp.copy(aTest)
-										#aTestOld = aTest
-									#x_gpu_dst_old = cp.copy(x_gpu_dst)
+											toggle = not(toggle)
+										
+											totalToggles += 1
+										
+											if not(totalToggles % ROACH_SETUP.NUM_TOGGLES):
+												timeCopy = time.time()
+												saveArr[0] = x_gpu_fft[0].get()/totalCounter[0]
+												print('TOTAL COUNTER 0: ' + str(totalCounter[0]))
+												x_gpu_fft[0] = cp.zeros(len(x_gpu_fft[0]))
+												saveArr[1] = x_gpu_fft[1].get()/totalCounter[1]
+												print('TOTAL COUNTER 1: ' + str(totalCounter[1]))
+												x_gpu_fft[1] = cp.zeros(len(x_gpu_fft[1]))
+												totalCounter[0] = 0 
+												totalCounter[1] = 0
+												print('TOOK ' + str(round((time.time() - timeCopy), 6)) + 's TO GET OFF GPU')
+											time.sleep(0.9)
+
 									x_gpu_dst_old = x_gpu_dst
 									totalIts = totalIts + 1
 										#print(totalIts)
 								
-									if (totalIts-10) % numOn == numOn - 1:
+									#if (totalIts-10) % numOn == numOn - 1:
 										#print('TOGGLED ' + str(totalIts))
 										#pass
-										time.sleep(0.1) # Important
-										if toggle:
-											ser.write(b'0b0')
+									#	time.sleep(0.1) # Important
+									#	if toggle:
+									#		ser.write(b'0b0')
 											#pass
 										#write_read('0')
 										#subprocess.run(['usbrelay', '1_2=0'])
@@ -809,12 +891,12 @@ def performFFT(memName, writeName, windowData, startName, fftName, saveName):
 										#print('JUST SET TO 0 dB')
 										#print('JUST SET TO -84 DBM\n')
 									
-										else:
-											ser.write(b'0b1')
+									#	else:
+									#		ser.write(b'0b1')
 											#pass
 										#write_read('1')
-										print('TOGGLED ' + str(totalIts))
-										time.sleep(0.9)
+									#	print('TOGGLED ' + str(totalIts))
+									#	time.sleep(0.9)
 										##subprocess.call(['python2', './setIInput.py'])
 										#print('JUST SET TO 31 dB')
 										#sigGen.write('LV -124 DB')
@@ -827,18 +909,18 @@ def performFFT(memName, writeName, windowData, startName, fftName, saveName):
 									#time.sleep(1)
 										#writeStatus[int(not(currentBuf))][currentFFT] = 0
 										
-										toggle = not(toggle)
+									#	toggle = not(toggle)
 										
-										totalToggles += 1
-										#if not(totalToggles % ROACH_SETUP.NUM_TOGGLES):
-										#	timeCopy = time.time()
-										#	saveArr[0] = x_gpu_fft[0].get()/totalCounter[0]
-										#	x_gpu_fft[0] = cp.zeros(len(x_gpu_fft[0]))
-										#	saveArr[1] = x_gpu_fft[1].get()/totalCounter[1]
-										#	x_gpu_fft[1] = cp.zeros(len(x_gpu_fft[1]))
-										#	totalCounter[0] = 0 
-										#	totalCounter[1] = 1
-										#	print('TOOK ' + str(round((time.time() - timeCopy), 6)) + 's TO GET OFF GPU')
+									#	totalToggles += 1
+									#	if not(totalToggles % ROACH_SETUP.NUM_TOGGLES):
+									#		timeCopy = time.time()
+									#		saveArr[0] = x_gpu_fft[0].get()/totalCounter[0]
+									#		x_gpu_fft[0] = cp.zeros(len(x_gpu_fft[0]))
+									#		saveArr[1] = x_gpu_fft[1].get()/totalCounter[1]
+									#		x_gpu_fft[1] = cp.zeros(len(x_gpu_fft[1]))
+									#		totalCounter[0] = 0 
+									#		totalCounter[1] = 1
+									#		print('TOOK ' + str(round((time.time() - timeCopy), 6)) + 's TO GET OFF GPU')
 
 										#time.sleep(1.5)
 		
@@ -856,26 +938,27 @@ def performFFT(memName, writeName, windowData, startName, fftName, saveName):
 								#time.sleep(2)
 								#if totalIts != 9 and totalIts % 100 == 9:
 								#	print('\n\nDONE WITH ' + str(totalIts - 9))
-								if totalIts != 1 and totalIts % 10009 == 1: # and (totalIts % 1) == 0:
-								#	print('TOTAL COUNTER: ' + str(totalCounter))
-									fftData = x_gpu_fft[1].get() / totalCounter[1]
+								#if totalIts != 1 and totalIts % 10009 == 1: # and (totalIts % 1) == 0:
+									#print('TOTAL COUNTER: ' + str(totalCounter))
+									#fftData = x_gpu_fft[1].get() / totalCounter[1]
 									#currentTime = datetime.now().strftime("%H-%M-%S")
 									#baseFileName = 'ArduinoInterferenceTest_11-14-21_Off.txt'
 									#baseFileName = 'SwitchingTest_0_EnableOn_ClosedTop_2GHz_7-21-21_100Avg_SwitchingRelay_Amp50OnZeroANDShortOnOne_20dBAmp_n50dBmSignal_ShortDelay'
 									#baseFileName = 'JosephTest_0_600MHz_100Each_FFTPow24_BoxClosed_10-6-21_1000Avg_SwitchingTermAnd360Term40dBAmp_FFTTest'
-									baseFileName = 'TransmitTest_0_600MHz_FFTPow24_BoxClosed_1-29-22_5000Avg_TermAndBicon_19ChokesAndNoLights_n123p456Atn80dBmSignal_10dBAtt80dBGain_FFTTest4'
-									with open(baseFileName + '_Sub1.txt', 'w') as f:
+								#	baseFileName = 'CalibrationTest_0_600MHz_FFTPow24_BoxClosed_2-5-22_5000Avg_BNCTermAndBNCTerm_10dBAtt80dBGain_FFTTest'
+								#	with open(baseFileName + '_Sub1.txt', 'w') as f:
 								#with open('AttenTest_0And31_EnableOn_QChannel_ClosedTop_2GHz_6-21-21_Term_EveryOther_Sub1.txt', 'w') as f:
-										for fftVal in fftData:
-											f.write(str(fftVal) + '\n')
-									print('WROTE FILE ' + str(totalIts))
+								#		for fftVal in fftData:
+								#			f.write(str(fftVal) + '\n')
+								#	print('WROTE FILE ' + str(totalIts))
 								
-									fftData = x_gpu_fft[0].get() / totalCounter[0]
+								#	fftData = x_gpu_fft[0].get() / totalCounter[0]
 									#currentTime = datetime.now().strftime("%H-%M-%S")
-									with open(baseFileName + '_Sub2.txt', 'w') as f:
+								
+								#	with open(baseFileName + '_Sub2.txt', 'w') as f:
 									#with open('AttenTest_0And31_EnableOn_QChannel_ClosedTop_2GHz_6-21-21_Term_EveryOther_Sub2.txt', 'w') as f:
-										for fftVal in fftData:
-											f.write(str(fftVal) + '\n')
+								#		for fftVal in fftData:
+								#			f.write(str(fftVal) + '\n')
 									
 								#	fftData = x_gpu_fft[2].get() / totalCounter[0]
 
@@ -958,24 +1041,24 @@ if __name__ == '__main__':
 
 	try:
 		startTime = time.time()
-		windowData = []
-		windowFile = open('kaiser_2E26_order14', 'r')
-		windowData.append(np.fromfile(windowFile, dtype = 'd'))
-		windowFile = open('kaiser_2E25-almost-_order14', 'r')
-		windowData.append(np.fromfile(windowFile, dtype = 'd'))
-		windowFile = open('kaiser_2E24-almost-_order14', 'r')
-		windowData.append(np.fromfile(windowFile, dtype = 'd'))
-		windowFile = open('kaiser_2E23-almost-_order14', 'r')
-		windowData.append(np.fromfile(windowFile, dtype = 'd'))
-		windowFile = open('kaiser_2E22-almost-_order14', 'r')
-		windowData.append(np.fromfile(windowFile, dtype = 'd'))
+		#windowData = []
+		#windowFile = open('kaiser_2E26_order14', 'r')
+		#windowData.append(np.fromfile(windowFile, dtype = 'd'))
+		#windowFile = open('kaiser_2E25-almost-_order14', 'r')
+		#windowData.append(np.fromfile(windowFile, dtype = 'd'))
+		#windowFile = open('kaiser_2E24-almost-_order14', 'r')
+		#windowData.append(np.fromfile(windowFile, dtype = 'd'))
+		#windowFile = open('kaiser_2E23-almost-_order14', 'r')
+		#windowData.append(np.fromfile(windowFile, dtype = 'd'))
+		#windowFile = open('kaiser_2E22-almost-_order14', 'r')
+		#windowData.append(np.fromfile(windowFile, dtype = 'd'))
 		write_mem = shared_memory.SharedMemory(create=True, size = ROACH_SETUP.NUM_BUFFERS*ROACH_SETUP.NUM_FFT)
 		writeStatus = np.ndarray((ROACH_SETUP.NUM_BUFFERS, ROACH_SETUP.NUM_FFT), dtype='B', buffer=write_mem.buf)
 		writeStatus = [[0]*len(inner) for inner in writeStatus]
 
 	
 		endTime = time.time()
-		print('IT TOOK ' + str(round(endTime - startTime, 3)) + 'S TO READ WINDOW FILE IN')
+		#print('IT TOOK ' + str(round(endTime - startTime, 3)) + 'S TO READ WINDOW FILE IN')
 
 		#circBuf = []
 
@@ -1000,6 +1083,9 @@ if __name__ == '__main__':
 		saveArr[0] = np.zeros(2**(ROACH_SETUP.FFT_POW - 1), dtype = np.dtype('float32'))
 		saveArr[1] = np.zeros(2**(ROACH_SETUP.FFT_POW - 1), dtype = np.dtype('float32'))
 
+		
+		end_mem = shared_memory.SharedMemory(create = True, size = 2)
+		killSwitch = np.ndarray((1,), dtype = 'B', buffer = end_mem.buf)
 		#time_stamp_mem = shared_memory.SharedMemory(create = True, size = 2**ROACH_SETUP.FFT_POW*4)
 		#timeStampArr = np.ndarray((2**ROACH_SETUP.FFT_POW,), dtype = np.dtype('float32'), buffer = time_stamp_mem.buf)
 		
@@ -1014,12 +1100,13 @@ if __name__ == '__main__':
 		rigolQueue = mp.Queue()
 
 		startTime = time.time()
+		
 		for j in range(1):
 			#ctx = mp.get_context('spawn')
-			eth1 = mp.Process(target = gbe0, name = 'gbe0', args = (adc_mem, write_mem, start_mem))
-			fftProc = mp.Process(target = performFFT, name = 'performFFT', args = (adc_mem, write_mem, windowData[0], start_mem, fft_mem, save_mem))
-			#writeProc = mp.Process(target = writeDataNew, name = 'writeDataNew', args = (save_mem,rigolQueue))
-			#rigolProc = mp.Process(target = takeRigolData, name = 'takeRigolData', args = (rigolQueue, ))
+			eth1 = mp.Process(target = gbe0, name = 'gbe0', args = (adc_mem, write_mem, start_mem, end_mem))
+			fftProc = mp.Process(target = performFFT, name = 'performFFT', args = (adc_mem, write_mem, start_mem, fft_mem, save_mem, end_mem))
+			writeProc = mp.Process(target = writeDataNew, name = 'writeDataNew', args = (save_mem, rigolQueue, end_mem))
+			rigolProc = mp.Process(target = takeRigolData, name = 'takeRigolData', args = (rigolQueue, end_mem))
 			print('ON ITERATION ' + str(j))
 				
 			
@@ -1032,8 +1119,8 @@ if __name__ == '__main__':
 			#writeProc.start()
 			eth1.start()
 			fftProc.start()
-			#rigolProc.start()
-			#writeProc.start()
+			rigolProc.start()
+			writeProc.start()
 			#time.sleep(10)
 			time.sleep(1)
 			#subprocess.call(['python2', './enableOutput.py'])
@@ -1047,13 +1134,12 @@ if __name__ == '__main__':
 
 
 			startArr[0] = True
-		
+
 			eth1.join()
 			fftProc.join()
-			#writeProc.join()
-			#rigolProc.join()
+			writeProc.join()
+			rigolProc.join()
 			endTime = time.time()
-			print('THAT TOOK ' + str(round(endTime - startTime, 3)) + 'S TO COMPLETE')
 			#allocateFFTMem(circBuf[0][0].name, FFTNames, windowDataGPU)
 			#fft_proc_1 = mp.Process(target = allocateFFTMem, name = 'fftROACH_SETUP', args = (circBuf[0][0].name, FFTNames, windowData, ([write_mem_0[x].name for x in range(len(write_mem_0))], [write_mem_1[x].name for x in range(len(write_mem_1))])))
 			
@@ -1081,14 +1167,19 @@ if __name__ == '__main__':
 		fft_mem.unlink()
 		save_mem.unlink()
 		save_mem.close()
+		end_mem.unlink()
+		end_mem.close()
 		print('THAT TOOK ' + str(round(endTime - startTime, 3)) + 'S TO COMPLETE')
+		print('TOTAL ACTIVE THREADS: ' + str(threading.active_count()))
+		sys.exit(1)
+
 	except KeyboardInterrupt:
 		print('INTERRUPTED')
 		sock0.close()
 		eth1.terminate()
 		fftProc.terminate()
-		#writeProc.terminate()
-		#rigolProc.terminate()
+		writeProc.terminate()
+		rigolProc.terminate()
 		write_mem.unlink()
 		write_mem.close()
 		adc_mem.unlink()
@@ -1101,5 +1192,9 @@ if __name__ == '__main__':
 		fft_mem.unlink()
 		save_mem.unlink()
 		save_mem.close()
+		end_mem.unlink()
+		end_mem.close()
+	except SystemExit:
+		sys.exit(1)
 	except Exception as e:
 		print(e)
