@@ -14,15 +14,19 @@ import ROACH_SETUP
 import time
 import itertools
 import multiprocessing as mp
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 from multiprocessing import shared_memory
 import os
 import pandas as pd
+from pathlib import Path
+import pyqtgraph as pg
 import pyvisa as visa
 import queue
 from scipy import signal
 from scipy.signal import butter, lfilter, sosfilt
 import ScpiInstrumentWrapper
+from screeninfo import get_monitors
 import serial
 import signal
 import socket
@@ -37,6 +41,7 @@ import usb.util
 
 ser = serial.Serial('/dev/ttyACM0', 115200)
 ser.write(b'0b0')
+
 #sigGen = visa.ResourceManager().open_resource('USB0::1689::851::1625504::0::INSTR')
 #sigGen.write('OUTPUT2:STATE ON')
 
@@ -66,6 +71,8 @@ ser.write(b'0b0')
 #requestType = usb.util.build_request_type(usb.util.CTRL_OUT, usb.util.CTRL_TYPE_CLASS, usb.util.CTRL_RECIPIENT_INTERFACE)
 sock0 = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 sock0.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+
+
 
 @nb.njit(fastmath=True,parallel=True,cache=True)
 def nb_einsum(A):
@@ -396,7 +403,7 @@ def writeData(dataMem):
 def takeRigolData(rigolQueue, endName):
 	# Initialize the Rigol
 	RM = visa.ResourceManager('@py')
-	INST = RM.open_resource('TCPIP0::169.254.18.64::INSTR')
+	INST = RM.open_resource('TCPIP0::169.254.84.8::INSTR')
 	INST.write(':INST SA')
 	time.sleep(8)
 	INST.write(':DET:POS')
@@ -457,6 +464,253 @@ def takeRigolData(rigolQueue, endName):
 	while rigolQueue.qsize() > 0:
 		rigolQueue.get()
 
+
+def plotCurrentAcq(dataMem, endName):
+	#label_font = {'fontname':'Arial', 'size':'16', 'color':'black', 'weight':'normal',
+	#		  'verticalalignment':'bottom'} 
+	#title_font = {'fontname':'sans-serif', 'size':'16', 'color':'black', 'weight':'bold'}
+	#legend_font = {'family':'sans-serif', 'size':'10', 'style':'normal'} 
+
+	title_font = {'color':'white', 'font-size':'16px', 'weight':'bold', 'font':'Arial'}
+
+	#plt.tick_params(axis='both', which='major', labelsize=11)
+	#mpl.rcParams['agg.path.chunksize'] = 10000
+	data_mem = shared_memory.SharedMemory(name=dataMem.name)
+	dataArr = np.ndarray((2, 2**(ROACH_SETUP.FFT_POW - 1)), dtype = np.dtype('float32'), buffer=data_mem.buf)
+	end_mem = shared_memory.SharedMemory(name = endName.name)
+	endArr = np.ndarray((1,), dtype = np.dtype('B'), buffer = end_mem.buf) 
+	writeDir = ROACH_SETUP.SAVE_DIR
+
+	#Plotting stuff
+
+	labelFont = pg.Qt.QtGui.QFont()
+	labelFont.setFamily('Arial')
+	labelFont.setPointSize(12)
+
+	#generate layout
+	app = pg.mkQApp("Data Viewer v0.0")
+	#win = pg.GraphicsLayoutWidget(show=True)
+	#win.setWindowTitle('Data Viewer v0.0')
+	#label = pg.LabelItem(justify='right')
+	labelx = pg.TextItem(color = 'white')
+	labely1 = pg.TextItem(color = 'green')
+	labely2 = pg.TextItem(color = 'red')
+
+	#win.addItem(label)
+	view = pg.GraphicsView()
+	#view.addItem(label)
+	view.addItem(labelx)
+	view.addItem(labely1)
+	view.addItem(labely2)
+
+	layout = pg.GraphicsLayout(border=(100,100,100))
+	view.setCentralItem(layout)
+	view.show()
+	view.setWindowTitle('Data Viewer v0.0')
+	view.resize(800,600)
+
+
+	p1 = layout.addPlot(colspan = 1)
+
+	# customize the averaged curve that can be activated from the context menu:
+	p1.avgPen = pg.mkPen('#FFFFFF')
+	p1.avgShadowPen = pg.mkPen('#8080DD', width=10)
+
+	p3 = layout.addPlot(colspan = 1)
+	layout.nextRow()
+	p2 = layout.addPlot(colspan = 2, border=(50,0,0))
+
+	region = pg.LinearRegionItem()
+	region.setZValue(10)
+	# Add the LinearRegionItem to the ViewBox, but tell the ViewBox to exclude this 
+	# item when doing auto-range calculations.
+	p2.addItem(region, ignoreBounds=True)
+
+	#pg.dbg()
+	p1.setAutoVisible(y=True)
+
+
+	#create numpy arrays
+	#make the numbers large to show that the range shows data from 10000 to all the way 0
+	freqs = np.asarray(range(2**(ROACH_SETUP.FFT_POW-1)))*ROACH_SETUP.CLOCK_SPEED/10**6/(2**ROACH_SETUP.FFT_POW)
+	numAvg = 2**9
+	
+	freqsAvg = np.mean(np.reshape(freqs, (-1, 2**9)), axis = 1)
+
+	data1 = np.zeros(2**14)
+	data2 = np.zeros(2**14)
+	label_font = {'color':'white', 'font-size':'15px', 'font':'Arial'}
+
+	p3DataA = p3.plot(freqsAvg, data1, pen="r")
+	p3DataB = p3.plot(freqsAvg, data2, pen="g")
+	p1.setLabel('bottom', 'Frequency', 'Hz', **label_font)
+	p1.setLabel('left', 'Power', 'dBm', **label_font)
+
+	p2.setLabel('bottom', 'Frequency', 'MHz', **label_font)
+	p2.setLabel('left', 'Power', 'dBm', **label_font)
+
+	p3.setLabel('bottom', 'Frequency', 'MHz', **label_font)
+	p3.setLabel('left', 'Power', 'dBm', **label_font)
+
+	p2d = p2.plot(data1, pen="w")
+	p1d = p1.plot(data1, pen = 'w')
+	# bound the LinearRegionItem to the plotted data
+	region.setClipItem(p2d)
+	oldFirst = dataArr[0][0]
+
+	def update():
+		region.setZValue(10)
+		minX, maxX = region.getRegion()
+		p1.setXRange(minX, maxX, padding=0)    
+
+	def updateData(dataAnt, dataTerm, globalAverage):
+		#data1 = 10000 + 15000 * pg.gaussianFilter(np.random.random(size=10000), 10) + 3000 * np.random.random(size=10000)
+		#data2 = 15000 + 15000 * pg.gaussianFilter(np.random.random(size=10000), 10) + 3000 * np.random.random(size=10000)
+		#p1DataA.setData(data1)
+		#p1DataB.setData(data2)
+		#p2d.setData(data2)
+		avgFile = ROACH_SETUP.SAVE_DIR + '/AllAverages.csv'
+		avgPath = Path(avgFile)
+		nonlocal oldFirst
+		nonlocal totalAverages
+
+		#print(len(dataAnt))
+		#print(len(dataTerm))
+		#print(len(globalAverage))
+
+		if oldFirst != dataAnt[0]:
+			powerData = 10.*np.log10(2. * dataAnt / ROACH_SETUP.NUM_BEFORE_TOGGLE  / ((2**ROACH_SETUP.FFT_POW)**2 * 50. / 1000.))
+			termData = 10.*np.log10(2. * dataTerm / ROACH_SETUP.NUM_BEFORE_TOGGLE  / ((2**ROACH_SETUP.FFT_POW)**2 * 50. / 1000.))
+
+
+			averageData = 10*np.log10((10**(globalAverage/10.)*totalAverages + 10**(powerData/10.)*ROACH_SETUP.NUM_BEFORE_TOGGLE) / (totalAverages + ROACH_SETUP.NUM_BEFORE_TOGGLE))
+			totalAverages += ROACH_SETUP.NUM_BEFORE_TOGGLE
+
+			df = pd.DataFrame(averageData, columns=['Avgs_' + str(totalAverages)])
+			df.to_csv(avgFile)
+
+			powerDataReduced = 10*np.log10(np.mean(np.reshape(10**(powerData/10.), (-1, numAvg)), axis = 1))
+			termDataReduced = 10*np.log10(np.mean(np.reshape(10**(termData/10.), (-1, numAvg)), axis = 1))
+			averageDataReduced = 10*np.log10(np.mean(np.reshape(10**(averageData/10.), (-1, numAvg)), axis = 1))
+			
+			currentTime = str(datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3])
+			p3DataA.setData(powerDataReduced)
+			p3DataB.setData(termDataReduced)
+			p2d.setData(averageDataReduced)
+			p1d.setData(averageDataReduced)
+
+			p3.setLabel('top', str(currentTime), **title_font)
+			p2.setLabel('top', str(int(totalAverages)) + ' AVERAGES', **title_font)
+			p1.setLabel('top', 'ZOOM', **title_font)
+
+			saveTime = currentTime.replace(' ', 'AT')
+			saveTime = saveTime.replace(':', '-')
+			#plt.savefig(ROACH_SETUP.SAVE_DIR + 'EventDisplay_' + str(saveTime) + '.pdf', bbox_inches='tight')
+			#plt.show(block=False)
+			oldFirst = dataAnt[0]
+		#if firstRun:
+		#	firstRun = False
+
+	region.sigRegionChanged.connect(update)
+
+	def updateRegion(window, viewRange):
+		rgn = viewRange[0]
+		region.setRegion(rgn)
+
+	p1.sigRangeChanged.connect(updateRegion)
+
+	region.setRegion([freqsAvg[1000], freqsAvg[2000]])
+
+	#cross hair
+	vLine = pg.InfiniteLine(angle=90, movable=False)
+	hLine = pg.InfiniteLine(angle=0, movable=False)
+	p1.addItem(vLine, ignoreBounds=True)
+	p1.addItem(hLine, ignoreBounds=True)
+
+
+	vb = p1.vb
+
+	def mouseMoved(evt):
+		pos = evt[0]  ## using signal proxy turns original arguments into a tuple
+		if p1.sceneBoundingRect().contains(pos):
+			mousePoint = vb.mapSceneToView(pos)
+			index = int(mousePoint.x())
+			if index > 0 and index < len(data1):
+				#label.setText("<span style='font-size: 12pt'>x=%0.1f,   <span style='color: red'>y1=%0.1f</span>,   <span style='color: green'>y2=%0.1f</span>" % (mousePoint.x(), data1[index], data2[index]))
+				labelx.setText('x: ' + str(round(mousePoint.x(), 1)))
+				labelx.setPos(50, 10)
+				labely1.setText('y1: ' + str(round(data1[index], 1)))
+				labely1.setPos(130, 10)
+				labely2.setText('y2: ' + str(round(data2[index], 1)))
+				labely2.setPos(230, 10)
+				labelx.setFont(labelFont)
+				labely1.setFont(labelFont)
+				labely2.setFont(labelFont)
+				#"<span style='font-size: 12pt'>x=%0.1f,   <span style='color: red'>y1=%0.1f</span>,   <span style='color: green'>y2=%0.1f</span>" % (mousePoint.x(), 
+			vLine.setPos(mousePoint.x())
+			hLine.setPos(mousePoint.y())
+
+
+	#p1.scene().sigMouseMoved.connect(mouseMoved)
+
+	
+	#fig = plt.figure(num=3,figsize=((get_monitors()[0].width_mm)/25.4/4, (get_monitors()[0].height_mm)/25.4/4))
+	
+	#fig, axs = plt.subplot_mosaic([['upper left', 'upper right'], ['lower', 'lower']], figsize=((get_monitors()[0].width_mm)/25.4, (get_monitors()[0].height_mm)/25.4), constrained_layout=True)
+	#axs['upper left'].set_xlabel('Frequency (MHz)', **label_font)
+	#axs['upper left'].set_ylabel('Power (dBm)', **label_font)
+	#axs['upper right'].set_xlabel('Frequency (MHz)', **label_font)
+	#axs['upper right'].set_ylabel('Power (dBm)', **label_font)
+	#axs['lower'].set_xlabel('Frequency (MHz)', **label_font)
+	#axs['lower'].set_ylabel('Power (dBm)', **label_font)
+
+	#gs = mpl.gridspec.GridSpec(2, 2)
+
+	#ax0 = plt.subplot(gs[0, 0]) # row 0, col 0
+	#plt.ion()
+	#ax1 = plt.subplot(gs[0, 1]) # row 0, col 1
+	#plt.ion()
+	#ax2 = plt.subplot(gs[1, :]) # row 1, span all columns
+	#plt.ion()
+
+	#freqs = np.asarray(range(2**(ROACH_SETUP.FFT_POW-1)))*ROACH_SETUP.CLOCK_SPEED/10**6/(2**ROACH_SETUP.FFT_POW)
+	
+	#freqsAvg = np.mean(np.reshape(freqs, (-1, numAvg)), axis = 1)
+	avgFile = ROACH_SETUP.SAVE_DIR + '/AllAverages.csv'
+	avgPath = Path(avgFile)
+	if avgPath.is_file():
+		dfAvg = pd.read_csv(avgFile)
+		allData = dfAvg.to_numpy()
+		averageData = np.asarray([x[1] for x in allData])
+		totalAverages = float(dfAvg.columns[1][dfAvg.columns[1].index('_')+1:])
+
+	else:
+		averageData = np.zeros(len(freqs))
+		totalAverages = 0
+
+	proxy = pg.SignalProxy(p1.scene().sigMouseMoved, rateLimit=60, slot=mouseMoved)
+	timer = pg.QtCore.QTimer()
+	timer.timeout.connect(lambda: updateData(dataArr[0], dataArr[1], averageData))
+	timer.start(5000)
+	pg.Qt.QtGui.QApplication.instance().exec_()
+
+	#axs['upper left'].plot(freqsAvg, np.asarray(range(len(freqsAvg))))
+	#axs['upper right'].plot(freqsAvg, np.asarray(range(len(freqsAvg))))
+	#axs['lower'].plot(freqsAvg, np.asarray(range(len(freqsAvg))))
+	#fig.canvas.draw()
+	#fig.canvas.flush_events()
+	
+
+
+
+	#firstRun = True
+	#while not(endArr[0]):
+	
+	#	else:
+	#		time.sleep(1)
+
+
+
 def writeDataNew(dataMem, rigolQueue, endName):
 	
 	data_mem = shared_memory.SharedMemory(name=dataMem.name)
@@ -474,7 +728,7 @@ def writeDataNew(dataMem, rigolQueue, endName):
 	#		Sub-group: YYYY-MM identifying year and month
 	#		Sub-sub-group: MM-DD identifying month and day
 	#		Sub-sub-sub group: Center frequency range to 
-	writeDir = '/home/dark-radio/HASHPIPE/ROACH/PYTHON/TermData_2-21-22/'
+	writeDir = ROACH_SETUP.SAVE_DIR
 	dataCounter = 0
 	fileCounter = 0
 	allFiles = glob.glob(writeDir + '/' + 'data_*.h5')
@@ -672,7 +926,7 @@ def performFFT(memName, writeName, startName, fftName, saveName, endName):
 	totalCounter = [0,0]
 	switched = False
 	blah = []
-	numOn = 1000
+	numOn = ROACH_SETUP.NUM_BEFORE_TOGGLE
 	ratTotal = 1
 	maxExtra = ((ROACH_SETUP.DATA_ITS*(ROACH_SETUP.PAYLOAD_LEN+4)*8*ROACH_SETUP.EXTRA_MULT - 2**ROACH_SETUP.FFT_POW)) / ((ROACH_SETUP.PAYLOAD_LEN+4)*4)
 	print('MAX EXTRA: ' + str(maxExtra))
@@ -1037,7 +1291,7 @@ if __name__ == '__main__':
 	fpga = corr.katcp_wrapper.FpgaClient(roach, logger=logger)
 	time.sleep(1)
 
-	#ROACH_funcs.progROACH(fpga)
+	ROACH_funcs.progROACH(fpga)
 
 	try:
 		startTime = time.time()
@@ -1107,6 +1361,7 @@ if __name__ == '__main__':
 			fftProc = mp.Process(target = performFFT, name = 'performFFT', args = (adc_mem, write_mem, start_mem, fft_mem, save_mem, end_mem))
 			writeProc = mp.Process(target = writeDataNew, name = 'writeDataNew', args = (save_mem, rigolQueue, end_mem))
 			rigolProc = mp.Process(target = takeRigolData, name = 'takeRigolData', args = (rigolQueue, end_mem))
+			plotProc = mp.Process(target = plotCurrentAcq, name = 'plotCurrentAcq', args = (save_mem, end_mem))
 			print('ON ITERATION ' + str(j))
 				
 			
@@ -1121,6 +1376,7 @@ if __name__ == '__main__':
 			fftProc.start()
 			rigolProc.start()
 			writeProc.start()
+			plotProc.start()
 			#time.sleep(10)
 			time.sleep(1)
 			#subprocess.call(['python2', './enableOutput.py'])
@@ -1139,6 +1395,8 @@ if __name__ == '__main__':
 			fftProc.join()
 			writeProc.join()
 			rigolProc.join()
+			plotProc.join()
+
 			endTime = time.time()
 			#allocateFFTMem(circBuf[0][0].name, FFTNames, windowDataGPU)
 			#fft_proc_1 = mp.Process(target = allocateFFTMem, name = 'fftROACH_SETUP', args = (circBuf[0][0].name, FFTNames, windowData, ([write_mem_0[x].name for x in range(len(write_mem_0))], [write_mem_1[x].name for x in range(len(write_mem_1))])))
@@ -1180,6 +1438,7 @@ if __name__ == '__main__':
 		fftProc.terminate()
 		writeProc.terminate()
 		rigolProc.terminate()
+		plotProc.terminate()
 		write_mem.unlink()
 		write_mem.close()
 		adc_mem.unlink()
