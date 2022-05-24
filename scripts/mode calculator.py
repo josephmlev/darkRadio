@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 #plt.close('all')
 
 #nate room
-if 1:
+if 0:
     print("Nate dimensions")
     x = 3.048
     y = 2.438
@@ -38,8 +38,8 @@ print("n = ",n, "\n m = ", m, "\n p =", p, \
 '''
     
 maxMode = 9
-sf = 246 #search frequency 
-df = 4  #delta frequency
+sf = 40 #search frequency 
+df = 150  #delta frequency
 
 fp = sf + df
 fm = sf - df
