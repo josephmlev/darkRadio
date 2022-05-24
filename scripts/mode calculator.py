@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+#%%
 """
 Created on Tue Mar  2 11:04:06 2021
 
@@ -59,3 +60,4 @@ plt.close('all')
 #plt.xlim(0,300)
 plt.hist(freqarr)
 '''
+# %%
