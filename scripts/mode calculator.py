@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+#%%
 """
 Created on Tue Mar  2 11:04:06 2021
 
@@ -9,7 +10,7 @@ import matplotlib.pyplot as plt
 #plt.close('all')
 
 #nate room
-if 1:
+if 0:
     print("Nate dimensions")
     x = 3.048
     y = 2.438
@@ -37,8 +38,13 @@ print("n = ",n, "\n m = ", m, "\n p =", p, \
 '''
     
 maxMode = 9
+<<<<<<< HEAD
 sf = 120 #search frequency 
 df = 80  #delta frequency
+=======
+sf = 40 #search frequency 
+df = 150  #delta frequency
+>>>>>>> 35338ae62c6264a1a2bd87e8e7ac09e0192c1bbd
 
 fp = sf + df
 fm = sf - df
@@ -59,3 +65,4 @@ plt.close('all')
 #plt.xlim(0,300)
 plt.hist(freqarr)
 '''
+# %%
