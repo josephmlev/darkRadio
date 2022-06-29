@@ -3,7 +3,7 @@
 
 # Description:
 # This file has many functions which are used throughout the project, but are
-# all focused around the bullshit that goes into making the plots
+# all focused around the stuff that goes into making the plots
 
 #==============================================================================#
 
