@@ -2,4 +2,4 @@
 COMSOL simulations/demos/
 .DS_store
 *.ipynb_checkpoints
-
+*gitignore

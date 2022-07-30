@@ -1,0 +1,4 @@
+% Model:              dipoleMoveInBox_6.28.22.mph
+% Version:            COMSOL 5.6.0.401
+% Date:               Jul 12 2022, 20:55
+% Table:              E vector - avg E vec
