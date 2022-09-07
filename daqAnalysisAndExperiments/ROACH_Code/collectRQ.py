@@ -1,6 +1,7 @@
 from collections import namedtuple
 from datetime import datetime
 from multiprocessing import Pool
+import argparse
 import bisect
 import configparser
 import multiprocessing as mp
@@ -10,7 +11,7 @@ import matplotlib.pyplot as plt
 import h5py as h5
 import os
 import pandas as pd
-
+import sys 
 """
 Convert the float parameters in the config file to floats
 Parameters:
@@ -231,7 +232,7 @@ def collectData(readQueue, output, dataDir):
        
 """
 Write the data stored in the output queue to an .h5 file. Right now, only a single .h5 file
-is saved, which can get large very quickly if too big of a subset of data is taken
+is saved, which can get large very quickly if too small of a subset of data are taken
 Parameters:
    output: The name of the output queue. Stored in the following structure: (data, tuple of parameters)
                 - data is an numpy array of either antenna or terminator data or two arrays
@@ -277,56 +278,67 @@ def writeFiles(output):
     #hdf.close()
 
 if __name__ == '__main__':
+    
+    writeH5 = False
     # Name of the configuration file
     configFile = '/group/tysongrp/ConfigDR.ini'
     # Name of the setup in the configuration file
     configName = 'TEST'
     # Get a parsed list of file names and also saves bounds to a dictionary
     parsedList, configDict = getParsedList(configFile, configName)
-    parsedDict = {}
-    # Create a dictionary of lists of tuples (see the description for collectData). Doing this
-    # makes it possible to parallelize the read operation
-    for val in parsedList:
-        keyVal = str(int(val[0][0]))
-        if keyVal not in parsedDict:
-            parsedDict[keyVal] = []
-        
-        # This will make it a little annoying to add more parameters to cut on
-        parsedDict[keyVal].append((int(val[0][1]), (val[1], val[2], val[3], configDict['Freq'], configDict['Choice']))) 
-
-   
-    # List of keys (file numbers) in the parameter dictionary
-    parsedKeys = [aKey for aKey in parsedDict]
-    dataDir = '/group/tysongrp/JulyRun_7-7-22/Data/'
-    #for aKey in parsedDict:
-    #    aFile = 'data_' + str(aKey) + '.h5'
-    #    dataBin = h5.File(dataDir + aFile, 'r')
-    #    for anAverage in parsedDict[aKey]:
-    #        print(dataBin['measdata_' + str(anAverage[0])])
-
-    # Create the read/write queues
-    writeQueue = mp.Queue()
-    readQueue = mp.Queue()
-    # Add data to the read queue
-    [readQueue.put((aKey, parsedDict[aKey])) for aKey in parsedKeys] 
+    RQTextFile = './RQFiles.txt'
+    with(open(RQTextFile, 'w') as f):
+        f.write('FILE NUMBER  RUN NUMBER  FREQUENCY RANGE (MHZ)  DATE  TEMPERATURE  ANTENNA POSITION (W/V/S,THETA,PHI)\n')
+        for aVal in parsedList:
+            aDate = aVal[1].strftime('%Y-%m-%d %H:%M:%S.%f')
+            f.write((str(aVal[0][0])+ '  ' + str(aVal[0][1]) + '  ' + str(aDate) + '  ' + str(configDict['Freq'][0]) + '-' + str(configDict['Freq'][1]) + '  ' + str(aVal[2]) + '  ' + str(aVal[3])) + '\n')
+            #print(configDict['Freq'])
     
-    # Start the write process
-    proc = mp.Process(target=writeFiles, args=(writeQueue, ))
-    jobs = []
-    proc.start()
+    if writeH5:
+        parsedDict = {}
+        # Create a dictionary of lists of tuples (see the description for collectData). Doing this
+        # makes it possible to parallelize the read operation
+        for val in parsedList:
+            keyVal = str(int(val[0][0]))
+            if keyVal not in parsedDict:
+                parsedDict[keyVal] = []
+            
+            # This will make it a little annoying to add more parameters to cut on
+            parsedDict[keyVal].append((int(val[0][1]), (val[1], val[2], val[3], configDict['Freq'], configDict['Choice']))) 
 
-    # Create the read processes
-    for i in range(num_processes):
-        p = mp.Process(target=collectData, args=(readQueue, writeQueue, dataDir))
-        jobs.append(p)
-        p.start()
-    for i in range(num_processes):
-        # Send the sentinal to tell Simulation to end
-        readQueue.put(sentinel)
-    for p in jobs:
-        p.join()
-    writeQueue.put(None)
-    proc.join()
+    
+        # List of keys (file numbers) in the parameter dictionary
+        parsedKeys = [aKey for aKey in parsedDict]
+        dataDir = '/group/tysongrp/JulyRun_7-7-22/Data/'
+        #for aKey in parsedDict:
+        #    aFile = 'data_' + str(aKey) + '.h5'
+        #    dataBin = h5.File(dataDir + aFile, 'r')
+        #    for anAverage in parsedDict[aKey]:
+        #        print(dataBin['measdata_' + str(anAverage[0])])
+
+        # Create the read/write queues
+        writeQueue = mp.Queue()
+        readQueue = mp.Queue()
+        # Add data to the read queue
+        [readQueue.put((aKey, parsedDict[aKey])) for aKey in parsedKeys] 
+        
+        # Start the write process
+        proc = mp.Process(target=writeFiles, args=(writeQueue, ))
+        jobs = []
+        proc.start()
+
+        # Create the read processes
+        for i in range(num_processes):
+            p = mp.Process(target=collectData, args=(readQueue, writeQueue, dataDir))
+            jobs.append(p)
+            p.start()
+        for i in range(num_processes):
+            # Send the sentinal to tell Simulation to end
+            readQueue.put(sentinel)
+        for p in jobs:
+            p.join()
+        writeQueue.put(None)
+        proc.join()
 
 
 
