@@ -3,3 +3,5 @@ COMSOL simulations/demos/
 .DS_store
 *.ipynb_checkpoints
 *gitignore
+4Ghz-22Mhz-1e6-1e5-24Hrs.csv
+4Ghz-2MCs-1e6-1e5-dclosed-LR5.csv
