@@ -26,7 +26,7 @@ def fft2dBm(fftSpec):
 
 def mkFileList(dataDir):
     '''
-    asdf Get list of files in dataDir, pack data*.h5 named files into fileList
+    Get list of files in dataDir, pack data*.h5 named files into fileList
     '''
     dataDirContents = os.listdir(dataDir)
     fileList = [file for file in dataDirContents if fnmatch(file, 'data*.h5')]
@@ -190,7 +190,7 @@ class avgSpec:
 
         print('Starting to open', len(self.fileList),
                 'files and avgerage mesData with', self.numProc, 'processes')
-        if 1: #__name__ == '__main__':
+        if 1: #__name__ == '__main__': #does not import with name == main. Removing it fixes issue. Come back to this
             #Multiprocessing. Each process (pool) computes an 
             #average spectra on ALL of a single data file's measData.
             pool = Pool(processes = self.numProc)
