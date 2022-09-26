@@ -11,6 +11,7 @@ import sys
 import multiprocessing
 from multiprocessing import Pool
 import time
+import gc
 
 #########################################################################################
 #Analysis
@@ -244,6 +245,10 @@ class avgSpec:
         #print('Done opening. Now averaging dataFile arrays together') 
         self.avgDataList()
         tDone = time.time()
+
+        #free up ram dedicated to dataList after computing average
+        del self.dataList
+        gc.collect()
 
         print('time to open and avg mes data =', tMeasData - tStart)
         print('Done. Total time =', tDone - tStart)
