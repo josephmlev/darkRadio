@@ -140,30 +140,6 @@ class avgSpec:
         
         self.antData = antData / numDataFiles
         self.termData = termData / numDataFiles
-        
-    def mProcAvgAll(self):
-        '''
-        moved this code into computeAvgAll. Delete soon
-
-        Opens all files in fileList. Each process (pool) computes an average spectra
-        on ALL of a single data file's measData. Returns linear FFT units.
-        
-        Parameters:
-            self.fileList (list of strings): list of file names to be averaged 
-        
-        Returns:
-            None
-        
-        Sets:
-            self.dataList (list of len=self.fileList): Each element of dataList contains a len=3 tuple
-                which contains (antData (arr of len=numBins), 
-                                termData (arr of len=numBins), 
-                                numAvgInDataFile (int))
-             
-        Calls:
-            avgMesDataAll(): worker function. Averages together ALL mesData in a data file
-
-         '''
 
 
     def computeAvgAll(self):
@@ -207,5 +183,6 @@ class avgSpec:
         self.avgDataList()
         tDone = time.time()
 
-        #print('time to open and avg mes data =', tMesData - tStart)
+        if self.verbose:
+            print('time to open and avg mes data =', tMesData - tStart)
         print('Done. Total time =', tDone - tStart)
