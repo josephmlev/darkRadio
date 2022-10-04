@@ -12,6 +12,8 @@ import multiprocessing
 from multiprocessing import Pool
 import time
 import gc
+from scipy.interpolate import interp1d 
+
 
 #########################################################################################
 #Analysis
@@ -38,6 +40,44 @@ def mkFileList(dataDir):
     fileList.sort()
     return fileList
 
+def getGain(fileName = './rawGain_run1_0_hz_dBm_10_3_22.npy', length = 50):
+    '''
+    Input:
+        fileName(str):
+        location of raw gain file
+        length(int):
+        how many frequency bins to average together in shitty spline fit
+        
+    Returns:
+        freqsInterp(arr):
+        Interpolated frequency array
+        systemGainInterp(arr):
+        Interpolated gain array
+    '''
+    
+    #load calibration, gain and freqs files
+    calibration = np.load('./gainCalibration_TG_n40dBm_30dBAtt.npy')
+    gain = np.load('./gainMeasurment_TG_n40dBm_30dBAtt.npy')
+    freqs = gain[0]
+    
+    #compute systemGain
+    systemGain = gain[1] - calibration[1]
+    
+    #dumb spline fit. Length sets how many bins to median average togther
+    #50 works well for 10000 bins on rigol
+    systemGainMedian = np.median(systemGain.reshape((-1,length)), axis = 1)
+    systemGainMedian = np.concatenate(([-20], systemGainMedian))
+    
+    freqsMedian = np.median(freqs.reshape((-1,length)), axis = 1)
+    freqsMedian = np.concatenate(([0], freqsMedian))
+    
+    #interpolate
+    interpObject = interp1d(freqsMedian, systemGainMedian)
+    freqsInterp = np.linspace(0, 300e6, 2**23)
+    systemGainInterp = interpObject(freqsInterp)\
+    
+    return freqsInterp, systemGainInterp
+    
 ################
 # Classes
 ################
