@@ -40,13 +40,19 @@ def mkFileList(dataDir):
     fileList.sort()
     return fileList
 
-def getGain(fileName = './rawGain_run1_0_hz_dBm_10_3_22.npy', length = 50):
+def getExtGain(fileName = './rawGain_run1_0_hz_dBm_10_3_22.npy', \
+    lengthMean = 50, \
+    freqsInterp = np.linspace(0, 300e6, 2**23)):
     '''
+    Returns interpolated list of gain values for external amp/attenuator/lpf chain. 
     Input:
         fileName(str):
         location of raw gain file
         length(int):
         how many frequency bins to average together in shitty spline fit
+        freqsInterp:
+        array of freqs you want gain at. Must be between 0 and 300. 
+        Default to np.linspace(0, 300e6, 2**23)):
         
     Returns:
         freqsInterp(arr):
@@ -65,15 +71,14 @@ def getGain(fileName = './rawGain_run1_0_hz_dBm_10_3_22.npy', length = 50):
     
     #dumb spline fit. Length sets how many bins to median average togther
     #50 works well for 10000 bins on rigol
-    systemGainMedian = np.median(systemGain.reshape((-1,length)), axis = 1)
+    systemGainMedian = np.median(systemGain.reshape((-1,lengthMean)), axis = 1)
     systemGainMedian = np.concatenate(([-20], systemGainMedian))
     
-    freqsMedian = np.median(freqs.reshape((-1,length)), axis = 1)
+    freqsMedian = np.median(freqs.reshape((-1,lengthMean)), axis = 1)
     freqsMedian = np.concatenate(([0], freqsMedian))
     
     #interpolate
     interpObject = interp1d(freqsMedian, systemGainMedian)
-    freqsInterp = np.linspace(0, 300e6, 2**23)
     systemGainInterp = interpObject(freqsInterp)\
     
     return freqsInterp, systemGainInterp
