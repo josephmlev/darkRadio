@@ -13,12 +13,12 @@ import pyvisa as visa
 
 plt.close('all')
 
-ADDRESS = 'TCPIP0::169.254.11.210::INSTR'
+ADDRESS = 'TCPIP0::169.254.199.115::INSTR'
 #ADDRESS = 'TCPIP0::0.0.0.0::INSTR'
-startFreq = 1 * 10**6 #Hz
-stopFreq =  310 * 10**6 #Hz
+startFreq = 30 * 10**6 #Hz
+stopFreq =  300 * 10**6 #Hz
 nPoints = 10000 
-rbw = 3000 #Hz
+rbw = 100 #Hz
 freqArr = np.linspace(startFreq, stopFreq, nPoints)
 
 RM = visa.ResourceManager()
@@ -42,7 +42,7 @@ print()
 
 
 plt.figure()
-plt.plot(freqArr, specArr)
+plt.plot(freqArr/1e6, specArr)
 plt.xlabel('Freq. (MHz)')
 plt.ylabel('Power (dBm)')
-plt.title('Yagi, RF pre off, 67dB amp chain.')
+plt.title('Bicon in Room')
