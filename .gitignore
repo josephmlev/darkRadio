@@ -1,4 +1,5 @@
 *.lock
+__pycache__
 COMSOL simulations/demos/
 .DS_store
 *.ipynb_checkpoints
