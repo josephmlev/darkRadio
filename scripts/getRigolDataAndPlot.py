@@ -13,10 +13,11 @@ import pyvisa as visa
 
 plt.close('all')
 
-ADDRESS = 'TCPIP0::169.254.158.45::INSTR'
-startFreq = 800 * 10**6 #Hz
-stopFreq = 1200 * 10**6 #Hz
+ADDRESS = 'TCPIP0::169.254.113.142::INSTR'
+startFreq = 2.4799991 * 10**9 #Hz
+stopFreq =  2.4799993 * 10**9 #Hz
 nPoints = 10000 
+rbw = 1 #Hz
 freqArr = np.linspace(startFreq, stopFreq, nPoints)
 
 RM = visa.ResourceManager()
@@ -27,11 +28,12 @@ INST.write(':TRAC:AVER:COUN 10')
 INST.write(':SWE:POIN ' + str(nPoints))
 INST.write('FREQ:STAR ' + str(startFreq))
 INST.write('FREQ:STOP ' + str(stopFreq))
+INST.write('SENS:BAND:RES ' + str(rbw))
 
 
 INST.write(':INIT:CONT OFF')
 print('scanning...')
-time.sleep(70)
+time.sleep(5)
 specStr = (INST.query('TRAC:DATA? TRACE1'))
 specArr = np.array([float(i) for i in specStr.split(',')])
 print('got it')
