@@ -5,7 +5,7 @@ import numpy as np
 hdf_filename = '8GHz0.h5'
 
 f = h5py.File(hdf_filename, 'r')
-numFreqs = 1700 #sorry you have to hard code this
+numFreqs = 999 #sorry you have to hard code this
 
 #choose if you want linear or log averaging
 logAvg = True
@@ -36,8 +36,7 @@ else:
     #avgSpec is the total / number you averaged together
     avgSpec = totalSpec/numSpec
 
-print('total spec = ',  totalSpec)
 print('num spectra = ', numSpec)
-print('avgSpec = ', avgSpec)
+print('head avgSpec = ', avgSpec[0:5])
 
     
