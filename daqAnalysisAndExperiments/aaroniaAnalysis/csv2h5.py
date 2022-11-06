@@ -10,7 +10,6 @@ csv_filename = '8ghz0_small.csv'
 startTime = time.time()
 #chunk through csv and append to hdf5 file
 for chunk in pd.read_csv(csv_filename, chunksize=1):
-    print(len(chunk['time'].iloc[0]))
     #name key with the time. Rounded to 3 digits
     hdf_key = str(round(chunk['time'].iloc[0], 3))
     #append the chunk to the h5 file at the given key.
