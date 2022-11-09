@@ -23,6 +23,28 @@ from scipy.interpolate import interp1d
 # Functions
 ################
 
+def filterData(spec, fc_numBins = 30):
+    '''
+    Performs basic buttersworth filtering of a spectrum.
+    Ben should write an explination of how he is thinking
+    about "bin space"
+    Input:
+        spec (1d np arr): spectrum to filter
+        fc_numBins(int): cut off "frequency" of the filter.
+            in units of number of bins.
+    Returns:
+        filteredSpec (1d np arr)
+    '''
+    # Sampling rate such that the total amount of data is 1s
+    fs = len(spec)
+    # Normalize the frequency in term of Nyquist
+    fcNorm = 2./(fc_numBins)
+    # Create a 6th-order Butterworth filter - returns numerator (b) and denominator (a) polynomials of the IIR filter
+    b, a = butter(6, fcNorm, 'highpass', analog = False)
+    # Apply the Butterworth filter to the spectrum
+    filteredSpec = filtfilt(b, a, spec)
+    return filteredSpec
+
 def fft2dBm(fftSpec):
     '''
     Converts fft units to dBm
