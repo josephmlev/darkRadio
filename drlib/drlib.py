@@ -23,7 +23,7 @@ from scipy.interpolate import interp1d
 # Functions
 ################
 
-def filterData(spec, fc_numBins = 30):
+def filterSpec(spec, fc_numBins = 30):
     '''
     Performs basic buttersworth filtering of a spectrum.
     Ben should write an explination of how he is thinking
@@ -50,6 +50,12 @@ def fft2dBm(fftSpec):
     Converts fft units to dBm
     '''
     return 10*np.log10(2 * 1000 * fftSpec/ 2**48 / 50) 
+
+def fft2Watts(fftSpec):
+    '''
+    Converts fft units to watts
+    '''
+    return 2 * fftSpec/ 2**48 / 50
 
 
 def mkFileList(dataDir):
