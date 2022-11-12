@@ -23,7 +23,7 @@ from scipy.interpolate import interp1d
 # Functions
 ################
 
-def filterSpec(spec, fc_numBins = 30):
+def filterSpec(spec, fc_numBins = 30, order = 6):
     '''
     Performs basic buttersworth filtering of a spectrum.
     Ben should write an explination of how he is thinking
@@ -40,7 +40,7 @@ def filterSpec(spec, fc_numBins = 30):
     # Normalize the frequency in term of Nyquist
     fcNorm = 2./(fc_numBins)
     # Create a 6th-order Butterworth filter - returns numerator (b) and denominator (a) polynomials of the IIR filter
-    b, a = butter(6, fcNorm, 'highpass', analog = False)
+    b, a = butter(order, fcNorm, 'highpass', analog = False)
     # Apply the Butterworth filter to the spectrum
     filteredSpec = filtfilt(b, a, spec)
     return filteredSpec
