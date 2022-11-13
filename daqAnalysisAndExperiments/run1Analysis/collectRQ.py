@@ -161,7 +161,7 @@ def getParsedList(configFile, configName):
         parsedList = sorted(parsedList, key = lambda x: x[3][antSortVal])
         holderIndices = []
         for val in np.reshape(configDict['Ant'][antSortVal], (-1, 2)):
-            [holderIndices.append(x) for x in parseOnce(val, [x[3][0] for x in parsedList])]
+            [holderIndices.append(x) for x in parseOnce(val, [x[3][antSortVal] for x in parsedList])]
 
         holderIndices = np.asarray([*set(holderIndices)])
         parsedList = [parsedList[x] for x in holderIndices]
