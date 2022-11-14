@@ -57,6 +57,11 @@ def fft2Watts(fftSpec):
     '''
     return 2 * fftSpec/ 2**48 / 50
 
+def dBm2Watts(spec_dBm):
+    '''
+    converts dBm to watts
+    '''
+    return 10**(spec_dBm/10)/1000
 
 def mkFileList(dataDir):
     '''
