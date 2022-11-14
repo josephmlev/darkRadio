@@ -63,6 +63,12 @@ def dBm2Watts(spec_dBm):
     '''
     return 10**(spec_dBm/10)/1000
 
+def watts2dBm(spec_watts):
+    '''
+    converts watts to dBm
+    '''
+    return 10*np.log10(spec_watts*1000)
+
 def mkFileList(dataDir):
     '''
     Will soon be replaced by getParsedList
