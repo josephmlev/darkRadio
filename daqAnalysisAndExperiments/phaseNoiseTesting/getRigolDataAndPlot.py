@@ -16,7 +16,7 @@ plt.close('all')
 ADDRESS = 'TCPIP0::169.254.86.91::INSTR'
 startFreq = 2.4799988 * 10**9 #Hz
 stopFreq =  2.479999601 * 10**9 #Hz
-nPoints = 801
+nPoints = 802
 rbw = 1 #Hz
 freqArr = np.linspace(startFreq, stopFreq, nPoints)
 
@@ -35,16 +35,15 @@ if 1:
     
     for i in range(1000):
         INST.write(':INIT:CONT OFF')
-        time.sleep(10)
+        time.sleep(100)
         a = (INST.query('TRAC:DATA? TRACE1'))
         b = [float(i) for i in a.split(',')]
         specDf[datetime.now()] = b 
-        time.sleep(0)
+        #time.sleep(0)
+        specDf.to_pickle('valonCh2_2480MHz_0dBm_100sScanTime_100ksScantime_0dBm_1HzRBW_801pts_801MHzSpan_9.17.22.pkl')
         print(i)
-
-    specDf.to_pickle('DSG830_24799MHz_0dBm_10sScanTime_10ksScantime_0dBm_1HzRBW_801pts_801MHzSpan.pkl')
-
-dsgDf = pd.read_pickle('DSG830_24799MHz_0dBm_10sScanTime_10ksScantime_0dBm_1HzRBW_801pts_801MHzSpan.pkl')
+        
+#dsgDf = pd.read_pickle('DSG830_24799MHz_0dBm_10sScanTime_10ksScantime_0dBm_1HzRBW_801pts_801MHzSpan.pkl')
 '''
 INST.write(':INIT:CONT OFF')
 print('scanning...')
