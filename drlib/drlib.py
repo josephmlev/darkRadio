@@ -1,4 +1,6 @@
 from scipy.signal import butter, filtfilt, find_peaks, freqz, sosfilt
+from scipy.ndimage import gaussian_filter
+from cupyx.scipy.ndimage import gaussian_filter as gaussian_filter_gpu
 import glob
 import os
 from fnmatch import fnmatch
@@ -15,6 +17,7 @@ import time
 import gc
 from scipy.interpolate import interp1d 
 import itertools
+import cupy as cp
 
 
 #########################################################################################
@@ -24,6 +27,25 @@ import itertools
 ################
 # Functions
 ################
+
+def gausHpf(spec, sigma, gpu = True):
+    if gpu == True:
+        spec_gpu = cp.array(spec)
+        gausLpf_gpu = gaussian_filter_gpu(spec_gpu, sigma = 300)
+        gausLpf = gausLpf_gpu.get()
+        return spec - gausLpf
+    else:
+        gausLpf = gaussian_filter(spec, sigma=300)
+        return spec - gausLpf
+
+def gausLpf(spec, sigma, gpu = True):
+    if gpu == True:
+        spec_gpu = cp.array(spec)
+        gausLpf_gpu = gaussian_filter_gpu(spec_gpu, sigma = 300)
+        return gausLpf_gpu.get()
+        
+    else:
+        return gaussian_filter(spec, sigma=300)
 
 def filterSpec(spec, fc_numBins = 30, order = 6, type = 'highpass'):
     '''
