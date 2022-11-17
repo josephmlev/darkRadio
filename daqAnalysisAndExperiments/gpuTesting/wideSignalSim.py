@@ -69,6 +69,7 @@ def genGaussData(noiseLength, logUnits = False):
 
 def getSNR(fftLength, totalAvg):
 	#print('ON RUN ' + str(index))
+	np.random.seed()
 	ampSig = 0.0002
 	fs = 2**10*100
 	# Set the mean to 0 for right now
@@ -94,11 +95,14 @@ def getSNR(fftLength, totalAvg):
 	filteredConv = applyFilter(10*2**(int(np.log2(fftLength)-10)), convSignal[int(fftLength/20):-int(fftLength/20)])
 	#plt.plot(filteredConv)
 	#plt.plot([np.argmax(filteredConv)], [max(filteredConv)], 'r*')
+	#plt.show()
 	guessSigma = np.std(filteredConv[int(len(filteredConv)/4):int(len(filteredConv)/2.3)])
 	guessMean = np.mean(np.std(filteredConv[int(len(filteredConv)/4):int(len(filteredConv)/2.3)]))
 	snrVal = ((max(filteredConv) - guessMean)/guessSigma)
 	#plt.show()
 	return snrVal
+
+
 
 noiseLength = 2**10
 # Initially assume that our resolution is 1ppm 
@@ -380,12 +384,14 @@ plt.show()
 '''
 
 
-totalIts = 100
+totalIts = 500
+#fftLength = 2**20 
+#totalAvg = 6
 fftLength = 2**10
 totalAvg = 2**10*2**6
 
 #getSNR(2**10, 2**16)
-pool = mp.Pool(processes=mp.cpu_count())
+pool = mp.Pool(processes=int(mp.cpu_count()/2))
 returnedObs = [pool.apply_async(getSNR, args=(fftLength, totalAvg)) for x in range(totalIts)]
 pool.close()
 pool.join()
@@ -399,11 +405,11 @@ print('MIN SNR: ' + str(min(snrVals)))
 print('STD OF SNR: ' + str(np.std(snrVals)))
 
 
-totalIts = 100
-fftLength = 2**16
-totalAvg = 2**10
+totalIts = 500
+fftLength = 2**18
+totalAvg = 2**8
 
-pool = mp.Pool(processes=mp.cpu_count())
+pool = mp.Pool(processes=int(mp.cpu_count()/2))
 
 returnedObs = [pool.apply_async(getSNR, args=(fftLength, totalAvg)) for x in range(totalIts)]
 pool.close()
