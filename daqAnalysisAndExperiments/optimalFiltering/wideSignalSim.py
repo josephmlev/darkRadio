@@ -69,6 +69,7 @@ def genGaussData(noiseLength, logUnits = False):
 
 def getSNR(fftLength, totalAvg):
 	#print('ON RUN ' + str(index))
+	np.random.seed()
 	ampSig = 0.0002
 	fs = 2**10*100
 	# Set the mean to 0 for right now
