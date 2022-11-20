@@ -69,6 +69,7 @@ def genGaussData(noiseLength, logUnits = False):
 
 def getSNR(fftLength, totalAvg):
 	#print('ON RUN ' + str(index))
+	np.random.seed()
 	ampSig = 0.0002
 	fs = 2**10*100
 	# Set the mean to 0 for right now
@@ -124,6 +125,7 @@ plt.xlabel('Frequency (MHz)', labelpad = 15, **label_font)
 plt.ylabel('Power ', **label_font)
 plt.title('Linear Power Spectrum of Band-Limited GWN', **title_font)
 plt.show()
+#input('PRESS ENTER TO CONTINUE:')
 
 
 # Take some averages
@@ -385,7 +387,7 @@ fftLength = 2**10
 totalAvg = 2**10*2**6
 
 #getSNR(2**10, 2**16)
-pool = mp.Pool(processes=mp.cpu_count())
+pool = mp.Pool(processes=int(mp.cpu_count()))
 returnedObs = [pool.apply_async(getSNR, args=(fftLength, totalAvg)) for x in range(totalIts)]
 pool.close()
 pool.join()
@@ -403,7 +405,7 @@ totalIts = 100
 fftLength = 2**16
 totalAvg = 2**10
 
-pool = mp.Pool(processes=mp.cpu_count())
+pool = mp.Pool(processes=int(mp.cpu_count()))
 
 returnedObs = [pool.apply_async(getSNR, args=(fftLength, totalAvg)) for x in range(totalIts)]
 pool.close()

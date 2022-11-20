@@ -1,4 +1,6 @@
 from scipy.signal import butter, filtfilt, find_peaks, freqz, sosfilt
+from scipy.ndimage import gaussian_filter
+from cupyx.scipy.ndimage import gaussian_filter as gaussian_filter_gpu
 import glob
 import os
 from fnmatch import fnmatch
@@ -8,11 +10,14 @@ import matplotlib.pyplot as plt
 import numpy as np 
 import pandas as pd 
 import sys 
-import multiprocessing
-from multiprocessing import Pool
+import multiprocessing as mp
+from multiprocessing import shared_memory, Process, Lock, Pool
+from multiprocessing import cpu_count, current_process
 import time
 import gc
 from scipy.interpolate import interp1d 
+import itertools
+import cupy as cp
 
 
 #########################################################################################
@@ -23,7 +28,26 @@ from scipy.interpolate import interp1d
 # Functions
 ################
 
-def filterSpec(spec, fc_numBins = 30, order = 6):
+def gausHpf(spec, sigma, gpu = True):
+    if gpu == True:
+        spec_gpu = cp.array(spec)
+        gausLpf_gpu = gaussian_filter_gpu(spec_gpu, sigma = 300)
+        gausLpf = gausLpf_gpu.get()
+        return spec - gausLpf
+    else:
+        gausLpf = gaussian_filter(spec, sigma=300)
+        return spec - gausLpf
+
+def gausLpf(spec, sigma, gpu = True):
+    if gpu == True:
+        spec_gpu = cp.array(spec)
+        gausLpf_gpu = gaussian_filter_gpu(spec_gpu, sigma = 300)
+        return gausLpf_gpu.get()
+        
+    else:
+        return gaussian_filter(spec, sigma=300)
+
+def filterSpec(spec, fc_numBins = 30, order = 6, type = 'highpass'):
     '''
     Performs basic buttersworth filtering of a spectrum.
     Ben should write an explination of how he is thinking
@@ -40,7 +64,7 @@ def filterSpec(spec, fc_numBins = 30, order = 6):
     # Normalize the frequency in term of Nyquist
     fcNorm = 2./(fc_numBins)
     # Create a 6th-order Butterworth filter - returns numerator (b) and denominator (a) polynomials of the IIR filter
-    b, a = butter(order, fcNorm, 'highpass', analog = False)
+    b, a = butter(order, fcNorm, type, analog = False)
     # Apply the Butterworth filter to the spectrum
     filteredSpec = filtfilt(b, a, spec)
     return filteredSpec
@@ -121,6 +145,57 @@ def getExtGain(fileName = './rawGain_run1_0_hz_dBm_10_3_22.npy', \
     systemGainInterp = interpObject(freqsInterp)\
     
     return freqsInterp, systemGainInterp
+
+#The following 3 functions (rollingWorker, rolling, nanPad)
+#should be a class but performance suffers
+
+def rollingWorker(windowIdx, args):
+    #print('idx =', windowIdx)
+    shm             = args[0]
+    func            = args[1]
+    existing_shm    = shared_memory.SharedMemory(name=shm.name)
+    startBuf        = windowIdx[0] * 8
+    windowBufSize   = (windowIdx[1] - windowIdx[0]+1)
+    window          = np.frombuffer(shm.buf, offset=startBuf, count=windowBufSize)
+    #print('window = ', window)
+    output          = func(window)
+    return output
+
+def rolling(spec, window, step, func, numProc = 48):
+    '''
+    input:
+        spec(array of np.float64):
+        Note: MUST be float64 
+    ''' 
+    #Generate array of indicies of windows
+    #specWindoIdxSpanArr is a 2D array of shape (window,2). 
+    #Itterating over axis 0 gives len 2 arrays:
+    #arr[windowStartIdx, windowStopIdx]
+    specIdxArr              = np.arange(0,len(spec), 1)
+    specWindowIdxArr        = np.lib.stride_tricks.sliding_window_view(specIdxArr, window)[::step]
+    specWindowIdxSpanArr    = specWindowIdxArr[:,0::window-1]
+
+    #write spec to shared memmory
+    shm             = shared_memory.SharedMemory(create=True, size=spec.nbytes)
+    sharedSpec      = np.ndarray(spec.shape, dtype=spec.dtype, buffer=shm.buf) 
+    sharedSpec[:]   = spec[:] #need colon!
+
+    #pack tuple of arguments to pass to worker 
+    argsTup = (shm, func)
+    workerItter = zip(specWindowIdxSpanArr, itertools.repeat(argsTup))
+    with mp.Pool(numProc) as p:
+        rollingList = p.starmap(rollingWorker, workerItter)
+    print('done mp')
+    #print('len rolling list = ', (rollingList))
+    rollingMadArr = np.asarray(rollingList).reshape(-1)
+
+    return rollingMadArr
+
+def nanPad(rolledStat, window):
+    #pack into array with nan padding
+    padStatArr = np.full(len(rolledStat)+window-1, float('nan'))
+    padStatArr[window//2:-window//2+1] = rolledStat
+    return padStatArr
     
 ################
 # Classes
