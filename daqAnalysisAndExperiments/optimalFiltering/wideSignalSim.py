@@ -95,14 +95,11 @@ def getSNR(fftLength, totalAvg):
 	filteredConv = applyFilter(10*2**(int(np.log2(fftLength)-10)), convSignal[int(fftLength/20):-int(fftLength/20)])
 	#plt.plot(filteredConv)
 	#plt.plot([np.argmax(filteredConv)], [max(filteredConv)], 'r*')
-	#plt.show()
 	guessSigma = np.std(filteredConv[int(len(filteredConv)/4):int(len(filteredConv)/2.3)])
 	guessMean = np.mean(np.std(filteredConv[int(len(filteredConv)/4):int(len(filteredConv)/2.3)]))
 	snrVal = ((max(filteredConv) - guessMean)/guessSigma)
 	#plt.show()
 	return snrVal
-
-
 
 noiseLength = 2**10
 # Initially assume that our resolution is 1ppm 
@@ -128,6 +125,7 @@ plt.xlabel('Frequency (MHz)', labelpad = 15, **label_font)
 plt.ylabel('Power ', **label_font)
 plt.title('Linear Power Spectrum of Band-Limited GWN', **title_font)
 plt.show()
+#input('PRESS ENTER TO CONTINUE:')
 
 
 # Take some averages
@@ -384,14 +382,12 @@ plt.show()
 '''
 
 
-totalIts = 500
-#fftLength = 2**20 
-#totalAvg = 6
+totalIts = 100
 fftLength = 2**10
 totalAvg = 2**10*2**6
 
 #getSNR(2**10, 2**16)
-pool = mp.Pool(processes=int(mp.cpu_count()/2))
+pool = mp.Pool(processes=int(mp.cpu_count()))
 returnedObs = [pool.apply_async(getSNR, args=(fftLength, totalAvg)) for x in range(totalIts)]
 pool.close()
 pool.join()
@@ -405,11 +401,11 @@ print('MIN SNR: ' + str(min(snrVals)))
 print('STD OF SNR: ' + str(np.std(snrVals)))
 
 
-totalIts = 500
-fftLength = 2**18
-totalAvg = 2**8
+totalIts = 100
+fftLength = 2**16
+totalAvg = 2**10
 
-pool = mp.Pool(processes=int(mp.cpu_count()/2))
+pool = mp.Pool(processes=int(mp.cpu_count()))
 
 returnedObs = [pool.apply_async(getSNR, args=(fftLength, totalAvg)) for x in range(totalIts)]
 pool.close()
