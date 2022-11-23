@@ -1,3 +1,5 @@
+import matplotlib 
+matplotlib.use('TKAgg')
 from scipy import signal
 from scipy.stats import norm
 import matplotlib.pyplot as plt 
