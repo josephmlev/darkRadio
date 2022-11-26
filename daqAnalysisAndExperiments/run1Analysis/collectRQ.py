@@ -353,7 +353,8 @@ if __name__ == '__main__':
     # List of keys (file numbers) in the parameter dictionary
     parsedKeys = [aKey for aKey in parsedDict]
     #dataDir = '/group/tysongrp/JulyRun_7-7-22/Data/'
-    dataDir = '/home/dark-radio/HASHPIPE/ROACH/PYTHON/DataRun_7-7-22/'
+    #dataDir = '/home/dark-radio/HASHPIPE/ROACH/PYTHON/DataRun_7-7-22/'
+    dataDir = '/drBiggerBoy/drData/Data/'
     #for aKey in parsedDict:
     #    aFile = 'data_' + str(aKey) + '.h5'
     #    dataBin = h5.File(dataDir + aFile, 'r')
