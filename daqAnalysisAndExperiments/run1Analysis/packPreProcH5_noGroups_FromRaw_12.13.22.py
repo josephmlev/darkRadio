@@ -19,12 +19,12 @@ rawDataDir      = '/drBiggerBoy/drData/Data/'
 fileList        = os.listdir(rawDataDir)
 fileList.sort(key=lambda f: int(re.sub('\D', '', f)))
 newDataDir      = '/drBiggerBoy/drData/run1Data/'
-fileName        = 'preProcDataSet.hdf5'
-f               = h5py.File(newDataDir + fileName, 'w')
+fileName        = 'preProcDataSet_lastIdx.hdf5'
+f               = h5py.File(newDataDir + fileName, 'r')
 
-diffSpecH5        = f.create_dataset('diffSpec_W', (8388608, 11667), chunks = (2**16,2**0), dtype = 'f')
-antSpecH5         = f.create_dataset('antSpec_W', (8388608, 11667), chunks = (2**16, 2**0), dtype='f')
-vetoSpecH5        = f.create_dataset('vetoSpec_W', (10000, 11667), chunks = True, dtype='f')
+diffSpecH5        = f.create_dataset('diffSpec_W', (8388608, 11776), chunks = (2**16,2**0), dtype = 'f')
+antSpecH5         = f.create_dataset('antSpec_W', (8388608, 11776), chunks = (2**16, 2**0), dtype='f')
+vetoSpecH5        = f.create_dataset('vetoSpec_W', (10000, 11776), chunks = True, dtype='f')
 
 ##############################################################
 #pack "searchable database" df
@@ -65,17 +65,19 @@ for fileidx, file in enumerate(fileList):
     measDataKeys.sort(key=lambda f: int(re.sub('\D', '', f)))
     
     for measData in measDataKeys:
-        measDataInt = int(re.search(r'\d{0,3}$', measData).group())
+        measDataInt = int(re.search(r'\d{0,6}$', measData).group())
         measDataSubKeys = dataset[measData].keys()
-
-        #dumb check. Is the date in raw h5 measData the same as what the database
-        #thinks it is? Since we previously check that dates are consectutive this 
-        #also checks that in raw h5
-        datasetDf   = pd.read_hdf(rawDataDir + file, key = measData)
-        dateTimeStr = datasetDf.columns[0][0]
+        '''Dumb check. Is the date in raw h5 measData the same as what
+        the database thinks it is? Since we previously check that dates
+        are consectutive this also checks that dates 
+        in raw h5 are consecutive'''
+        datasetDf   = pd.read_hdf(rawDataDir + file, key = measData)#raw H5 
+        dateTimeStr = datasetDf.columns[0][0]#datetime extracted from raw H5
         dateTime    = datetime.strptime(dateTimeStr, '%Y-%m-%d %H:%M:%S.%f')
+        '''Check database at a measData has the same datetime as we are about
+        to load into new h5'''
         if not (dateTime==database[database['measData'] == measDataInt].index):
-            raise Exception('Dates got jumbled at measData', measDataInt)
+            print('Dates got jumbled at measData', measDataInt)
 
         antSpec     = np.float32(dr.fft2Watts(datasetDf.iloc[:,1][:]))
         termSpec    = np.float32(dr.fft2Watts(datasetDf.iloc[:,0][:]))
