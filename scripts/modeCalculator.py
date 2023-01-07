@@ -13,8 +13,8 @@ import matplotlib.pyplot as plt
 if 1:
     print("Nate dimensions")
     x = 3.048
-    y = 2.438
-    z = 3.657
+    y = 2.4384
+    z = 3.6576
 else:
     #actual room
     print("measured dimensions Jan 2022")
@@ -29,7 +29,7 @@ c = 2.99E8
 
 
 def f(m, n, p, x, y, z):
-    return 2.99E8/2 * np.sqrt((m/x)**2 + (n/y)**2 + (p/z)**2)/1E6
+    return 2.99792458E8/2 * np.sqrt((m/x)**2 + (n/y)**2 + (p/z)**2)/1E6
 
 '''
 #print("n = %i",n)
@@ -52,7 +52,7 @@ for m in range(0,maxMode):
             freqarr.append(freq)
             if freq < fp and freq > fm:
                 print("m =",m, "\nn =", n, "\np =", p, \
-                      "\nf =",  round(freq, 2), "MHz")
+                      "\nf =",  round(freq, 4), "MHz")
                 print()
 '''
 plt.figure()
