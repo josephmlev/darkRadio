@@ -5,15 +5,41 @@ import multiprocessing as mp
 from multiprocessing import shared_memory
 import corr
 import cupy as cp 
+import datetime
+import h5py
 import logging
 import numba as nb
-import numpy as np 
+import numpy as np
+import os 
+import serial
 import socket
+import stat
 import sys
 import time
 sys.path.append("../") 
 import ROACH_funcsv2
+import DisplayFuncs
 import torch
+
+def get_size(obj, seen=None):
+    """Recursively finds size of objects"""
+    size = sys.getsizeof(obj)
+    if seen is None:
+        seen = set()
+    obj_id = id(obj)
+    if obj_id in seen:
+        return 0
+    # Important mark as seen *before* entering recursion to gracefully handle
+    # self-referential objects
+    seen.add(obj_id)
+    if isinstance(obj, dict):
+        size += sum([get_size(v, seen) for v in obj.values()])
+        size += sum([get_size(k, seen) for k in obj.keys()])
+    elif hasattr(obj, '__dict__'):
+        size += get_size(obj.__dict__, seen)
+    elif hasattr(obj, '__iter__') and not isinstance(obj, (str, bytes, bytearray)):
+        size += sum([get_size(i, seen) for i in obj])
+    return size
 
 def _conv_cuda(array):
 	return 
@@ -32,6 +58,35 @@ def _nibbleize(A, AU):
 			A[offset] = (AU[i] >> 4) & 0xf
 			A[offset + 1] = (AU[i]) & 0xf
 
+
+def is_number(x):
+	try:
+		float(x)
+		return True
+	except Exception:
+		return False
+
+def getTemp(arduino):
+		totalTries = 0
+		maxTries = 20
+		totalAvg = 5
+		tempCount = 0
+		totalTemp = 0
+		while tempCount < totalAvg:
+				arduino.write(b'0b2')
+				possibleTemp = arduino.readline()
+				totalTries = totalTries + 1
+				if(is_number(possibleTemp)):
+						totalTemp = totalTemp + float(possibleTemp)
+						tempCount = tempCount + 1
+				if totalTries > maxTries:
+						print('TOO MANY READS TO GET TEMPERATURE')
+						break
+		if tempCount == 0:
+				return 0
+		else:
+				return totalTemp / tempCount + 273.15
+
 class ROACH(mp.Process):
 	def __init__(self, designFile = 'roach2_spec_k_2022_Dec_22_2055.bof',
 					   IPROACH = '192.168.60.20',
@@ -41,11 +96,13 @@ class ROACH(mp.Process):
 					   MACBase = (2<<40) + (2<<32),
 					   MACTransmit = (0xf8<<40) + (0xf2<<32) + (0x1e<<24) + (0x7d << 16) + (0xc2 << 8) + (0xf5),
 					   TXCoreName = 'gbe0',
-					   FFTPow = int(26),
+					   FFTPow = int(20),
 					   IPFPGA = '192.168.40.76',
 					   recompile = True,
 					   bufferLength = int(16),
-					   clockRate = 2*1E9):
+					   clockRate = 2*1E9,
+					   saveDir = './Scratch/',
+					   numSpecPerFile = 3):
 
 
 		self.designFile = designFile
@@ -62,6 +119,9 @@ class ROACH(mp.Process):
 		self.bufferSize = 32
 		self.clockRate = clockRate
 		self.writeFrequency = 0.25 # In minutes
+		self.saveDir = saveDir
+		self.numSpecPerFile = numSpecPerFile
+
 
 		self.gbeMem = shared_memory.SharedMemory(create = True, size = self.bufferSize * 2**(self.FFTPow))
 		self.fftMem = shared_memory.SharedMemory(create = True, size = 2 * self.bufferSize * 2**(self.FFTPow))
@@ -74,6 +134,12 @@ class ROACH(mp.Process):
 		self.fftLockMem = shared_memory.SharedMemory(create = True, size = 2 * self.bufferSize)
 		self.fileLockMem = shared_memory.SharedMemory(create = True, size = 2)
 
+		# Really crummy way of doing this, but do not know another way of sharing between processes
+		#self.displayMem = shared_memory.SharedMemory(create = True, size = int(get_size(DisplayFuncs.VisPanel())*1.5))
+
+		self.arduino = serial.Serial('/dev/ttyACM0', 115200)
+		self.arduino.write(b'0b0')
+
 
 		#self.fftLock = np.zeros((2, self.bufferSize), dtype = np.dtype('u1'), buffer = (self.fftLockMem).buf)
 
@@ -85,6 +151,7 @@ class ROACH(mp.Process):
 		# Memory for 'nibble-ized' data
 		self.sharedFFT = (np.ndarray((2, self.bufferSize, 2**(self.FFTPow)), dtype = np.dtype('u1'), buffer = (self.fftMem).buf))
 		(self.sharedFFT).fill(0)
+
 
 		self.sharedWrite = (np.ndarray((2, 2**(self.FFTPow-1)+1), dtype = np.dtype('float32'), buffer = (self.writeMem).buf))
 		(self.sharedWrite).fill(0)
@@ -103,6 +170,8 @@ class ROACH(mp.Process):
 		self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 		(self.socket).setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 		
+		self.sharedDisplay = DisplayFuncs.VisPanel()
+
 		lh=corr.log_handlers.DebugLogHandler()
 		print(self.IPFPGA)
 		logger = logging.getLogger(self.IPFPGA)
@@ -114,6 +183,53 @@ class ROACH(mp.Process):
 			ROACH_funcsv2.progROACH(self.fpga, BOFFile = self.designFile)
 
 	
+	def writeH5(self, specDict, runInfoDict, acqNum):
+		print('WRITING...')
+		#number games to figure out what file to write
+		mod = acqNum%(self.numSpecPerFile)
+		fileNum = int((acqNum-mod)/self.numSpecPerFile)
+
+		#create file object. Creates h5 file if needed, else appends to existing file ('a' flag) 
+		fileName = (self.saveDir)+'data_'+str(fileNum)+'.hdf5'
+		f = h5py.File(fileName, 'a') 
+		#create new group object for each acqusition
+		acqGrp = f.create_group(str(acqNum))
+
+		#pack spectra as dataseta
+		for specName in specDict:
+			acqGrp.create_dataset(specName, data=specDict[specName], dtype = 'f')
+		
+		#pack run into as attributes
+		for infoName in runInfoDict:
+			acqGrp.attrs[infoName] = runInfoDict[infoName]
+		
+		acqGrp.attrs['File Number'] = fileNum
+		print('*******************MADE IT HERE*******************')
+		#if on a new file, make previous file read only. Note last file wont be read only
+		if mod == 0 and fileNum != 0:
+			os.chmod(self.saveDir+'data_' + str(fileNum-1) + '.hdf5', stat.S_IREAD|stat.S_IRGRP|stat.S_IROTH)
+
+		#write to text file
+		if not os.path.exists(self.saveDir + 'database.txt'):
+			infoStr = ''
+			for infoKey in runInfoDict:
+				infoStr += infoKey + ','
+			infoStr += 'File Number\n' 
+
+			file = open(self.saveDir + 'database.txt', 'w')
+			file.writelines(infoStr)
+			file.close()
+
+		lineToWrite = ''
+		for infoKey in runInfoDict:
+			infoData = str(runInfoDict[infoKey])
+			lineToWrite += infoData + ', '
+		lineToWrite += str(fileNum) +'\n'
+
+		file = open(self.saveDir + 'database.txt', 'a')
+		file.writelines(lineToWrite)
+		file.close()
+
 	def gbe0(self):
 		firstRun = True
 		i = 0
@@ -142,15 +258,15 @@ class ROACH(mp.Process):
 							cr0 = (self.socket).recv_into(view, 8192)
 							pos += cr0
 							view = view[cr0:]
-						print('TOOK ' + str(round((time.time() - newStartTime)*1000, 4)) + ' MILLISECONDS TO COLLECT DATA')	
+						#print('TOOK ' + str(round((time.time() - newStartTime)*1000, 4)) + ' MILLISECONDS TO COLLECT DATA')	
 						#print(((self.sharedGBE)[bufIndex][i][123456:124456]))
 						i += 1 
 
 					else:
 						(self.socket).recv(8192)
 						clearOut = clearOut + 1
-						#if not(clearOut % 10000):
-						print('\n\n\n\nCLEARING OUT THINGS ' + str(clearOut) + '\n\n\n\n')
+						if not(clearOut % 100000):
+							print('\n\n\n\nCLEARING OUT THINGS ' + str(clearOut) + '\n\n\n\n')
 				#print('TOOK ' + str(round((time.time() - newStartTime)*1000, 4)) + ' MILLISECONDS TO COLLECT DATA')	
 				for counter in range(self.bufferSize):
 					#print('SETTING THEM NIBBLES ' + ' AT ' + str(bufIndex) + ' TO ' + str(counter))
@@ -186,7 +302,7 @@ class ROACH(mp.Process):
 					_nibbleize((self.sharedFFT)[bufIndex][currentBuf], (self.sharedGBE)[bufIndex][currentBuf])
 					(self.nibbleLock)[bufIndex][currentBuf] = 0
 					(self.fftLock)[bufIndex][currentBuf] = 1
-					print('TOOK ' + str(round((time.time() - currentTime)*1000, 4)) + ' MILLISECONDS TO NIBBLEIZE DATA')	
+					#print('TOOK ' + str(round((time.time() - currentTime)*1000, 4)) + ' MILLISECONDS TO NIBBLEIZE DATA')	
 					currentBuf += 1
 			if bufIndex == 0:
 				bufIndex = 1
@@ -260,7 +376,7 @@ class ROACH(mp.Process):
 
 						#plt.show()
 						testData = torch.as_tensor((copyData.astype('int8') - np.int8(7)) , device = 'cuda')
-						print('TOOK ' + str(round((time.time() - currentTime)*1000, 4)) + ' MILLISECONDS TO PROCESS DATA')
+						#print('TOOK ' + str(round((time.time() - currentTime)*1000, 4)) + ' MILLISECONDS TO PROCESS DATA')
 
 						#testData = _conv_cuda((self.sharedFFT)[bufIndex][currentBuf])
 						#torch.as_tensor(array.astype(cp.float32), device='cuda')
@@ -296,7 +412,7 @@ class ROACH(mp.Process):
 				(self.sharedWrite)[bufIndex] += gpuData.get()
 				(self.totalAvg)[bufIndex] += 1
 
-				print('TOOK ' + str(round((time.time() - currentTime)*1000, 4)) + ' ms TO COPY')
+				#print('TOOK ' + str(round((time.time() - currentTime)*1000, 4)) + ' ms TO COPY')
 				if (self.totalAvg)[0] % saveFreq == 0 and (self.totalAvg)[0] == (self.totalAvg)[1]:
 					while (self.fileLock[0]):
 						print('CANT WRITE WAITING TO FINISH WRITE PROCESS')
@@ -325,9 +441,11 @@ class ROACH(mp.Process):
 		fileIndex = 1
 		acqCount = 0
 		freqs = np.asarray(range(2**(self.FFTPow - 1) + 1))*self.clockRate / 2**(self.FFTPow)
+		
 		while True:
 			try:
 				if (self.fileLock)[0]:
+					currentTime = time.time()
 					(self.fileLock)[1] = 0
 					writeData = np.array(self.sharedWrite, copy = True)
 					acqCount += 1
@@ -338,12 +456,36 @@ class ROACH(mp.Process):
 					print((self.totalAvg))
 					print('\n\n\n\n\n\n')
 					#plt.title(str((self.totalAvg)[0]) + ' AVERAGES')
-					plt.title(acqCount*self.bufferSize)
-					plt.plot((freqs/10**6)[1:], (10*np.log10(writeData[0]))[1:], alpha = 0.7)
-					plt.plot((freqs/10**6)[1:], (10*np.log10(writeData[1]))[1:], alpha = 0.7)
+					#plt.title(acqCount*self.bufferSize)
+					#plt.plot((freqs/10**6)[1:], (10*np.log10(writeData[0]))[1:], alpha = 0.7)
+					#plt.plot((freqs/10**6)[1:], (10*np.log10(writeData[1]))[1:], alpha = 0.7)
 
-					plt.show()
+					#plt.show()
+					
+					#(self.sharedDisplay).currentCount += (self.display).avgPerWrite
+					
+					tempVal = getTemp(self.arduino)
+					((self.sharedDisplay).tempData).put(tempVal)
+
+					((self.sharedDisplay).remoteRoach).put(10*np.log10(1000*writeData))
+
+					runInfoDict     = {'Acquisition Number' : acqCount, #number of spectra since start of run
+					'Datetime'          : datetime.datetime.now().strftime("%m/%d/%Y %H:%M:%S.%f"), 
+					'Temperture'        : round(tempVal, 3),
+					'West'              : 0,
+					'South'             : 0,
+					'Vertical'          : 0,
+					'Phi'               : 0,
+					'Theta'             : 0}
+
+					specDict = {'antSpec_FFT_dBm': (10*np.log10(writeData[0])),
+					'termSpec_FFT_dBm': (10*np.log10(writeData[0])),
+					'vetoSpec_FFT_dBm': np.zeros(10**4)}
+
+
+					self.writeH5(specDict, runInfoDict, acqCount)
 					(self.fileLock)[0] = 0
+					print('\n\n\n\nTOOK ' + str(round((time.time() - currentTime)*1000, 4)) + ' MILLISECONDS TO WRITE DATA\n\n\n\n')	
 			except KeyboardInterrupt as e:
 				print('KEYBOARD INTERRUPT')
 				sys.exit(0)
@@ -351,12 +493,17 @@ class ROACH(mp.Process):
 				print(e)
 				sys.exit(1)	
 
+	def dispContent(self):
+		(self.sharedDisplay).beginPlot()
+
 	def startRun(self):
 		eth1 = mp.Process(target = self.gbe0, name = 'gbe0', args = ())
 		nibbleProc = mp.Process(target = self.nibbleize, name = 'nibbleize', args = ())
 		fftProc = mp.Process(target = self.performFFT, name = 'performFFT', args = ())
 		writeProc = mp.Process(target = self.writeFile, name = 'writeFile', args = ())
+		dispProc = mp.Process(target = self.dispContent, name = 'dispContent', args = ())
 
+		
 		ROACH_funcsv2.enableROACH((self.fpga))
 		
 		print('SLEEPING FOR A BIT...')
@@ -366,6 +513,7 @@ class ROACH(mp.Process):
 		nibbleProc.start()
 		fftProc.start()
 		writeProc.start()
+		dispProc.start()
 		#time.sleep(3)
 		#eth1.join() 
 		#nibbleProc.join()
