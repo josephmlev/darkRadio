@@ -6,9 +6,9 @@ Created on Fri Jan  7 16:52:55 2022
 @author: dradmin
 """
 
-x = 3.048 #comsol width, real E(ast)
-y = 2.4384 #comsel depth, real V(ert)
-z = 3.6576 #comsol height, real N(orth)
+x = 3.0697 #comsol width, real E(ast)
+y = 2.4566 #comsel depth, real V(ert)
+z = 3.6840 #comsol height, real N(orth)
 
 def comsolToReal(xIn = -x/2, yIn = -y/2 , zIn = -z/2):
     print('North = ', z/2 - zIn)
