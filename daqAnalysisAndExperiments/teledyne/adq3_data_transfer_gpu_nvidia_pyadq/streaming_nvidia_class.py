@@ -312,7 +312,7 @@ class avgFft:
                                 s.NOF_RECORDS_PER_BUFFER * s.CH0_RECORD_LEN * s.BYTES_PER_SAMPLES
                             )
 
-                        self.doFFT(ch, b)
+                        #self.doFFT(ch, b)
                     buf += 1
                 data_transfer_done = nof_buffers_received[1] >= s.NOF_BUFFERS_TO_RECEIVE
                 now_time = time.time() - start_time
@@ -355,7 +355,7 @@ class avgFft:
 
             data_buffer.tofile("data.bin")
             plt.close('all')
-            if 1: #time domain
+            if 0: #time domain
                 plt.figure()
                 plt.title('time domain')
                 pts = [i for i in range(0, len(data_buffer))]
@@ -393,10 +393,10 @@ class avgFft:
         #print(data)
         fft = scipy.fft.rfft(data)
         fft_cpu = fft.get()
-        #print(fft)
-        #plt.figure()
-        #plt.plot(fft_cpu)
-        #plt.show()
+        print(fft)
+        plt.figure()
+        plt.plot(fft_cpu)
+        plt.show()
 
 
 if __name__ == "__main__":
