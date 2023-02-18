@@ -291,7 +291,8 @@ class avgFft:
             print("Failed")
 
 
-        '''pg 167. 
+        '''PYADQ STATUS:
+        pg 167. 
         ADQP2pStatus Members:
             channel: Array of ADQP2pChannel structs. Each element represents a channel
             flags: N/A
@@ -314,6 +315,7 @@ class avgFft:
             #print()
             #wait for buffers to fill. Code locks here until one transfer buffer fills 
             self.result = self.dev.ADQ_WaitForP2pBuffers(ct.byref(self.status), s.WAIT_TIMEOUT_MS)
+            #time.sleep(1)
             '''print("time to wait for p2p buff:", time.time() - ti)
             acquireTime.append(time.time() - ti)'''
 
@@ -332,6 +334,7 @@ class avgFft:
                 sem.release()
                 buf = 0
                 #print('nof complete buffers', self.status.channel[0].nof_completed_buffers, '\n')
+                
                 while (buf < self.status.channel[0].nof_completed_buffers) or (
                     buf < self.status.channel[1].nof_completed_buffers
                 ):
@@ -376,8 +379,8 @@ class avgFft:
         gbps = self.bytes_received / (stop_time - start_time)
         self.dev.ADQ_StopDataAcquisition()
         print('########Stats########')
+        print(f'Total buffers received: {self.nof_buffers_received}')
         print(f"Total GB received: {self.bytes_received / 10**9}")
-
         print(f"Total GB/s: {gbps / 10**9}")
         #print(np.std(acquireTime)/np.mean(acquireTime))
 
@@ -449,19 +452,12 @@ class avgFft:
             readyBuffer = self.status.channel[1].completed_buffers[0]
             #print("ready buffer = ",readyBuffer)
 
-            start_gpu.record()
-
-            ####time#### 
+            #print('on buffer: ', self.nof_buffers_received)
+            #print('FFTs completed: ', fftCompleted)
+  
             bufferTensor    = torch.as_tensor(self.gpu_buffers.buffers[1][readyBuffer], device='cuda')
             self.fft        +=torch.abs(torch.fft.rfft(bufferTensor))
-            self.fft        +=torch.abs(torch.fft.rfft(bufferTensor))
             
-            ############
-
-            end_gpu.record()
-            end_gpu.synchronize()
-            fftTime = cp.cuda.get_elapsed_time(start_gpu, end_gpu)
-            print('time to take FFT:', fftTime, '(ms)')
 
             fftCompleted+=1
 
@@ -469,9 +465,9 @@ class avgFft:
             #                np.abs(scipy.fft.rfft(self.gpu_buffers.buffers[0][readyBuffer])),
             #                dtype=cp.float_)
             #print("type outAtt", (self.outArr[1])) #
-            print('on buffer: ', self.nof_buffers_received)
+ 
 
-        print('FFTs completed: ', fftCompleted)
+        print('Total FFTs completed: ', fftCompleted)
 
             
 
@@ -503,21 +499,47 @@ if __name__ == "__main__":
                                     args=(sem,))
     doFFTThread     = threading.Thread(target=myclass.doFFT,
                                     args=(sem,))
-    acquireThread.start()
-    time.sleep(.01)
-    doFFTThread.start()
-    acquireThread.join() # Wait for acquireThread to complete
 
+    avgPowSpec = []
+    for i in range(4):
+        print('taking run', i)
+        myclass = avgFft(parameters,
+            dev,
+            gpu_buffer_address,
+            gpu_buffer_ptr,
+            gpu_buffers,
+            gdr,
+            memory_handles,
+            bar_ptr_data)
+        acquireThread   = threading.Thread(target=myclass.acquireData,
+                                    args=(sem,))
+        doFFTThread     = threading.Thread(target=myclass.doFFT,
+                                    args=(sem,))
+        acquireThread.start()
+        doFFTThread.start()
+        acquireThread.join() # Wait for acquireThread to complete
+        doFFTThread.join()
 
-    #myclass.acquireData()
+        sumFft = cp.asarray(myclass.fft).get() #convert from torch tensor to cp.array and get to cpu
+        avgPowSpec.append((sumFft/s.NOF_BUFFERS_TO_RECEIVE)**2 * 2**-34*2/(50*s.CH0_RECORD_LEN**2)*1000)
     myclass.exit()
 
-    sumFft = cp.asarray(myclass.fft).get() #convert from torch tensor to cp.array and get to cpu
-    avgPowSpec = (sumFft/s.NOF_BUFFERS_TO_RECEIVE)**2 * 2**-34*2/(50*s.CH0_RECORD_LEN**2)*1000
-    
-    plt.figure()
-    plt.plot(np.linspace(0,1250/s.CH0_SAMPLE_SKIP_FACTOR,s.CH0_RECORD_LEN//2),10*np.log10(avgPowSpec[1:]))
-    plt.xlabel('Freq(MHz)')
-    plt.ylabel('Power (dBm)')
-    plt.plot()
-    plt.show()
+    avgPowSpec1 = np.asarray(avgPowSpec[0::2]).mean(axis=0)
+    avgPowSpec2 = np.asarray(avgPowSpec[1::2]).mean(axis=0)
+    np.save('avgPowSpec1_3000avg_6switchPerSide_2_17_23', avgPowSpec1)
+    np.save('avgPowSpec2_3000avg_6switchPerSide_2_17_23', avgPowSpec2)
+    if 1:
+        plt.figure()
+        plt.plot(np.linspace(0,1250/s.CH0_SAMPLE_SKIP_FACTOR,s.CH0_RECORD_LEN//2),10*np.log10(avgPowSpec1[1:]))
+        plt.plot(np.linspace(0,1250/s.CH0_SAMPLE_SKIP_FACTOR,s.CH0_RECORD_LEN//2),10*np.log10(avgPowSpec2[1:]), alpha = .5)
+        plt.xlabel('Freq(MHz)')
+        plt.ylabel('Power (dBm)')
+        plt.plot()
+        plt.show()
+
+        plt.figure()
+        plt.plot(np.linspace(0,1250/s.CH0_SAMPLE_SKIP_FACTOR,s.CH0_RECORD_LEN//2),((avgPowSpec1-avgPowSpec2)[1:]))
+        plt.xlabel('Freq(MHz)')
+        plt.ylabel('Power (mW)')
+        plt.plot()
+        plt.show()
