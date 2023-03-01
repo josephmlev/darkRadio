@@ -23,7 +23,7 @@ def calcVSWR(arr):
 parser = argparse.ArgumentParser()
 parser.add_argument('directory', nargs = 1, help = 'Data file directory', type = str)
 parser.add_argument('filename', nargs = 1, help = "String to find in file names", type = str)
-parser.add_argument('-d_d', '--dir', help= "Name of save directory", type = str, required = False, default = './' )
+#parser.add_argument('-d_d', '--dir', help= "Name of save directory", type = str, required = False, default = './' )
 #parser.add_argument('-v', '--verbose', help= "Print information about conversion process", required = False, action='store_true')
 parser.add_argument('-k', '--keys', help = 'Print all the column names in .csv file', required = False, action = 'store_true')
 parser.add_argument('-cols','--columns', nargs='*', help='Set columnns to plot', required=False)
@@ -78,10 +78,11 @@ for aFile in processFiles:
 					freqs = np.asarray(range(len(plotData)))
 					freqFlag = False
 				plt.xlabel('Frequency (MHz)', labelpad = 15, **label_font) if freqFlag else plt.xlabel('Index', labelpad = 15, **label_font)
-				if 'S21' in aKey:
+				if 'S21_Magnitude' in aKey:
 					plt.plot(freqs, plotData)
-					plt.ylabel('Gain (dB)', **label_font)
-				elif 'S22' or 'S11_Magnitude' in aKey:
+					plt.ylabel('GAIN (dB)', **label_font)
+					plt.title('GAIN ' + str(ampName), **title_font)
+				elif 'S22_Magnitude' or 'S11_Magnitude' in aKey:
 					plotData = calcVSWR(plotData)
 					plt.plot(freqs[1:], plotData[1:])
 					plt.ylabel('VSWR (x:1)', **label_font)
