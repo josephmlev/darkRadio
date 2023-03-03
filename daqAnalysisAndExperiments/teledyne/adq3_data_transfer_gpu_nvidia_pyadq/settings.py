@@ -7,14 +7,14 @@ NOF_CHANNELS                    = 2 #can't currently change. Need to load 1 ch f
 CH0_RECORD_LEN                  = int(2**24) 
 CH1_RECORD_LEN                  = CH0_RECORD_LEN #Different lengths is untested
 
-NOF_BUFFERS_TO_RECEIVE          = 10 #for each call of avgFFT()
-NOF_ACQUISITIONS_TO_TAKE        = 4  #number of times to call avgFFT()
+NOF_BUFFERS_TO_RECEIVE          = 100 #for each call of avgFFT()
+NOF_ACQUISITIONS_TO_TAKE        = 8000  #number of times to call avgFFT()
 
 CH0_SAMPLE_SKIP_FACTOR          = 2  #For factors below 8, only power-of-two values are allowed 
 CH1_SAMPLE_SKIP_FACTOR          = CH0_SAMPLE_SKIP_FACTOR #Different values is untested
 
-PERIODIC_EVENT_SOURCE_PERIOD    = int(2**23) #for contunious aquation needs to be smaller
-                                    #than record_len. 
+PERIODIC_EVENT_SOURCE_PERIOD    = int(2800) #for contunious aquation needs to be smaller
+                                    #than record_len. It like 2800 for some reason
 
 CLOCK_RATE                      = 2.5e9 #default. Add external clock soon
 SAMPLE_RATE                     = CLOCK_RATE/CH0_SAMPLE_SKIP_FACTOR 
