@@ -89,9 +89,6 @@ def writeH5(specDict,
     file.writelines(lineToWrite)
     file.close()
 
-
-    
-    
 def allocate_and_pin_buffer(
     buffer_size: int,
     memory_handle: g.GdrMemoryHandle,
@@ -399,7 +396,7 @@ class avgFft:
         self.numFft = [0,0]
         #main transfer loop. Happens NOF_BUFFERS_TO_RECEIVE times
         master_start_time = time.time()
-    
+        
         while not data_transfer_done:
             #ti = time.time()
             #wait for buffers to fill. Code locks here until one transfer buffer fills 
@@ -451,6 +448,7 @@ class avgFft:
 
                     print("Nof buffers received:", nof_buffers_received)
                     start_print_time = time.time()
+        print(f'######## TESTING TIME: {time.time() - start_time}')
         print("Done Acquiring Data \n")
         stop_time = time.time()
 
@@ -476,6 +474,7 @@ class avgFft:
             print(f'Total buffers received: {nof_buffers_received}')
             print(f'Total Time: {stop_time-start_time}')
             print(f'Time/buffer: {(stop_time-start_time)/self.s.NOF_BUFFERS_TO_RECEIVE}')
+            print(f'Expected time/buffer (CH0): {s.CH0_RECORD_LEN/s.SAMPLE_RATE}')
             print(f"Total GB received: {self.bytes_received / 10**9}")
             print(f"Total GB/s: {self.gbps / 10**9}")
             print('number of FFTs:', self.numFft)
