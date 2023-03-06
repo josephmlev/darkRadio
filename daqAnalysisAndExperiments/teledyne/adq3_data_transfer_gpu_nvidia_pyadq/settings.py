@@ -7,28 +7,62 @@ NOF_CHANNELS                    = 2 #can't currently change. Need to load 1 ch f
 CH0_RECORD_LEN                  = int(2**24) 
 CH1_RECORD_LEN                  = CH0_RECORD_LEN #Different lengths is untested
 
-NOF_BUFFERS_TO_RECEIVE          = 100 #for each call of avgFFT()
-NOF_ACQUISITIONS_TO_TAKE        = 8000  #number of times to call avgFFT()
+NOF_BUFFERS_TO_RECEIVE          = 250 #for each call of avgFFT()
+NOF_ACQUISITIONS_TO_TAKE        = 4300  #number of times to call avgFFT()
 
-CH0_SAMPLE_SKIP_FACTOR          = 2  #For factors below 8, only power-of-two values are allowed 
+CH0_SAMPLE_SKIP_FACTOR          = 4  #For factors below 8, only power-of-two values are allowed 
 CH1_SAMPLE_SKIP_FACTOR          = CH0_SAMPLE_SKIP_FACTOR #Different values is untested
 
-PERIODIC_EVENT_SOURCE_PERIOD    = int(2800) #for contunious aquation needs to be smaller
-                                    #than record_len. It like 2800 for some reason
+PERIODIC_EVENT_SOURCE_PERIOD    = int(2800) #For contunious acquisition use 2800. API bug? 
+                                            #Can be used to reduce data rate 
 
 CLOCK_RATE                      = 2.5e9 #default. Add external clock soon
 SAMPLE_RATE                     = CLOCK_RATE/CH0_SAMPLE_SKIP_FACTOR 
 
 NOF_GPU_BUFFERS                 = 2 #per channel
+##########################################################
+# SAVING
+# NOF_ACQUISITIONS_TO_TAKE should be 1
+SAVE_W_SPEC                     = 0 #Saves spec to .npy. Not tested
+PATH_TO_SPEC                    ='./W_dict' #Where to save above
+
+NUM_SPEC_PER_FILE               = 16 #How many spectra to put in a file. Keep files around 1GB. 16 is good
+SAVE_DIRECTORY                  = '/drBiggerBoy/testing/' #directory to save data. Note this needs to be created ahead of time
+                                                                #and there should be a subdirectory called data. 
+
+SAVE_H5                         = 1 # Should h5 be saved. If 0, just plotting
+
+SWITCH                          = 0 #Controlls if a switch should be used
+
+MANUAL_ACQNUM                   = -1 # Manually set acquisition number. Set to -1 to 
+                                     # get from database. NOT TESTED
+
+READ_ONLY_H5                    = 1 # currently unused
+
+ANT_POS_IDX                     = 0 # Written to H5 and database, does not affect behavor.
+                                    # Should be in setup dict, but I want it to be obvious
+
+SAVE_AMP_CHAIN                  = 1 # save the following dictonary. Can be modified
+SETUP_DICT                      = { 'AMP1'          : 'ZKL_9VNom',
+                                    'AMP2'          : 'ZKL_9VNom',
+                                    'VOLTAGE'       : '9P051V',
+                                    'PATCH PANNEL'  : 'NA',
+                                    'ATTENUATOR'    : '12dB_HP_Variable', 
+                                    'HPF'           : '288S+',
+                                    'LPF'           : 'HSP50+',
+                                    'ADC'           : 'ADQ32',
+                                    'CLOCK'         : 'ADQ_INTERNAL',
+                                    }
+
 
 ##########################################################
-# testing
-VERBOSE_MODE                    = 0 #for testing
-
-pltTimeDomain                   = 0
-chToTest                        = 0 #Sets which channel to plot and save. assumes VERBOSE_MODE = 1
+# TESTING
+VERBOSE_MODE                    = 0 #Print info
+PRINT_BUF_COUNT                 = 0 #Prints how many buffers have been collected
+TEST_MODE                       = 0 #Copy to cpu, ~100ms overhead
+chToTest                        = 0 #Sets which channel to plot and save. assumes TEST_MODE = 1
 saveBuffer                      = 0 #Sets if the buffer should be saved.   //      //      //
-
+pltTimeDomain                   = 0 #Plots time domain data                //      //      // 
 # Available test pattern signals:
 #   - ADQ_TEST_PATTERN_SOURCE_DISABLE (required to see ADC data)
 #   - ADQ_TEST_PATTERN_SOURCE_COUNT_UP
@@ -38,7 +72,7 @@ CH0_TEST_PATTERN_SOURCE = pyadq.ADQ_TEST_PATTERN_SOURCE_DISABLE
 CH1_TEST_PATTERN_SOURCE = pyadq.ADQ_TEST_PATTERN_SOURCE_DISABLE
 
 ##########################################################
-# legacy settings that likely are unused for avg FFT
+# Legacy settings that likely are unused for avg FFT
 # or shouldn't be modified 
 
 NOF_RECORDS_PER_BUFFER = 1 
