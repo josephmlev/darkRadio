@@ -7,6 +7,7 @@ COMSOL simulations/demos/
 4Ghz-22Mhz-1e6-1e5-24Hrs.csv
 4Ghz-2MCs-1e6-1e5-dclosed-LR5.csv
 MPHR*
+*trace.log
 
 #raw text comsol output
 allE_NearField.txt
