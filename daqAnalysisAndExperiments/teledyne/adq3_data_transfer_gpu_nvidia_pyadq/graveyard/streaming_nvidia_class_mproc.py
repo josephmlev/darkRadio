@@ -1,5 +1,6 @@
 # Copyright 2023 Teledyne Signal Processing Devices Sweden AB
 """ P2P streaming ADQ -> GPU in python """
+
 import pyadq
 from typing import List, Tuple
 import cupy as cp
@@ -15,7 +16,8 @@ import matplotlib.pyplot as plt
 import cupyx.scipy.fft as cufft
 import scipy.fft
 scipy.fft.set_global_backend(cufft)
-
+import threading
+import torch
 
 def allocate_and_pin_buffer(
     buffer_size: int,
@@ -194,6 +196,11 @@ class avgFft:
         self.gdr                = gdr
         self.memory_handles     = memory_handles
         self.bar_ptr_data       = bar_ptr_data
+
+        self.data_transfer_done = 0
+        self.nof_buffers_received = [0, 0]
+        self.bytes_received = 0
+        self.status = pyadq.ADQP2pStatus()._to_ct()
        
 
     def exit(self):
@@ -272,49 +279,82 @@ class avgFft:
 
         return buffer_pointer, buffer_address, buffer
 
-    def acquireData(self):
+    def acquireData(self, sem):
         # Start timer for measurement
         start_time = time.time()
         # Start timer for regular printouts
         start_print_time = time.time()
         print(f"Start acquiring data for: {self.dev}")
         if self.dev.ADQ_StartDataAcquisition() == pyadq.ADQ_EOK: #check for errors starting
-            print("Success")
+            print("Success. Begin Acquiring")
         else:
             print("Failed")
 
-        data_transfer_done = 0
-        nof_buffers_received = [0, 0]
-        bytes_received = 0
-        status = pyadq.ADQP2pStatus()._to_ct()
-        print('status done')
-        #main transfer loop
+
+        '''PYADQ STATUS:
+        pg 167. 
+        ADQP2pStatus Members:
+            channel: Array of ADQP2pChannel structs. Each element represents a channel
+            flags: N/A
+        ADQP2pChannel members:
+            flags: N/A
+            nof_completed_buffers:
+                Number of valid entries in completed_buffers
+            completed_buffers:
+                indicies of buffers with data available to read. 
+        '''
+
+        #main transfer loop. Happens NOF_BUFFERS_TO_RECEIVE times
+        acquireTime = []
         master_start_time = time.time()
-        while not data_transfer_done:
-            self.result = self.dev.ADQ_WaitForP2pBuffers(ct.byref(status), s.WAIT_TIMEOUT_MS)
+        while not self.data_transfer_done:
+            #ti = time.time()
+            '''for ch in range(2):
+                for b in range(2):
+                    #print(f"status before wait ch{ch} buf{b}", self.status.channel[ch].completed_buffers[b])'''
+            #print()
+            #wait for buffers to fill. Code locks here until one transfer buffer fills 
+            self.result = self.dev.ADQ_WaitForP2pBuffers(ct.byref(self.status), s.WAIT_TIMEOUT_MS)
+            #time.sleep(1)
+            '''print("time to wait for p2p buff:", time.time() - ti)
+            acquireTime.append(time.time() - ti)'''
+
+            #handle errors
             if self.result == pyadq.ADQ_EAGAIN:
                 print("Timeout")
             elif self.result < 0:
                 print(f"Failed with retcode {self.result}")
                 exit(1)
-
+            #We have a full buffer, 
             else:
+                '''for ch in range(2):
+                    for b in range(2):
+                        b
+                        #print(f"status after wait ch{ch} buf{b}", self.status.channel[ch].completed_buffers[b])'''
+                sem.release()
                 buf = 0
-                while (buf < status.channel[0].nof_completed_buffers) or (
-                    buf < status.channel[1].nof_completed_buffers
+                #print('nof complete buffers', self.status.channel[0].nof_completed_buffers, '\n')
+                
+                while (buf < self.status.channel[0].nof_completed_buffers) or (
+                    buf < self.status.channel[1].nof_completed_buffers
                 ):
                     for ch in range(s.NOF_CHANNELS):
-                        if buf < status.channel[ch].nof_completed_buffers:
-                            buffer_index = status.channel[ch].completed_buffers[buf]
-                            self.dev.ADQ_UnlockP2pBuffers(ch, (1 << buffer_index)) # A mask of buffer indexes to unlock. p194
-                            nof_buffers_received[ch] += 1
-                            bytes_received += (
+                        if buf < self.status.channel[ch].nof_completed_buffers:
+                            
+                            self.buffer_index = self.status.channel[ch].completed_buffers[buf]
+                            #print(f'num complete buffers before unlock ch {ch} buffer 0 =', self.status.channel[ch].completed_buffers[0])
+                            #print(f'num complete buffers before unlock ch {ch} buffer 1 =', self.status.channel[ch].completed_buffers[1])
+                            self.dev.ADQ_UnlockP2pBuffers(ch, (1 << self.buffer_index)) # A mask of buffer indexes to unlock. p194
+
+                            self.nof_buffers_received[ch] += 1
+                            self.bytes_received += (
                                 s.NOF_RECORDS_PER_BUFFER * s.CH0_RECORD_LEN * s.BYTES_PER_SAMPLES
                             )
 
                         #self.doFFT(ch, b)
                     buf += 1
-                data_transfer_done = nof_buffers_received[1] >= s.NOF_BUFFERS_TO_RECEIVE
+                    #print('buf', buf)
+                self.data_transfer_done = self.nof_buffers_received[1] >= s.NOF_BUFFERS_TO_RECEIVE
                 now_time = time.time() - start_time
                 print_time = time.time() - start_print_time
 
@@ -327,25 +367,28 @@ class avgFft:
                         self.dev.ADQ_StopDataAcquisition()
                         exit("Exited because of overflow.")
 
-                    print("Nof buffers received:", nof_buffers_received)
-                    print("Total GB received:", bytes_received / 10**9)
-                    print("Average transfer speed:", bytes_received / 10**9 / now_time)
-                    print("time since start", time.time() - master_start_time)
+                    print("Nof buffers received:", self.nof_buffers_received)
+                    print("Total GB received:", self.bytes_received / 10**9)
+                    print("Average transfer speed:", self.bytes_received / 10**9 / now_time)
+                    print("time since start \n", time.time() - master_start_time)
                     start_print_time = time.time()
-
+        time.sleep(.1)
+        print("Done Acquiring Data \n")
         stop_time = time.time()
 
-        gbps = bytes_received / (stop_time - start_time)
+        gbps = self.bytes_received / (stop_time - start_time)
         self.dev.ADQ_StopDataAcquisition()
-        print(f"Total GB received: {bytes_received / 10**9}")
-
+        print('########Stats########')
+        print(f'Total buffers received: {self.nof_buffers_received}')
+        print(f"Total GB received: {self.bytes_received / 10**9}")
         print(f"Total GB/s: {gbps / 10**9}")
+        #print(np.std(acquireTime)/np.mean(acquireTime))
 
         if s.PRINT_LAST_BUFFERS:
             data_buffer = np.zeros(
                 self.parameters.transfer.channel[0].record_buffer_size // 2, dtype=np.short
             )
-            print(self.gpu_buffers.buffers[0][0])
+            print(self.gpu_buffers.buffers[0][0], '\n')
             hc.cudaMemcpy(
                 data_buffer.ctypes.data,                                #destantation
                 self.gpu_buffers.buffers[1][1].data.ptr,                #source
@@ -353,50 +396,92 @@ class avgFft:
                 hc.cudaMemcpyDeviceToHost,                              #kind
             )
 
-            data_buffer.tofile("data.bin")
-            plt.close('all')
-            if 0: #time domain
-                plt.figure()
-                plt.title('time domain')
-                pts = [i for i in range(0, len(data_buffer))]
-                plt.plot(pts, data_buffer)
-                plt.xlabel('samples')
-                plt.ylabel('ACD code')
-                plt.show()
+            #data_buffer.tofile("data.bin")
+            #plotting
+            if 0:
+                plt.close('all')
+                if 0: #time domain
+                    plt.figure()
+                    plt.title('time domain')
+                    pts = [i for i in range(0, len(data_buffer))]
+                    plt.plot(pts, data_buffer)
+                    plt.xlabel('samples')
+                    plt.ylabel('ACD code')
+                    plt.show()
 
-            if 0: #time domain diff
-                plt.figure()
-                diff = np.diff(np.asarray(pts))
-                plt.plot(diff)
-                plt.show()
+                if 0: #time domain diff
+                    plt.figure()
+                    diff = np.diff(np.asarray(pts))
+                    plt.plot(diff)
+                    plt.show()
 
-            if 0: #bathtub
-                plt.figure()
-                plt.hist(data_buffer, bins = int(2**8))
-                plt.show()
+                if 0: #bathtub
+                    plt.figure()
+                    plt.hist(data_buffer, bins = int(2**8))
+                    plt.show()
 
-            if 0: #fft
-                length = len(data_buffer)
-                fft = np.abs(np.fft.fft(data_buffer)[0:length//2])
+                if 0: #fft
+                    length = len(data_buffer)
+                    fft = np.abs(np.fft.fft(data_buffer)[0:length//2])
 
-                plt.figure()
-                plt.title('FFT')
-                fft = fft**2 * 2**-34*2/(50*length**2)*1000
-                plt.plot(np.linspace(0,1.25,length//2)[1:],10*np.log10(fft[1:]))
-                plt.xlabel('Frequency (GHz)')
-                plt.ylabel('Power (dBm)')
-                plt.show()
-        #exit()
+                    plt.figure()
+                    plt.title('FFT')
+                    fft = fft**2 * 2**-34*2/(50*length**2)*1000
+                    plt.plot(np.linspace(0,1.25,length//2)[1:],10*np.log10(fft[1:]))
+                    plt.xlabel('Frequency (GHz)')
+                    plt.ylabel('Power (dBm)')
+                    plt.show()
 
-    def doFFT(self, ch, b):
-        data = (self.gpu_buffers.buffers[ch][b])
-        #print(data)
-        fft = scipy.fft.rfft(data)
-        fft_cpu = fft.get()
-        print(fft)
-        plt.figure()
-        plt.plot(fft_cpu)
-        plt.show()
+
+    
+    def doFFT(self, sem):
+
+        start_gpu = cp.cuda.Event()
+        end_gpu = cp.cuda.Event()
+
+        fftCompleted = 0
+        
+        self.fft = torch.as_tensor(cp.zeros(s.CH0_RECORD_LEN//2 + 1), device='cuda')
+        #self.fft = cp.zeros(s.CH0_RECORD_LEN//2 + 1)
+
+        while not self.data_transfer_done:
+            ti = time.time()
+            sem.acquire()
+            
+            #time.sleep(1)
+            readyBuffer = self.status.channel[1].completed_buffers[0]
+            #print("ready buffer = ",readyBuffer)
+
+            #print('on buffer: ', self.nof_buffers_received)
+            #print('FFTs completed: ', fftCompleted)
+  
+            bufferTensor    = torch.as_tensor(self.gpu_buffers.buffers[1][readyBuffer], device='cuda')
+            self.fft        +=torch.abs(torch.fft.rfft(bufferTensor))
+            
+
+            fftCompleted+=1
+
+            #self.fft2 += cp.asarray(
+            #                np.abs(scipy.fft.rfft(self.gpu_buffers.buffers[0][readyBuffer])),
+            #                dtype=cp.float_)
+            #print("type outAtt", (self.outArr[1])) #
+ 
+
+        print('Total FFTs completed: ', fftCompleted)
+
+            
+
+
+
+'''
+            for ch in range(2):
+                for b in range(2):
+                    if ch == 1:
+                        ch
+                        #print(f'buffer ch {ch} buffer{b} =', self.gpu_buffers.buffers[ch][b])
+                        #print(f'num complete buffers ch {ch} buffer{b} =', self.status.channel[ch].nof_completed_buffers)
+            #print(time.time() -ti)
+            #print()'''
 
 
 if __name__ == "__main__":
@@ -408,5 +493,53 @@ if __name__ == "__main__":
                 gdr,
                 memory_handles,
                 bar_ptr_data)
-    myclass.acquireData()
+
+    sem             = threading.Semaphore(0)
+    acquireThread   = threading.Thread(target=myclass.acquireData,
+                                    args=(sem,))
+    doFFTThread     = threading.Thread(target=myclass.doFFT,
+                                    args=(sem,))
+
+    avgPowSpec = []
+    for i in range(4):
+        print('taking run', i)
+        myclass = avgFft(parameters,
+            dev,
+            gpu_buffer_address,
+            gpu_buffer_ptr,
+            gpu_buffers,
+            gdr,
+            memory_handles,
+            bar_ptr_data)
+        acquireThread   = threading.Thread(target=myclass.acquireData,
+                                    args=(sem,))
+        doFFTThread     = threading.Thread(target=myclass.doFFT,
+                                    args=(sem,))
+        acquireThread.start()
+        doFFTThread.start()
+        acquireThread.join() # Wait for acquireThread to complete
+        doFFTThread.join()
+
+        sumFft = cp.asarray(myclass.fft).get() #convert from torch tensor to cp.array and get to cpu
+        avgPowSpec.append((sumFft/s.NOF_BUFFERS_TO_RECEIVE)**2 * 2**-34*2/(50*s.CH0_RECORD_LEN**2)*1000)
     myclass.exit()
+
+    avgPowSpec1 = np.asarray(avgPowSpec[0::2]).mean(axis=0)
+    avgPowSpec2 = np.asarray(avgPowSpec[1::2]).mean(axis=0)
+    np.save('avgPowSpec1_3000avg_6switchPerSide_2_17_23', avgPowSpec1)
+    np.save('avgPowSpec2_3000avg_6switchPerSide_2_17_23', avgPowSpec2)
+    if 1:
+        plt.figure()
+        plt.plot(np.linspace(0,1250/s.CH0_SAMPLE_SKIP_FACTOR,s.CH0_RECORD_LEN//2),10*np.log10(avgPowSpec1[1:]))
+        plt.plot(np.linspace(0,1250/s.CH0_SAMPLE_SKIP_FACTOR,s.CH0_RECORD_LEN//2),10*np.log10(avgPowSpec2[1:]), alpha = .5)
+        plt.xlabel('Freq(MHz)')
+        plt.ylabel('Power (dBm)')
+        plt.plot()
+        plt.show()
+
+        plt.figure()
+        plt.plot(np.linspace(0,1250/s.CH0_SAMPLE_SKIP_FACTOR,s.CH0_RECORD_LEN//2),((avgPowSpec1-avgPowSpec2)[1:]))
+        plt.xlabel('Freq(MHz)')
+        plt.ylabel('Power (mW)')
+        plt.plot()
+        plt.show()
