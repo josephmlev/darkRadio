@@ -145,10 +145,16 @@ if __name__ == "__main__":
     #np.save('avgPowSpec1_3000avg_6switchPerSide_2_17_23', avgPowSpec1)
     #np.save('avgPowSpec2_3000avg_6switchPerSide_2_17_23', avgPowSpec2)
     if 1:
+        avgSpec_W_plotting = avgFft_module.avgAndConvertFFT(
+            avgSpec.fftSum,
+            avgSpec.numFft,
+            s
+        )
+
         plt.figure()
         plt.title(f"{s.NOF_BUFFERS_TO_RECEIVE} FFTs Averaged")
-        plt.plot(np.linspace(0,1250/s.CH0_SAMPLE_SKIP_FACTOR,s.CH0_RECORD_LEN//2),10*np.log10(avgSpec.avgSpec_W_Ch0[1:]*1000), label = 'CH A')
-        #plt.plot(np.linspace(0,1250/s.CH0_SAMPLE_SKIP_FACTOR,s.CH0_RECORD_LEN//2),10*np.log10(avgSpec.avgPowSpecCh1[1:]), alpha = .9, label='CH B')
+        plt.plot(np.linspace(0,s.SAMPLE_RATE/2/1e6,s.CH0_RECORD_LEN//2),10*np.log10(avgSpec_W_plotting['chASpec_W'][1:]*1000), label = 'CH A')
+        plt.plot(np.linspace(0,s.SAMPLE_RATE/2/1e6,s.CH0_RECORD_LEN//2),10*np.log10(avgSpec_W_plotting['chBSpec_W'][1:]*1000), alpha = 0.8, label = 'CH B')
         plt.xlabel('Freq(MHz)')
         plt.ylabel('Power (dBm)')
         plt.legend(loc='upper right')
