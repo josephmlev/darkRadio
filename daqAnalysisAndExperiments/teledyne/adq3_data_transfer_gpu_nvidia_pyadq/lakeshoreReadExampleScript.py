@@ -81,7 +81,7 @@ def getTemp(ser, charFlag):
 		#return round((float(temp) - 273.15)*9/5 + 32, 5)
 		return round(float(temp), 5)
 	else:
-		print('NO IDEA WHAT UNITS YOU WANT - RETURNING KELVING')
+		print('NO IDEA WHAT UNITS YOU WANT - RETURNING KELVIN')
 		return float(temp)
 	
 
