@@ -12,122 +12,192 @@ from gdrapi import gdr_check_error_exit_func
 import time
 import numpy as np
 import matplotlib.pyplot as plt
+import cupyx.scipy.fft as cufft
+import scipy.fft
+scipy.fft.set_global_backend(cufft)
+
+
+def allocate_and_pin_buffer(
+    buffer_size: int,
+    memory_handle: g.GdrMemoryHandle,
+    gdr: g.Gdr,
+    bar_ptr_data: sh.BarPtrData,
+) -> Tuple[ct.c_void_p, ct.c_uint64, cp.ndarray]:
+    """Allocate and pin buffers.
+
+    Args:
+        `buffer_size`: Size to allocate on GPU.
+        `memory_handle`: Wrapped memory_handle struct from gdrapi.
+        `gdr`: Wrapped gdr object from gdrapi.
+        `bar_ptr_data`: Pointer to data on bar.
+
+    Returns:
+        `buffer_pointer`: Pointer to GPU buffer.
+        `buffer_address`: Physical address to buffer.
+        `buffer`: Buffer object.
+    """
+    info = g.GdrInfo()
+
+    buffer_size = (buffer_size + g.GPU_PAGE_SIZE - 1) & g.GPU_PAGE_MASK
+    buffer = cp.zeros(buffer_size // 2, dtype=cp.short)  # Allocate memory in GPU
+    buffer_ptr = buffer.data.ptr  # Pointer of memory
+
+    # Map device memory buffer on GPU BAR1, returning an handle.
+    gdr_status = gdrapi.gdr_pin_buffer(
+        gdr, ct.c_ulong(buffer_ptr), buffer_size, 0, 0, ct.byref(memory_handle)
+    )
+    gdr_check_error_exit_func(gdr_status or (memory_handle == 0), "gdr_pin_buffer")
+    # Create a user-space mapping for the BAR1 info, length is bar1->buffer
+    gdr_status = gdrapi.gdr_map(gdr, memory_handle, ct.byref(bar_ptr_data), buffer_size)
+    gdr_check_error_exit_func(gdr_status or (bar_ptr_data == 0), "gdr_map")
+    # Bar physical address will be aligned to the page size before being mapped in user-space
+    # so the pointer returned might be affected by an offset.
+    # gdr_get_info is used to calculate offset.
+
+    gdr_status = gdrapi.gdr_get_info(gdr, memory_handle, info)
+
+    gdr_check_error_exit_func(gdr_status, "gdr_info")
+    offset_data = info.va - buffer_ptr
+
+    buffer_address = ct.c_uint64(info.physical)
+    gdr_status = gdrapi.gdr_validate_phybar(gdr, memory_handle)
+    gdr_check_error_exit_func(gdr_status, "gdr_validate_phybar")
+    buffer_pointer = ct.c_void_p(bar_ptr_data.value + offset_data)
+
+    return buffer_pointer, buffer_address, buffer
+
 
 
 gdrapi = g.GdrApi()
 
+acu: pyadq.ADQControlUnit = pyadq.ADQControlUnit()
+# Enable trace logging
+acu.ADQControlUnit_EnableErrorTrace(pyadq.LOG_LEVEL_INFO, ".")
+
+# List the available devices
+device_list: List[pyadq.ADQInfoListEntry] = acu.ListDevices()
+
+print(f"Found {len(device_list)} device(s)")
+
+# Ensure that at least one device is available
+assert device_list
+
+# Set up the first available device
+device_to_open = 0
+dev: pyadq.ADQ = acu.SetupDevice(device_to_open)
+
+print(f"Setting up data collection for: {dev}")
+
+# Initialize the parameterss with default values
+parameters: pyadq.ADQParameters = dev.InitializeParameters(pyadq.ADQ_PARAMETER_ID_TOP)
+parameters.event_source.periodic.period = s.PERIODIC_EVENT_SOURCE_PERIOD
+parameters.event_source.periodic.frequency = s.PERIODIC_EVENT_SOURCE_FREQUENCY
+
+parameters.test_pattern.channel[0].source = s.CH0_TEST_PATTERN_SOURCE
+parameters.test_pattern.channel[1].source = s.CH1_TEST_PATTERN_SOURCE
+
+parameters.signal_processing.sample_skip.channel[0].skip_factor = s.CH0_SAMPLE_SKIP_FACTOR
+parameters.signal_processing.sample_skip.channel[1].skip_factor = s.CH1_SAMPLE_SKIP_FACTOR
+parameters.acquisition.channel[0].nof_records = (
+    s.NOF_RECORDS_PER_BUFFER * s.NOF_BUFFERS_TO_RECEIVE
+)
+parameters.acquisition.channel[0].record_length = s.CH0_RECORD_LEN
+parameters.acquisition.channel[0].trigger_source = s.CH0_TRIGGER_SOURCE
+parameters.acquisition.channel[0].trigger_edge = s.CH0_TRIGGER_EDGE
+parameters.acquisition.channel[0].horizontal_offset = s.CH0_HORIZONTAL_OFFSET
+
+if s.NOF_CHANNELS > 1:
+    parameters.acquisition.channel[1].nof_records = (
+        s.NOF_RECORDS_PER_BUFFER * s.NOF_BUFFERS_TO_RECEIVE
+    )
+    parameters.acquisition.channel[1].record_length = s.CH1_RECORD_LEN
+    parameters.acquisition.channel[1].trigger_source = s.CH1_TRIGGER_SOURCE
+    parameters.acquisition.channel[1].trigger_edge = s.CH1_TRIGGER_EDGE
+    parameters.acquisition.channel[1].horizontal_offset = s.CH1_HORIZONTAL_OFFSET
+
+parameters.transfer.common.write_lock_enabled = 1
+parameters.transfer.common.transfer_records_to_host_enabled = 0
+parameters.transfer.common.marker_mode = pyadq.ADQ_MARKER_MODE_HOST_MANUAL
+
+parameters.transfer.channel[0].record_length_infinite_enabled = 0
+parameters.transfer.channel[0].record_size = (
+    s.BYTES_PER_SAMPLES * parameters.acquisition.channel[0].record_length
+)
+parameters.transfer.channel[0].record_buffer_size = (
+    s.NOF_RECORDS_PER_BUFFER * parameters.transfer.channel[0].record_size
+)
+parameters.transfer.channel[0].metadata_enabled = 0
+parameters.transfer.channel[0].nof_buffers = s.NOF_GPU_BUFFERS
+
+if s.NOF_CHANNELS > 1:
+    parameters.transfer.channel[1].record_length_infinite_enabled = 0
+    parameters.transfer.channel[1].record_size = (
+        s.BYTES_PER_SAMPLES * parameters.acquisition.channel[1].record_length
+    )
+    parameters.transfer.channel[1].record_buffer_size = (
+        s.NOF_RECORDS_PER_BUFFER * parameters.transfer.channel[1].record_size
+    )
+    parameters.transfer.channel[1].metadata_enabled = 0
+    parameters.transfer.channel[1].nof_buffers = s.NOF_GPU_BUFFERS
+
+# Create pointers, buffers and GDR object
+memory_handles = [
+    [g.GdrMemoryHandle() for x in range(s.NOF_CHANNELS)] for y in range(s.NOF_GPU_BUFFERS)
+]
+bar_ptr_data = sh.BarPtrData(s.NOF_CHANNELS, s.NOF_GPU_BUFFERS)
+#print('bar', self.bar_ptr_data.pointers)
+gpu_buffer_ptr = sh.GpuBufferPointers(s.NOF_CHANNELS, s.NOF_GPU_BUFFERS)
+gdr = gdrapi.gdr_open()
+gpu_buffers = sh.GpuBuffers(
+    s.NOF_CHANNELS,
+    s.NOF_GPU_BUFFERS,
+    s.CH0_RECORD_LEN,
+)
+gpu_buffer_address = 0
+
+# Allocate GPU buffers
+for ch in range(s.NOF_CHANNELS):
+    for b in range(s.NOF_GPU_BUFFERS):
+        #print(f"allocating ch {ch}, buffer num {b}")
+        (
+            gpu_buffer_ptr.pointers[ch][b],
+            gpu_buffer_address,
+            gpu_buffers.buffers[ch][b],
+        ) = allocate_and_pin_buffer(
+            parameters.transfer.channel[ch].record_buffer_size,
+            memory_handles[ch][b],
+            gdr,
+            bar_ptr_data.pointers[ch][b],
+        )
+        parameters.transfer.channel[ch].record_buffer_bus_address[b] = gpu_buffer_address
+        parameters.transfer.channel[ch].record_buffer[b] = gpu_buffer_ptr.pointers[ch][b]
+# Configure digitizer parameterss
+dev.SetParameters(parameters)
+print('done allocating and configuring \n')
+
 class avgFft:
-    def __init__(self):
-        """Main streaming function"""
-        acu: pyadq.ADQControlUnit = pyadq.ADQControlUnit()
-        # Enable trace logging
-        acu.ADQControlUnit_EnableErrorTrace(pyadq.LOG_LEVEL_INFO, ".")
-
-        # List the available devices
-        device_list: List[pyadq.ADQInfoListEntry] = acu.ListDevices()
-
-        print(f"Found {len(device_list)} device(s)")
-
-        # Ensure that at least one device is available
-        assert device_list
-
-        # Set up the first available device
-        device_to_open = 0
-        self.dev: pyadq.ADQ = acu.SetupDevice(device_to_open)
-
-        print(f"Setting up data collection for: {self.dev}")
-
-        # Initialize the parameterss with default values
-        self.parameters: pyadq.ADQParameters = self.dev.InitializeParameters(pyadq.ADQ_PARAMETER_ID_TOP)
-        self.parameters.event_source.periodic.period = s.PERIODIC_EVENT_SOURCE_PERIOD
-        self.parameters.event_source.periodic.frequency = s.PERIODIC_EVENT_SOURCE_FREQUENCY
-
-        self.parameters.test_pattern.channel[0].source = s.CH0_TEST_PATTERN_SOURCE
-        self.parameters.test_pattern.channel[1].source = s.CH1_TEST_PATTERN_SOURCE
-
-        self.parameters.signal_processing.sample_skip.channel[0].skip_factor = s.CH0_SAMPLE_SKIP_FACTOR
-        self.parameters.signal_processing.sample_skip.channel[1].skip_factor = s.CH1_SAMPLE_SKIP_FACTOR
-        self.parameters.acquisition.channel[0].nof_records = (
-            s.NOF_RECORDS_PER_BUFFER * s.NOF_BUFFERS_TO_RECEIVE
-        )
-        self.parameters.acquisition.channel[0].record_length = s.CH0_RECORD_LEN
-        self.parameters.acquisition.channel[0].trigger_source = s.CH0_TRIGGER_SOURCE
-        self.parameters.acquisition.channel[0].trigger_edge = s.CH0_TRIGGER_EDGE
-        self.parameters.acquisition.channel[0].horizontal_offset = s.CH0_HORIZONTAL_OFFSET
-
-        if s.NOF_CHANNELS > 1:
-            self.parameters.acquisition.channel[1].nof_records = (
-                s.NOF_RECORDS_PER_BUFFER * s.NOF_BUFFERS_TO_RECEIVE
-            )
-            self.parameters.acquisition.channel[1].record_length = s.CH1_RECORD_LEN
-            self.parameters.acquisition.channel[1].trigger_source = s.CH1_TRIGGER_SOURCE
-            self.parameters.acquisition.channel[1].trigger_edge = s.CH1_TRIGGER_EDGE
-            self.parameters.acquisition.channel[1].horizontal_offset = s.CH1_HORIZONTAL_OFFSET
-
-        self.parameters.transfer.common.write_lock_enabled = 1
-        self.parameters.transfer.common.transfer_records_to_host_enabled = 0
-        self.parameters.transfer.common.marker_mode = pyadq.ADQ_MARKER_MODE_HOST_MANUAL
-
-        self.parameters.transfer.channel[0].record_length_infinite_enabled = 0
-        self.parameters.transfer.channel[0].record_size = (
-            s.BYTES_PER_SAMPLES * self.parameters.acquisition.channel[0].record_length
-        )
-        self.parameters.transfer.channel[0].record_buffer_size = (
-            s.NOF_RECORDS_PER_BUFFER * self.parameters.transfer.channel[0].record_size
-        )
-        self.parameters.transfer.channel[0].metadata_enabled = 0
-        self.parameters.transfer.channel[0].nof_buffers = s.NOF_GPU_BUFFERS
-
-        if s.NOF_CHANNELS > 1:
-            self.parameters.transfer.channel[1].record_length_infinite_enabled = 0
-            self.parameters.transfer.channel[1].record_size = (
-                s.BYTES_PER_SAMPLES * self.parameters.acquisition.channel[1].record_length
-            )
-            self.parameters.transfer.channel[1].record_buffer_size = (
-                s.NOF_RECORDS_PER_BUFFER * self.parameters.transfer.channel[1].record_size
-            )
-            self.parameters.transfer.channel[1].metadata_enabled = 0
-            self.parameters.transfer.channel[1].nof_buffers = s.NOF_GPU_BUFFERS
-
-        # Create pointers, buffers and GDR object
-        self.memory_handles = [
-            [g.GdrMemoryHandle() for x in range(s.NOF_CHANNELS)] for y in range(s.NOF_GPU_BUFFERS)
-        ]
-        self.bar_ptr_data = sh.BarPtrData(s.NOF_CHANNELS, s.NOF_GPU_BUFFERS)
-        #print('bar', self.bar_ptr_data.pointers)
-        self.gpu_buffer_ptr = sh.GpuBufferPointers(s.NOF_CHANNELS, s.NOF_GPU_BUFFERS)
-        self.gdr = gdrapi.gdr_open()
-        self.gpu_buffers = sh.GpuBuffers(
-            s.NOF_CHANNELS,
-            s.NOF_GPU_BUFFERS,
-            s.CH0_RECORD_LEN,
-        )
-        self.gpu_buffer_address = 0
-
-        # Allocate GPU buffers
-        for ch in range(s.NOF_CHANNELS):
-            for b in range(s.NOF_GPU_BUFFERS):
-                #print(f"allocating ch {ch}, buffer num {b}")
-                (
-                    self.gpu_buffer_ptr.pointers[ch][b],
-                    self.gpu_buffer_address,
-                    self.gpu_buffers.buffers[ch][b],
-                ) = self.allocate_and_pin_buffer(
-                    self.parameters.transfer.channel[ch].record_buffer_size,
-                    self.memory_handles[ch][b],
-                    self.gdr,
-                    self.bar_ptr_data.pointers[ch][b],
-                )
-                self.parameters.transfer.channel[ch].record_buffer_bus_address[b] = self.gpu_buffer_address
-                self.parameters.transfer.channel[ch].record_buffer[b] = self.gpu_buffer_ptr.pointers[ch][b]
-        # Configure digitizer parameterss
-        self.dev.SetParameters(self.parameters)
-        print('done allocating and configuring \n')
-
-        if self.dev.ADQ_StartDataAcquisition() == pyadq.ADQ_EOK: #check for errors starting
-            print("Success starting in init method")
+    def __init__(self,
+                parameters,
+                dev,
+                gpu_buffer_address,
+                gpu_buffer_ptr,
+                gpu_buffers,
+                gdr,
+                memory_handles,
+                bar_ptr_data
+                ):
+        self.parameters         = parameters
+        self.dev                = dev
+        self.gpu_buffer_address = gpu_buffer_address
+        self.gpu_buffer_ptr     = gpu_buffer_ptr
+        self.gpu_buffers        = gpu_buffers
+        self.gdr                = gdr
+        self.memory_handles     = memory_handles
+        self.bar_ptr_data       = bar_ptr_data
+       
 
     def exit(self):
+        print('exiting')
         for ch in range(s.NOF_CHANNELS):
             for b in range(s.NOF_GPU_BUFFERS):
                 if 0:
@@ -150,6 +220,7 @@ class avgFft:
         # Free GPU memory
         mempool = cp.get_default_memory_pool()
         mempool.free_all_blocks()
+        print('done exiting')
 
     def allocate_and_pin_buffer(
         self,
@@ -218,9 +289,9 @@ class avgFft:
         status = pyadq.ADQP2pStatus()._to_ct()
         print('status done')
         #main transfer loop
+        master_start_time = time.time()
         while not data_transfer_done:
             self.result = self.dev.ADQ_WaitForP2pBuffers(ct.byref(status), s.WAIT_TIMEOUT_MS)
-            print("result done")
             if self.result == pyadq.ADQ_EAGAIN:
                 print("Timeout")
             elif self.result < 0:
@@ -240,10 +311,14 @@ class avgFft:
                             bytes_received += (
                                 s.NOF_RECORDS_PER_BUFFER * s.CH0_RECORD_LEN * s.BYTES_PER_SAMPLES
                             )
+
+                        #self.doFFT(ch, b)
                     buf += 1
                 data_transfer_done = nof_buffers_received[1] >= s.NOF_BUFFERS_TO_RECEIVE
                 now_time = time.time() - start_time
                 print_time = time.time() - start_print_time
+
+
                 if print_time > 5:
                     # Check for overflow, stop if overflow
                     overflow_status = self.dev.GetStatus(pyadq.ADQ_STATUS_ID_OVERFLOW)
@@ -255,6 +330,7 @@ class avgFft:
                     print("Nof buffers received:", nof_buffers_received)
                     print("Total GB received:", bytes_received / 10**9)
                     print("Average transfer speed:", bytes_received / 10**9 / now_time)
+                    print("time since start", time.time() - master_start_time)
                     start_print_time = time.time()
 
         stop_time = time.time()
@@ -310,19 +386,27 @@ class avgFft:
                 plt.xlabel('Frequency (GHz)')
                 plt.ylabel('Power (dBm)')
                 plt.show()
-        exit()
+        #exit()
 
-    def checkDev(self):
-        print('made it to checkDev method')
-        if self.dev.ADQ_StartDataAcquisition() == pyadq.ADQ_EOK: #check for errors starting
-            print("Success")
-        else:
-            print('Fail')
-
+    def doFFT(self, ch, b):
+        data = (self.gpu_buffers.buffers[ch][b])
+        #print(data)
+        fft = scipy.fft.rfft(data)
+        fft_cpu = fft.get()
+        print(fft)
+        plt.figure()
+        plt.plot(fft_cpu)
+        plt.show()
 
 
 if __name__ == "__main__":
-    myclass = avgFft()
+    myclass = avgFft(parameters,
+                dev,
+                gpu_buffer_address,
+                gpu_buffer_ptr,
+                gpu_buffers,
+                gdr,
+                memory_handles,
+                bar_ptr_data)
+    myclass.acquireData()
     myclass.exit()
-    #myclass.acquireData()
-    myclass.checkDev()
