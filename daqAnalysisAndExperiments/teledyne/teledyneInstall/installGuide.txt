@@ -1,4 +1,8 @@
-1) confirm cuda examples run. 
+
+##############
+Trying to install on a new machine. I got stuck after first step and went back to DR2.
+
+confirm cuda examples run. 
 download https://github.com/NVIDIA/cuda-samples
 DR2 has this downloaded at Desktop
 DR1 has this downloaded in Desktop
@@ -14,3 +18,16 @@ SOLUTION: find nvcc (which). make symbolic link from directory make file is look
 	 dark-radio@darkradio-SYS-7039A-I:~/anaconda3/bin$ ln -s /usr/local/cuda-11.3/bin/nvcc ./nvcc
 
 
+###############
+Assuming you have a working system on a given machine
+
+Errors:
+Error 1.
+> pyadq.error.ApiError: ADQ_SetParameters failed. Expected 56 , got -9. See log file.
+> Log file: failed to set clock
+Expecting external clock, clock is off
+
+Error 2.
+> Segmentation fault (core dumped)
+Usually caused by not running insmod.sh. 
+Solved by darkRadio/daqAnalysisAndExperiments/teledyne/teledyneInstall/gdrcopy$ ./insmod.sh 

@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>ADQ SDK README</title>
+    <style>
+      body {
+        margin: 0 auto;
+        font-family: sans-serif;
+        color: #000000;
+        line-height: 1.2;
+        max-width: 840px;
+        padding: 30px;
+      }
+      h1,
+      h2,
+      h3,
+      h4 {
+        color: #000000;
+        font-weight: 100;
+      }
+      pre code {
+        font-family: Consolas, Monaco, Andale Mono, monospace;
+        font-weight: 10;
+        margin-left: 2em;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>INSTALLATION</h1>
+
+<p>To install the SDK packages, enter the "packages" directory and find the linux
+distribution and processor architecture you are using. Specific instructions for
+each distribution follows below.</p>
+
+<p>After installing all necessary packages, reboot the system so that udev reads
+the updated configuration and the driver loads.</p>
+
+<h2>Ubuntu and Debian</h2>
+
+<p>Install delivered versions of our packages using:</p>
+
+<pre><code>dpkg -i packagename
+</code></pre>
+
+<p>Use the following order:</p>
+
+<ul>
+<li>spd-adq-pci-dkms (not needed for USB devices)</li>
+<li>libadq0</li>
+<li>adqtools</li>
+</ul>
+
+<p>GUI applications:</p>
+
+<ul>
+<li>adqassist (requires libadq0 and adqtools)</li>
+<li>digitizerstudio (requires libadq0)</li>
+</ul>
+
+<h2>OpenSUSE Leap and SUSE Linux Enterprise</h2>
+
+<p><strong>Note</strong> For SUSE Linux Enterprise, use OpenSUSE Leap packages.</p>
+
+<p>Install <code>dkms</code> packge using:</p>
+
+<pre><code>zypper install dkms
+</code></pre>
+
+<p>Install delivered versions of our packages using:</p>
+
+<pre><code>rpm -U packagename
+</code></pre>
+
+<p>Use the following order:</p>
+
+<ul>
+<li>spd-adq-pci-dkms (not needed for USB devices)</li>
+<li>libadq0</li>
+<li>adqtools</li>
+</ul>
+
+<p>GUI applications:</p>
+
+<ul>
+<li>adqassist (requires libadq0 and adqtools)</li>
+<li>digitizerstudio (requires libadq0)</li>
+</ul>
+
+<h2>Fedora</h2>
+
+<p>Install delivered versions of our packages using:</p>
+
+<pre><code>dnf install packagename
+</code></pre>
+
+<p>Use the following order:</p>
+
+<ul>
+<li>spd-adq-pci-dkms (not needed for USB devices)</li>
+<li>libadq0</li>
+<li>adqtools</li>
+</ul>
+
+<p>GUI applications:</p>
+
+<ul>
+<li>adqassist (requires libadq0 and adqtools)</li>
+<li>digitizerstudio (requires libadq0)</li>
+</ul>
+
+<h2>AlmaLinux OS / CentOS / Red Hat Enterprise Linux / Scientific Linux</h2>
+
+<p><strong>Note</strong> For RHEL, use AlmaLinux packages.</p>
+
+<p>Install delivered versions of our packages using:</p>
+
+<pre><code>yum install packagename
+</code></pre>
+
+<p>Use the following order:</p>
+
+<ul>
+<li>spd-adq-pci-dkms (not needed for USB devices)</li>
+<li>libadq0</li>
+<li>adqtools</li>
+</ul>
+
+<p>GUI applications:</p>
+
+<ul>
+<li>adqassist (requires libadq0 and adqtools)</li>
+<li>digitizerstudio (requires libadq0 and EPEL, see below)</li>
+</ul>
+
+<p><strong>EPEL:</strong> Digitizer Studio requries <em>hdf5</em> and <em>udt</em> which are only available
+through the EPEL (Extra Packages for Enterprise Linux) repository. To install
+Digitizer Studio you either need to download and install these packages, with
+dependencies, separately or enable the EPEL repository for automatic dependency
+resolution. Enabling EPEL is done by running the following command:</p>
+
+<pre><code>yum install epel-release
+</code></pre>
+
+<p>AlmaLinux OS 8, CentOS 8 and Red Hat Enterprise Linux 8 also requires
+<em>powertools</em>:</p>
+
+<pre><code>yum install dnf-plugins-core &amp;&amp; dnf config-manager --set-enabled powertools
+</code></pre>
+
+<h1>Device access permissions</h1>
+
+<p>ADQ devices show up as <code>/dev/adq_pcie_</code> and <code>/dev/adq_usb_</code>, the default udev
+setting is to add read/write access to the user group "adq". The libadq0 package
+will create a user group called "adq" if that group doesn't already exist in the
+system. To be able to access the devices, in order to add your user to the "adq"
+group use the command:</p>
+
+<pre><code>usermod -a -G adq username
+</code></pre>
+
+<p>The user will have to logout and login again for the changes to take effect.</p>
+
+<h1>Kernel module version compatibility</h1>
+
+<p>The PCIe kernel module supports kernel versions from 2.6.32 and forward, however
+kernel version 3.8.0 or newer is recommended.</p>
+
+<p>The PCIe kernel module is not signed and thus will not load if your kernel uses
+"secure boot". If "secure boot" is enabled, it will need to be disabled before
+the kernel module can be loaded. Refer to your distribution documentation on how
+to do this.</p>
+
+<h1>API user guide</h1>
+
+<p>The API user guide is included as a .pdf document in the "doc" directory. All
+API functions are described there.</p>
+
+<h1>Example code</h1>
+
+<p>Example code for different languages can be found in the "examples" directory.</p>
+
+<h2>C/C++ examples</h2>
+
+<p>C/C++ example code is compiled using Make by going to the directory with the
+Makefile and running "make". To setup include paths and defines for the compiler
+"pkg-config" is used in the C/C++ examples. If not already installed, pkg-config
+can be installed using the appropriate distribution package tools.</p>
+
+<h2>Python examples</h2>
+
+<p>The Python examples are written for Python 3. They use the "ctypes" module to
+call ADQAPI functions and convert Python data structures to the appropriate
+format.</p>
+
+  </body>
+</html>

@@ -1,0 +1,1 @@
+cmd_/home/dradmin/Desktop/TSPD_SDK_linux_2023.1/examples/libs/gdrcopy/src/gdrdrv/gdrdrv.mod := printf '%s\n'   gdrdrv.o | awk '!x[$$0]++ { print("/home/dradmin/Desktop/TSPD_SDK_linux_2023.1/examples/libs/gdrcopy/src/gdrdrv/"$$0) }' > /home/dradmin/Desktop/TSPD_SDK_linux_2023.1/examples/libs/gdrcopy/src/gdrdrv/gdrdrv.mod
