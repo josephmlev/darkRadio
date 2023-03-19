@@ -1,0 +1,1 @@
+cmd_/home/dradmin/Desktop/TSPD_SDK_linux_2023.1/examples/libs/gdrcopy/src/gdrdrv/Module.symvers := sed 's/ko$$/o/' /home/dradmin/Desktop/TSPD_SDK_linux_2023.1/examples/libs/gdrcopy/src/gdrdrv/modules.order | scripts/mod/modpost -m -a  -o /home/dradmin/Desktop/TSPD_SDK_linux_2023.1/examples/libs/gdrcopy/src/gdrdrv/Module.symvers -e -i Module.symvers   -T -
