@@ -9,6 +9,10 @@ import time
 import datetime
 import threading
 
+if s.SWITCH:
+    import daqHelpers as daqh
+    arduino = daqh.arduino()
+
 
 def procFftAndSave(fftSum, 
                     numFft,
@@ -27,18 +31,18 @@ def procFftAndSave(fftSum,
     #auto extract acquisition number
     if not os.path.exists(s.SAVE_DIRECTORY+'database.txt'):
         acqNum = 0
-        print(f'set to 0')
     else:
         acqNum = int(open(s.SAVE_DIRECTORY + 'database.txt', 'r'
                         ).readlines()[-1].split(',')[0].strip()) + 1 
 
 
     print(f'acq num {acqNum}')
-    runInfoDict     = {'ACQ NUM' : acqNum, #number of spectra since start of run. Must be first
+    runInfoDict     = {'ACQ NUM'            : acqNum, #number of spectra since start of run. Must be first
                         'DATETIME'          : date_time_done,
-                        'ANT POS IDX' : s.ANT_POS_IDX,
-                        'LEN FFT LOG2' : int(np.log2(s.CH0_RECORD_LEN)),
-                        'SAMPLE RATE MHZ' : s.SAMPLE_RATE/1e6,
+                        'SWITCH_POS'        : switchPos,  
+                        'ANT POS IDX'       : s.ANT_POS_IDX,
+                        'LEN FFT LOG2'      : int(np.log2(s.CH0_RECORD_LEN)),
+                        'SAMPLE RATE MHZ'   : s.SAMPLE_RATE/1e6,
                         }
     if s.SAVE_AMP_CHAIN == 1: #option to make text file smaller without amp chain info
         runInfoDict.update(s.SETUP_DICT)
@@ -49,13 +53,14 @@ def procFftAndSave(fftSum,
     avgFft_module.writeH5(specDict,
         runInfoDict,
         acqNum,
+        switchPos,
         s.SAVE_DIRECTORY)
     
     np.save(s.SAVE_DIRECTORY + 'plottingSpec/chA_W_switch' + str(switchPos), specDict['chASpec_W'])
     np.save(s.SAVE_DIRECTORY + 'plottingSpec/chB_W_switch' + str(switchPos), specDict['chBSpec_W'])
 
     # compute average spec for plotting
-    if acqNum == 0:
+    if acqNum == 0 or acqNum == 1: #should not == 1, this is a hack that should be resolved. 3/23/23
         np.save(s.SAVE_DIRECTORY + 'plottingSpec/chA_avg_W_switch' + str(switchPos) + '.npy', specDict['chASpec_W'])
         np.save(s.SAVE_DIRECTORY + 'plottingSpec/chB_avg_W_switch' + str(switchPos) + '.npy', specDict['chASpec_W'])
     else:
@@ -79,10 +84,12 @@ if __name__ == "__main__":
 
     for acqNum in range(numLoops):
         switchPos = 0
+        if s.SWITCH:
+            arduino.switch(switchPos)
+            time.sleep(s.SWITCH_SLEEP_TIME)
         date_time = str(datetime.datetime.now())
         start_time = time.time()
-        if acqNum%10 ==0:
-            print(f'STARTING ACQUISITION NUMBER: {acqNum} AT {date_time}')
+        print(f'STARTING ACQUISITION NUMBER: {acqNum} AT {date_time}')
         ti = time.time()
         print()
 
@@ -102,7 +109,8 @@ if __name__ == "__main__":
 
         if s.SWITCH:
             switchPos = 1
-            ######### switch arduino here ########
+            arduino.switch(switchPos)
+            time.sleep(s.SWITCH_SLEEP_TIME)
             avgSpec.collectAndSumFft()
             date_time_done = str(datetime.datetime.now())
             fftSumCopy = avgSpec.fftSum.clone()

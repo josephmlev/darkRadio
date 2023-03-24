@@ -30,6 +30,7 @@ import time
 def writeH5(specDict,
             runInfoDict,
             acqNum,
+            switchPos,
             dataDir):
     '''
     Given a spectrum and some info, packs an H5 file every numSpecPerFile
@@ -59,6 +60,7 @@ def writeH5(specDict,
         #create file object. Creates h5 file if needed, else appends to existing file ('a' flag) 
         fileName    = dataDir+'data/'+str(fileNum)+'.hdf5'
         f       = h5py.File(fileName, 'a') 
+        
         #create new group object for each acqusition
         acqGrp  = f.create_group(str(acqNum))
 
@@ -75,7 +77,7 @@ def writeH5(specDict,
         if mod == 0 and fileNum != 0 and s.READ_ONLY_H5:
             os.chmod(dataDir+'data/'+str(fileNum-1)+'.hdf5', S_IREAD|S_IRGRP|S_IROTH)
 
-    #write to text file
+    #write to text file. Probably should move this to it's own function...
     if not os.path.exists(dataDir+'database.txt'):
         infoStr = ''
         for infoKey in runInfoDict:
@@ -231,12 +233,18 @@ if s.NOF_CHANNELS > 1:
     parameters.transfer.channel[1].metadata_buffer_size             = (
         s.NOF_RECORDS_PER_BUFFER * pyadq.SIZEOF_ADQ_GEN4_HEADER)
 
+if s.ADQ_CLOCK_SOURCE:
+    clock_parameters = dev.InitializeParameters(pyadq.ADQ_PARAMETER_ID_CLOCK_SYSTEM)
+    clock_parameters.clock_generator = pyadq.ADQ_CLOCK_GENERATOR_EXTERNAL_CLOCK
+    clock_parameters.sampling_frequency = s.CLOCK_RATE# (insert clock frequency here)
+    dev.SetParameters(clock_parameters)
+
 # CLOCK SETTINGS
-print('clock before', parameters.constant.clock_system.clock_generator)
-parameters.constant.clock_system.clock_generator = pyadq.ADQ_CLOCK_GENERATOR_EXTERNAL_CLOCK
-print('clock after ', parameters.constant.clock_system.clock_generator)
+#print('clock before', parameters.constant.clock_system.clock_generator)
+#parameters.constant.clock_system.clock_generator = pyadq.ADQ_CLOCK_GENERATOR_EXTERNAL_CLOCK
+#print('clock after ', parameters.constant.clock_system.clock_generator)
 #parameters.constant.clock_system.sampling_frequency = 1.280e9
-parameters.constant.clock_system.low_jitter_mode_enabled = 0
+#parameters.constant.clock_system.low_jitter_mode_enabled = 0
 
 #parameters.constant.clock_system.reference_source = pyadq.ADQ_REFERENCE_CLOCK_SOURCE_PORT_CLK
 #clock_parameters.clock_generator = pyadq.ADQ_CLOCK_GENERATOR_EXTERNAL_CLOCK
@@ -275,6 +283,10 @@ for ch in range(s.NOF_CHANNELS):
         parameters.transfer.channel[ch].record_buffer[b] = gpu_buffer_ptr.pointers[ch][b]
 # Configure digitizer parameterss
 dev.SetParameters(parameters)
+
+
+
+
 print('done allocating and configuring \n')
 
 if (s.SAMPLE_RATE*s.BYTES_PER_SAMPLES*s.NOF_CHANNELS > 7e9 
@@ -351,7 +363,9 @@ class avgFft:
         mempool = cp.get_default_memory_pool()
         mempool.free_all_blocks()
         print('done exiting')
-
+        
+    #should be deleted. Commenting to make sure nothing breaks first
+    '''
     def allocate_and_pin_buffer(
         self,
         buffer_size: int,
@@ -401,6 +415,7 @@ class avgFft:
         buffer_pointer = ct.c_void_p(bar_ptr_data.value + offset_data)
 
         return buffer_pointer, buffer_address, buffer
+        '''
 
     def collectAndSumFft(self):
         # Start timer for measurement
@@ -535,12 +550,21 @@ class avgFft:
             #plotting
             plt.close('all')
             if s.pltTimeDomain: #time domain
-                plt.figure()
-                plt.title('time domain')
                 pts = [i for i in range(0, len(self.data_buffer))]
-                plt.plot(pts, self.data_buffer)
-                plt.xlabel('samples')
-                plt.ylabel('ACD code')
+                dataVolts = 0.5 * self.data_buffer /2**15
+
+                fig, ax1 = plt.subplots()
+                plt.title('Time Domain', fontsize = 22)
+
+                ax2 = ax1.twinx()
+                ax1.plot(pts, self.data_buffer)
+                ax2.plot(pts, dataVolts)
+
+                ax1.set_xlabel('Sample Number', fontsize = 16)
+                ax1.set_ylabel('ADC Counts', fontsize = 16)
+                ax2.set_ylabel('Volts', fontsize = 16)
+                fig.tight_layout()
+
                 plt.show()
 
             if 0: #time domain diff
