@@ -58,7 +58,7 @@ chA_switch0 = 10*np.log10(np.load(s.SAVE_DIRECTORY + 'plottingSpec/chA_W_switch0
 chB_switch0 = 10*np.log10(np.load(s.SAVE_DIRECTORY + 'plottingSpec/chB_W_switch0.npy')*1000)
 if s.SWITCH:
     chA_switch1 = 10*np.log10(np.load(s.SAVE_DIRECTORY + 'plottingSpec/chA_W_switch1.npy')*1000)
-    #chB_switch1 = 10*np.log10(np.load(s.SAVE_DIRECTORY + 'plottingSpec/chB_W_switch1.npy')*1000)
+    chB_switch1 = 10*np.log10(np.load(s.SAVE_DIRECTORY + 'plottingSpec/chB_W_switch1.npy')*1000)
 
 fig.add_trace(
     {"y": chB_switch0, "name": "antSpecInst"},
@@ -80,7 +80,7 @@ fig.write_html(buffer)
 app.layout = html.Div([
     dcc.Graph(id="graph-id", figure=fig),
     trace_updater.TraceUpdater(id="trace-updater", gdID="graph-id"),
-    dcc.Interval(id='interval-component', interval=20000, n_intervals=0),
+    dcc.Interval(id='interval-component', interval=99999999999, n_intervals=0),
 ])
 
 # Register the callback
@@ -151,17 +151,17 @@ def update_graph_live(n):
         
         ########Plot 3: Main Ch, Average########
         fig.add_trace(
-            {"x": freqs[1000:], "y": chB_avg_switch0[1000:], "name": "Antenna Instantaneous"},
+            {"x": freqs[1000:], "y": chB_avg_switch0[1000:], "name": "Antenna Average"},
             row = 3, col = 1,
         )
         if s.SWITCH:
             fig.add_trace(
-                {"x":freqs[1000:], "y": chB_avg_switch1[1000:], "name": "Terminator Instantaneous"},
+                {"x":freqs[1000:], "y": chB_avg_switch1[1000:], "name": "Terminator Average"},
                 row = 3, col = 1,
             )
         ########Plot 4: Veto Ch, Average########
         fig.add_trace(
-            {"x": freqs[1000:], "y": chA_avg_switch0[1000:], "name": "Veto Instantaneous"},
+            {"x": freqs[1000:], "y": chA_avg_switch0[1000:], "name": "Veto Average"},
             row = 4, col = 1,
         )
         

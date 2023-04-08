@@ -47,7 +47,7 @@ if s.ADQ_CLOCK_SOURCE:
     print('\n################')
     print(f"Valon set to {freqReturn[1]} with Teledyne sample skip = {s.CH0_SAMPLE_SKIP_FACTOR}")
     print(f"ADQ sample rate of {s.SAMPLE_RATE/1e6} MHz")
-    print(f"Max frequency {s.SAMPLE_RATE/2/1e6} MHz")
+    print(f"Span: 0 - {s.SAMPLE_RATE/2/1e6} MHz")
     print('################\n')
 
 
@@ -56,5 +56,5 @@ if s.ADQ_CLOCK_SOURCE:
 
 
     print('Valon config success!\n')
-
+    print(f"Have a good run!")
 

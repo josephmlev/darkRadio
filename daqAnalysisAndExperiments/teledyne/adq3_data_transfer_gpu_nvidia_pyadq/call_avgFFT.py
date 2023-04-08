@@ -48,7 +48,7 @@ def procFftAndSave(fftSum,
         runInfoDict.update(s.SETUP_DICT)
 
     if s.SAVE_W_SPEC == 1:
-        np.save(s.PATH_TO_SAVE_W_DICT, specDict)
+        np.save(s.PATH_TO_SAVE_SINGLE_SPEC, specDict)
 
     avgFft_module.writeH5(specDict,
         runInfoDict,

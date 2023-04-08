@@ -7,8 +7,8 @@ NOF_CHANNELS                    = 2 #can't currently change. Need to load 1 ch f
 CH0_RECORD_LEN                  = int(2**24) 
 CH1_RECORD_LEN                  = CH0_RECORD_LEN #Different lengths is untested
 
-NOF_BUFFERS_TO_RECEIVE          = 2500 #for each call of avgFFT()
-NOF_ACQUISITIONS_TO_TAKE        = 1000  #number of times to call avgFFT()
+NOF_BUFFERS_TO_RECEIVE          = 1000000 #for each call of avgFFT()
+NOF_ACQUISITIONS_TO_TAKE        = 1  #number of times to call avgFFT()
 
 NOF_GPU_BUFFERS                 = 2 #per channel. Crashes if not 2.
 
@@ -41,16 +41,16 @@ PERIODIC_EVENT_SOURCE_PERIOD    = int(CH0_RECORD_LEN + 100)
 ##########################################################
 # SAVING
 # NOF_ACQUISITIONS_TO_TAKE should be 1
-SAVE_W_SPEC                     = 0 #Saves spec to .npy. Not tested
-PATH_TO_SPEC                    ='./W_dict' #Where to save above
+SAVE_W_SPEC                     = 0 #Saves last spec to .npy. Not tested
+PATH_TO_SAVE_SINGLE_SPEC        ='/drBigBoy/darkRadio/daqAnalysisAndExperiments/run1p3/rfInterferenceTesting/data_gitignore/W_dict_ultraParanoid_everythingoff_1MFFTs_3_26_23_v2' #Where to save above
 
 NUM_SPEC_PER_FILE               = 16 #How many spectra to put in a file. Keep files around 1GB. 16 is good
 SAVE_DIRECTORY                  = '/drBiggerBoy/moreTesting_3_23_23/' #directory to save data. Note this needs to be created ahead of time
                                                                 #and there should be a subdirectory called data. 
 
-SAVE_H5                         = 1 # Should h5 be saved. If 0, just plotting
+SAVE_H5                         = 0 # Should h5 be saved and database be updated. If 0, just plotting and SAVE_W_SPEC
 
-SWITCH                          = 1 #Controlls if a switch should be used
+SWITCH                          = 0 #Controlls if a switch should be used
 SWITCH_SLEEP_TIME		= .005 #Time in seconds to sleep after switching
 
 MANUAL_ACQNUM                   = -1 # Manually set acquisition number. Set to -1 to 
@@ -59,7 +59,7 @@ MANUAL_ACQNUM                   = -1 # Manually set acquisition number. Set to -
 READ_ONLY_H5                    = 1 # currently unused
 
 ANT_POS_IDX                     = 0 # Written to H5 and database, does not affect behavor.
-                                    # Should be in setup dict, but I want it to be obvious
+                                    # Should be in setup dict below, but I want it to be obvious
 
 SAVE_AMP_CHAIN                  = 1 # save the following dictonary. Can be modified
 SETUP_DICT                      = { 'AMP1'          : 'PNK_1012',

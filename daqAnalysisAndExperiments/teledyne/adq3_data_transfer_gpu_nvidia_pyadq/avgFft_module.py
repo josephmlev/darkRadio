@@ -77,26 +77,26 @@ def writeH5(specDict,
         if mod == 0 and fileNum != 0 and s.READ_ONLY_H5:
             os.chmod(dataDir+'data/'+str(fileNum-1)+'.hdf5', S_IREAD|S_IRGRP|S_IROTH)
 
-    #write to text file. Probably should move this to it's own function...
-    if not os.path.exists(dataDir+'database.txt'):
-        infoStr = ''
+        #write to text file. Probably should move this to it's own function...
+        if not os.path.exists(dataDir+'database.txt'):
+            infoStr = ''
+            for infoKey in runInfoDict:
+                infoStr += infoKey + ','
+            infoStr += 'File Number\n' 
+
+            file = open(dataDir + 'database.txt', 'w')
+            file.writelines(infoStr)
+            file.close()
+
+        lineToWrite = ''
         for infoKey in runInfoDict:
-            infoStr += infoKey + ','
-        infoStr += 'File Number\n' 
+            infoData = str(runInfoDict[infoKey])
+            lineToWrite += infoData + ', '
+        lineToWrite += str(fileNum) +'\n'
 
-        file = open(dataDir + 'database.txt', 'w')
-        file.writelines(infoStr)
+        file = open(dataDir + 'database.txt', 'a')
+        file.writelines(lineToWrite)
         file.close()
-
-    lineToWrite = ''
-    for infoKey in runInfoDict:
-        infoData = str(runInfoDict[infoKey])
-        lineToWrite += infoData + ', '
-    lineToWrite += str(fileNum) +'\n'
-
-    file = open(dataDir + 'database.txt', 'a')
-    file.writelines(lineToWrite)
-    file.close()
 
 def allocate_and_pin_buffer(
     buffer_size: int,
@@ -363,59 +363,6 @@ class avgFft:
         mempool = cp.get_default_memory_pool()
         mempool.free_all_blocks()
         print('done exiting')
-        
-    #should be deleted. Commenting to make sure nothing breaks first
-    '''
-    def allocate_and_pin_buffer(
-        self,
-        buffer_size: int,
-        memory_handle: g.GdrMemoryHandle,
-        gdr: g.Gdr,
-        bar_ptr_data: sh.BarPtrData,
-    ) -> Tuple[ct.c_void_p, ct.c_uint64, cp.ndarray]:
-        """Allocate and pin buffers.
-
-        Args:
-            `buffer_size`: Size to allocate on GPU.
-            `memory_handle`: Wrapped memory_handle struct from gdrapi.
-            `gdr`: Wrapped gdr object from gdrapi.
-            `bar_ptr_data`: Pointer to data on bar.
-
-        Returns:
-            `buffer_pointer`: Pointer to GPU buffer. ct void pointer
-            `buffer_address`: Physical address to buffer. ct uint64
-            `buffer`: Buffer object. cp.ndarray
-        """
-        info = g.GdrInfo()
-
-        buffer_size = (buffer_size + g.GPU_PAGE_SIZE - 1) & g.GPU_PAGE_MASK
-        buffer = cp.zeros(buffer_size // 2, dtype=cp.short)  # Allocate memory in GPU
-        buffer_ptr = buffer.data.ptr  # Pointer of memory
-
-        # Map device memory buffer on GPU BAR1, returning an handle.
-        gdr_status = gdrapi.gdr_pin_buffer(
-            gdr, ct.c_ulong(buffer_ptr), buffer_size, 0, 0, ct.byref(memory_handle)
-        )
-        gdr_check_error_exit_func(gdr_status or (memory_handle == 0), "gdr_pin_buffer")
-        # Create a user-space mapping for the BAR1 info, length is bar1->buffer
-        gdr_status = gdrapi.gdr_map(gdr, memory_handle, ct.byref(bar_ptr_data), buffer_size)
-        gdr_check_error_exit_func(gdr_status or (bar_ptr_data == 0), "gdr_map")
-        # Bar physical address will be aligned to the page size before being mapped in user-space
-        # so the pointer returned might be affected by an offset.
-        # gdr_get_info is used to calculate offset.
-
-        gdr_status = gdrapi.gdr_get_info(gdr, memory_handle, info)
-
-        gdr_check_error_exit_func(gdr_status, "gdr_info")
-        offset_data = info.va - buffer_ptr
-
-        buffer_address = ct.c_uint64(info.physical)
-        gdr_status = gdrapi.gdr_validate_phybar(gdr, memory_handle)
-        gdr_check_error_exit_func(gdr_status, "gdr_validate_phybar")
-        buffer_pointer = ct.c_void_p(bar_ptr_data.value + offset_data)
-
-        return buffer_pointer, buffer_address, buffer
-        '''
 
     def collectAndSumFft(self):
         # Start timer for measurement

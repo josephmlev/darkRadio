@@ -308,7 +308,7 @@ def checkBuffer(sem):
     while True:
         sem.acquire()
         print('check time:   ', time.time())
-        time.sleep(100)
+        time.sleep(10)
         print()
 
 
