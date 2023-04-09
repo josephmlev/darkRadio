@@ -16,88 +16,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import torch
 
-import h5py
-import os
-from stat import S_IREAD, S_IRGRP, S_IROTH, S_IWUSR
-import time
-
-
-
-    
-
-
-
-def writeH5(specDict,
-            runInfoDict,
-            acqNum,
-            switchPos,
-            dataDir):
-    '''
-    Given a spectrum and some info, packs an H5 file every numSpecPerFile
-    spectra.
-    
-    Inputs:
-    specDict         : dictionary of np arrays
-        Dict containing arrays of spectra
-    runInfoDict      : dictionary
-        Dict containing info about the run
-    acqNum          : int
-        Number of acqusition since start of run
-    numSpecPerFile  : int
-        How many spectra to write per file. Should be set
-        to keep files around 1GB (about 16 for two 2^24 FFTs)
-    dataDir         : str
-        directory to save data. Note this needs to be created ahead of time
-        and there should be a subdirectory called data. 
-    '''
-
-    #number games to figure out what file to write
-    mod         = acqNum%s.NUM_SPEC_PER_FILE
-    fileNum     = int((acqNum-mod)/s.NUM_SPEC_PER_FILE)
-    
-
-    if s.SAVE_H5:
-        #create file object. Creates h5 file if needed, else appends to existing file ('a' flag) 
-        fileName    = dataDir+'data/'+str(fileNum)+'.hdf5'
-        f       = h5py.File(fileName, 'a') 
-        
-        #create new group object for each acqusition
-        acqGrp  = f.create_group(str(acqNum))
-
-        #pack spectra as dataseta
-        for specName in specDict:
-            acqGrp.create_dataset(specName, data=specDict[specName], dtype = 'f')
-        
-        #pack run into as attributes
-        for infoName in runInfoDict:
-            acqGrp.attrs[infoName] = runInfoDict[infoName]
-        acqGrp.attrs['File Number'] = fileNum
-        
-        #if on a new file, make previous file read only. Note last file wont be read only
-        if mod == 0 and fileNum != 0 and s.READ_ONLY_H5:
-            os.chmod(dataDir+'data/'+str(fileNum-1)+'.hdf5', S_IREAD|S_IRGRP|S_IROTH)
-
-        #write to text file. Probably should move this to it's own function...
-        if not os.path.exists(dataDir+'database.txt'):
-            infoStr = ''
-            for infoKey in runInfoDict:
-                infoStr += infoKey + ','
-            infoStr += 'File Number\n' 
-
-            file = open(dataDir + 'database.txt', 'w')
-            file.writelines(infoStr)
-            file.close()
-
-        lineToWrite = ''
-        for infoKey in runInfoDict:
-            infoData = str(runInfoDict[infoKey])
-            lineToWrite += infoData + ', '
-        lineToWrite += str(fileNum) +'\n'
-
-        file = open(dataDir + 'database.txt', 'a')
-        file.writelines(lineToWrite)
-        file.close()
-
 def allocate_and_pin_buffer(
     buffer_size: int,
     memory_handle: g.GdrMemoryHandle,
@@ -158,6 +76,7 @@ acu.ADQControlUnit_EnableErrorTrace(pyadq.LOG_LEVEL_INFO, ".")
 # List the available devices
 device_list: List[pyadq.ADQInfoListEntry] = acu.ListDevices()
 
+print('#############################')
 print(f"Found {len(device_list)} device(s)")
 
 # Ensure that at least one device is available
@@ -284,18 +203,10 @@ for ch in range(s.NOF_CHANNELS):
 # Configure digitizer parameterss
 dev.SetParameters(parameters)
 
+print('done allocating and configuring')
+print('#############################\n')
 
 
-
-print('done allocating and configuring \n')
-
-if (s.SAMPLE_RATE*s.BYTES_PER_SAMPLES*s.NOF_CHANNELS > 7e9 
-    and s.PERIODIC_EVENT_SOURCE_PERIOD < s.CH0_RECORD_LEN):
-    print('####################') 
-    print('WARNING!!! YOUR SETTINGS REQUEST A DATA RATE GREATER THAN THE ALLOWED 7GB/s')
-    print('THIS MAY WORK FOR ~< 100 RECORDS TO COLLECT, BUT WILL CRASH')
-    print('####################')
-    print()
 
 class avgFft:
     def __init__(self,
@@ -371,9 +282,10 @@ class avgFft:
         start_print_time = time.time()
         # Init time list for FFTs
         self.fftTime = [] 
-        print(f"Start acquiring data for: {self.dev}")
+        #print(f"Start acquiring data for: {self.dev}")
         if self.dev.ADQ_StartDataAcquisition() == pyadq.ADQ_EOK: #check for errors starting
-            print("Success. Begin Acquiring")
+            #print("Success. Begin Acquiring")
+            pass 
         else:
             print("Failed")
 
@@ -451,7 +363,7 @@ class avgFft:
                             " Time", datetime.datetime.now())
                     start_print_time = time.time()
         
-        print("Done Acquiring Data \n")
+        #print("Done Acquiring Data \n")
         stop_time = time.time()
         self.dev.ADQ_StopDataAcquisition()
 
@@ -472,31 +384,31 @@ class avgFft:
 
         if self.s.TEST_MODE:
             self.data_buffer = np.zeros(
-                self.parameters.transfer.channel[s.chToTest].record_buffer_size // 2,
+                self.parameters.transfer.channel[s.CH_TO_TEST].record_buffer_size // 2,
                 dtype=np.short)
             hc.cudaMemcpy(
                 self.data_buffer.ctypes.data,                               #destantation
-                self.gpu_buffers.buffers[self.s.chToTest][1].data.ptr,      #source
+                self.gpu_buffers.buffers[self.s.CH_TO_TEST][1].data.ptr,      #source
                 self.parameters.transfer.channel[1].record_buffer_size,     #size
                 hc.cudaMemcpyDeviceToHost,                                  #kind
             )
             print(f'Buffer: self.gpu_buffers.buffers[0][0]')
-            print(f'Mean of Buffer    {(np.mean(self.gpu_buffers.buffers[self.s.chToTest][0]))}')
-            print(f'STD of Buffer     {(np.std(self.gpu_buffers.buffers[self.s.chToTest][0]))}')
+            print(f'Mean of Buffer    {(np.mean(self.gpu_buffers.buffers[self.s.CH_TO_TEST][0]))}')
+            print(f'STD of Buffer     {(np.std(self.gpu_buffers.buffers[self.s.CH_TO_TEST][0]))}')
             print('Max/min of Buffer',
-                (np.max(self.gpu_buffers.buffers[self.s.chToTest][0])
+                (np.max(self.gpu_buffers.buffers[self.s.CH_TO_TEST][0])
                 /np.min(self.gpu_buffers.buffers[0][0])))
             print("number of clips: ",
                 ((self.data_buffer==2**((s.BYTES_PER_SAMPLES*8)-1)).sum() 
                 + (self.data_buffer==-2**((s.BYTES_PER_SAMPLES*8)-1)).sum()))
 
 
-            if self.s.saveBuffer:
+            if self.s.SAVE_BUFFER:
                 np.save('timeDomainBuffer', self.data_buffer)
 
             #plotting
             plt.close('all')
-            if s.pltTimeDomain: #time domain
+            if s.PLOT_TIME_DOMAIN:
                 pts = [i for i in range(0, len(self.data_buffer))]
                 dataVolts = 0.5 * self.data_buffer /2**15
 
@@ -540,26 +452,6 @@ class avgFft:
     def copy(self):
         return self
 
-def avgAndConvertFFT(fftSum, numFft, s):
-    #move from GPU to RAM
-    fftSumCpu           = fftSum.cpu()
-    avgSpec_fftsq       = np.zeros(np.shape(fftSumCpu))
-    avgSpec_W           = np.zeros(np.shape(fftSumCpu))
-    ###################AVERAGE AND CONVERT#################### 
-    #average FFT^2 spectra
-    avgSpec_fftsq[:,0]   = np.asarray(fftSumCpu[:,0]/numFft[0])
-    avgSpec_fftsq[:,1]   = np.asarray(fftSumCpu[:,1]/numFft[1])
-    
-    #convert FFT^2 to power spectra (Watts)
-    #P_W = V^2/R
-    #V   = 2 * 1/len_FFT * FFT * 2^(ADC code to V) NOTE: 2 is because Rfft
-    #P_W = 2 * FFT^2 * (adcCode2V)/R  
-    adcCode2V           = 0.5/2**(8*s.BYTES_PER_SAMPLES) #max V/max code 
-    avgSpec_W[:,0]      = 2 * avgSpec_fftsq[:,0] * (adcCode2V**2) /(50*s.CH0_RECORD_LEN**2)
-    avgSpec_W[:,1]      = 2 * avgSpec_fftsq[:,1] * (adcCode2V**2) /(50*s.CH1_RECORD_LEN**2)
 
-    specDict        = {'chASpec_W'  : avgSpec_W[:,0],
-                    'chBSpec_W'     : avgSpec_W[:,1]}
-    return specDict
     
     
