@@ -1,0 +1,1561 @@
+---------------------------------------------------------------------
+Log and error trace from ADQ of type     3
+---------------------------------------------------------------------
+
+[Log Header]
+Operating System       : Linux
+OS details             : Linux 5.15.0-58-generic #64-Ubuntu SMP Thu Jan 5 11:43:13 UTC 2023 
+CPU info /proc/cpuinfo : 
+processor	: 0
+vendor_id	: AuthenticAMD
+cpu family	: 23
+model		: 49
+model name	: AMD Ryzen Threadripper 3960X 24-Core Processor
+stepping	: 0
+microcode	: 0x8301039
+cpu MHz		: 2200.000
+cache size	: 512 KB
+physical id	: 0
+siblings	: 48
+core id		: 0
+cpu cores	: 24
+apicid		: 0
+initial apicid	: 0
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 16
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm constant_tsc rep_good nopl nonstop_tsc cpuid extd_apicid aperfmperf rapl pni pclmulqdq monitor ssse3 fma cx16 sse4_1 sse4_2 movbe popcnt aes xsave avx f16c rdrand lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt tce topoext perfctr_core perfctr_nb bpext perfctr_llc mwaitx cpb cat_l3 cdp_l3 hw_pstate ssbd mba ibpb stibp vmmcall fsgsbase bmi1 avx2 smep bmi2 cqm rdt_a rdseed adx smap clflushopt clwb sha_ni xsaveopt xsavec xgetbv1 xsaves cqm_llc cqm_occup_llc cqm_mbm_total cqm_mbm_local clzero irperf xsaveerptr rdpru wbnoinvd arat npt lbrv svm_lock nrip_save tsc_scale vmcb_clean flushbyasid decodeassists pausefilter pfthreshold avic v_vmsave_vmload vgif v_spec_ctrl umip rdpid overflow_recov succor smca sme sev sev_es
+bugs		: sysret_ss_attrs spectre_v1 spectre_v2 spec_store_bypass retbleed
+bogomips	: 7599.86
+TLB size	: 3072 4K pages
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 43 bits physical, 48 bits virtual
+power management: ts ttp tm hwpstate cpb eff_freq_ro [13] [14]
+
+processor	: 1
+vendor_id	: AuthenticAMD
+cpu family	: 23
+model		: 49
+model name	: AMD Ryzen Threadripper 3960X 24-Core Processor
+stepping	: 0
+microcode	: 0x8301039
+cpu MHz		: 2200.000
+cache size	: 512 KB
+physical id	: 0
+siblings	: 48
+core id		: 1
+cpu cores	: 24
+apicid		: 2
+initial apicid	: 2
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 16
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm constant_tsc rep_good nopl nonstop_tsc cpuid extd_apicid aperfmperf rapl pni pclmulqdq monitor ssse3 fma cx16 sse4_1 sse4_2 movbe popcnt aes xsave avx f16c rdrand lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt tce topoext perfctr_core perfctr_nb bpext perfctr_llc mwaitx cpb cat_l3 cdp_l3 hw_pstate ssbd mba ibpb stibp vmmcall fsgsbase bmi1 avx2 smep bmi2 cqm rdt_a rdseed adx smap clflushopt clwb sha_ni xsaveopt xsavec xgetbv1 xsaves cqm_llc cqm_occup_llc cqm_mbm_total cqm_mbm_local clzero irperf xsaveerptr rdpru wbnoinvd arat npt lbrv svm_lock nrip_save tsc_scale vmcb_clean flushbyasid decodeassists pausefilter pfthreshold avic v_vmsave_vmload vgif v_spec_ctrl umip rdpid overflow_recov succor smca sme sev sev_es
+bugs		: sysret_ss_attrs spectre_v1 spectre_v2 spec_store_bypass retbleed
+bogomips	: 7599.86
+TLB size	: 3072 4K pages
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 43 bits physical, 48 bits virtual
+power management: ts ttp tm hwpstate cpb eff_freq_ro [13] [14]
+
+processor	: 2
+vendor_id	: AuthenticAMD
+cpu family	: 23
+model		: 49
+model name	: AMD Ryzen Threadripper 3960X 24-Core Processor
+stepping	: 0
+microcode	: 0x8301039
+cpu MHz		: 2200.000
+cache size	: 512 KB
+physical id	: 0
+siblings	: 48
+core id		: 2
+cpu cores	: 24
+apicid		: 4
+initial apicid	: 4
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 16
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm constant_tsc rep_good nopl nonstop_tsc cpuid extd_apicid aperfmperf rapl pni pclmulqdq monitor ssse3 fma cx16 sse4_1 sse4_2 movbe popcnt aes xsave avx f16c rdrand lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt tce topoext perfctr_core perfctr_nb bpext perfctr_llc mwaitx cpb cat_l3 cdp_l3 hw_pstate ssbd mba ibpb stibp vmmcall fsgsbase bmi1 avx2 smep bmi2 cqm rdt_a rdseed adx smap clflushopt clwb sha_ni xsaveopt xsavec xgetbv1 xsaves cqm_llc cqm_occup_llc cqm_mbm_total cqm_mbm_local clzero irperf xsaveerptr rdpru wbnoinvd arat npt lbrv svm_lock nrip_save tsc_scale vmcb_clean flushbyasid decodeassists pausefilter pfthreshold avic v_vmsave_vmload vgif v_spec_ctrl umip rdpid overflow_recov succor smca sme sev sev_es
+bugs		: sysret_ss_attrs spectre_v1 spectre_v2 spec_store_bypass retbleed
+bogomips	: 7599.86
+TLB size	: 3072 4K pages
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 43 bits physical, 48 bits virtual
+power management: ts ttp tm hwpstate cpb eff_freq_ro [13] [14]
+
+processor	: 3
+vendor_id	: AuthenticAMD
+cpu family	: 23
+model		: 49
+model name	: AMD Ryzen Threadripper 3960X 24-Core Processor
+stepping	: 0
+microcode	: 0x8301039
+cpu MHz		: 2200.000
+cache size	: 512 KB
+physical id	: 0
+siblings	: 48
+core id		: 4
+cpu cores	: 24
+apicid		: 8
+initial apicid	: 8
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 16
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm constant_tsc rep_good nopl nonstop_tsc cpuid extd_apicid aperfmperf rapl pni pclmulqdq monitor ssse3 fma cx16 sse4_1 sse4_2 movbe popcnt aes xsave avx f16c rdrand lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt tce topoext perfctr_core perfctr_nb bpext perfctr_llc mwaitx cpb cat_l3 cdp_l3 hw_pstate ssbd mba ibpb stibp vmmcall fsgsbase bmi1 avx2 smep bmi2 cqm rdt_a rdseed adx smap clflushopt clwb sha_ni xsaveopt xsavec xgetbv1 xsaves cqm_llc cqm_occup_llc cqm_mbm_total cqm_mbm_local clzero irperf xsaveerptr rdpru wbnoinvd arat npt lbrv svm_lock nrip_save tsc_scale vmcb_clean flushbyasid decodeassists pausefilter pfthreshold avic v_vmsave_vmload vgif v_spec_ctrl umip rdpid overflow_recov succor smca sme sev sev_es
+bugs		: sysret_ss_attrs spectre_v1 spectre_v2 spec_store_bypass retbleed
+bogomips	: 7599.86
+TLB size	: 3072 4K pages
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 43 bits physical, 48 bits virtual
+power management: ts ttp tm hwpstate cpb eff_freq_ro [13] [14]
+
+processor	: 4
+vendor_id	: AuthenticAMD
+cpu family	: 23
+model		: 49
+model name	: AMD Ryzen Threadripper 3960X 24-Core Processor
+stepping	: 0
+microcode	: 0x8301039
+cpu MHz		: 2200.000
+cache size	: 512 KB
+physical id	: 0
+siblings	: 48
+core id		: 5
+cpu cores	: 24
+apicid		: 10
+initial apicid	: 10
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 16
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm constant_tsc rep_good nopl nonstop_tsc cpuid extd_apicid aperfmperf rapl pni pclmulqdq monitor ssse3 fma cx16 sse4_1 sse4_2 movbe popcnt aes xsave avx f16c rdrand lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt tce topoext perfctr_core perfctr_nb bpext perfctr_llc mwaitx cpb cat_l3 cdp_l3 hw_pstate ssbd mba ibpb stibp vmmcall fsgsbase bmi1 avx2 smep bmi2 cqm rdt_a rdseed adx smap clflushopt clwb sha_ni xsaveopt xsavec xgetbv1 xsaves cqm_llc cqm_occup_llc cqm_mbm_total cqm_mbm_local clzero irperf xsaveerptr rdpru wbnoinvd arat npt lbrv svm_lock nrip_save tsc_scale vmcb_clean flushbyasid decodeassists pausefilter pfthreshold avic v_vmsave_vmload vgif v_spec_ctrl umip rdpid overflow_recov succor smca sme sev sev_es
+bugs		: sysret_ss_attrs spectre_v1 spectre_v2 spec_store_bypass retbleed
+bogomips	: 7599.86
+TLB size	: 3072 4K pages
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 43 bits physical, 48 bits virtual
+power management: ts ttp tm hwpstate cpb eff_freq_ro [13] [14]
+
+processor	: 5
+vendor_id	: AuthenticAMD
+cpu family	: 23
+model		: 49
+model name	: AMD Ryzen Threadripper 3960X 24-Core Processor
+stepping	: 0
+microcode	: 0x8301039
+cpu MHz		: 2200.000
+cache size	: 512 KB
+physical id	: 0
+siblings	: 48
+core id		: 6
+cpu cores	: 24
+apicid		: 12
+initial apicid	: 12
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 16
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm constant_tsc rep_good nopl nonstop_tsc cpuid extd_apicid aperfmperf rapl pni pclmulqdq monitor ssse3 fma cx16 sse4_1 sse4_2 movbe popcnt aes xsave avx f16c rdrand lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt tce topoext perfctr_core perfctr_nb bpext perfctr_llc mwaitx cpb cat_l3 cdp_l3 hw_pstate ssbd mba ibpb stibp vmmcall fsgsbase bmi1 avx2 smep bmi2 cqm rdt_a rdseed adx smap clflushopt clwb sha_ni xsaveopt xsavec xgetbv1 xsaves cqm_llc cqm_occup_llc cqm_mbm_total cqm_mbm_local clzero irperf xsaveerptr rdpru wbnoinvd arat npt lbrv svm_lock nrip_save tsc_scale vmcb_clean flushbyasid decodeassists pausefilter pfthreshold avic v_vmsave_vmload vgif v_spec_ctrl umip rdpid overflow_recov succor smca sme sev sev_es
+bugs		: sysret_ss_attrs spectre_v1 spectre_v2 spec_store_bypass retbleed
+bogomips	: 7599.86
+TLB size	: 3072 4K pages
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 43 bits physical, 48 bits virtual
+power management: ts ttp tm hwpstate cpb eff_freq_ro [13] [14]
+
+processor	: 6
+vendor_id	: AuthenticAMD
+cpu family	: 23
+model		: 49
+model name	: AMD Ryzen Threadripper 3960X 24-Core Processor
+stepping	: 0
+microcode	: 0x8301039
+cpu MHz		: 2200.000
+cache size	: 512 KB
+physical id	: 0
+siblings	: 48
+core id		: 8
+cpu cores	: 24
+apicid		: 16
+initial apicid	: 16
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 16
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm constant_tsc rep_good nopl nonstop_tsc cpuid extd_apicid aperfmperf rapl pni pclmulqdq monitor ssse3 fma cx16 sse4_1 sse4_2 movbe popcnt aes xsave avx f16c rdrand lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt tce topoext perfctr_core perfctr_nb bpext perfctr_llc mwaitx cpb cat_l3 cdp_l3 hw_pstate ssbd mba ibpb stibp vmmcall fsgsbase bmi1 avx2 smep bmi2 cqm rdt_a rdseed adx smap clflushopt clwb sha_ni xsaveopt xsavec xgetbv1 xsaves cqm_llc cqm_occup_llc cqm_mbm_total cqm_mbm_local clzero irperf xsaveerptr rdpru wbnoinvd arat npt lbrv svm_lock nrip_save tsc_scale vmcb_clean flushbyasid decodeassists pausefilter pfthreshold avic v_vmsave_vmload vgif v_spec_ctrl umip rdpid overflow_recov succor smca sme sev sev_es
+bugs		: sysret_ss_attrs spectre_v1 spectre_v2 spec_store_bypass retbleed
+bogomips	: 7599.86
+TLB size	: 3072 4K pages
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 43 bits physical, 48 bits virtual
+power management: ts ttp tm hwpstate cpb eff_freq_ro [13] [14]
+
+processor	: 7
+vendor_id	: AuthenticAMD
+cpu family	: 23
+model		: 49
+model name	: AMD Ryzen Threadripper 3960X 24-Core Processor
+stepping	: 0
+microcode	: 0x8301039
+cpu MHz		: 2200.000
+cache size	: 512 KB
+physical id	: 0
+siblings	: 48
+core id		: 9
+cpu cores	: 24
+apicid		: 18
+initial apicid	: 18
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 16
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm constant_tsc rep_good nopl nonstop_tsc cpuid extd_apicid aperfmperf rapl pni pclmulqdq monitor ssse3 fma cx16 sse4_1 sse4_2 movbe popcnt aes xsave avx f16c rdrand lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt tce topoext perfctr_core perfctr_nb bpext perfctr_llc mwaitx cpb cat_l3 cdp_l3 hw_pstate ssbd mba ibpb stibp vmmcall fsgsbase bmi1 avx2 smep bmi2 cqm rdt_a rdseed adx smap clflushopt clwb sha_ni xsaveopt xsavec xgetbv1 xsaves cqm_llc cqm_occup_llc cqm_mbm_total cqm_mbm_local clzero irperf xsaveerptr rdpru wbnoinvd arat npt lbrv svm_lock nrip_save tsc_scale vmcb_clean flushbyasid decodeassists pausefilter pfthreshold avic v_vmsave_vmload vgif v_spec_ctrl umip rdpid overflow_recov succor smca sme sev sev_es
+bugs		: sysret_ss_attrs spectre_v1 spectre_v2 spec_store_bypass retbleed
+bogomips	: 7599.86
+TLB size	: 3072 4K pages
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 43 bits physical, 48 bits virtual
+power management: ts ttp tm hwpstate cpb eff_freq_ro [13] [14]
+
+processor	: 8
+vendor_id	: AuthenticAMD
+cpu family	: 23
+model		: 49
+model name	: AMD Ryzen Threadripper 3960X 24-Core Processor
+stepping	: 0
+microcode	: 0x8301039
+cpu MHz		: 2200.000
+cache size	: 512 KB
+physical id	: 0
+siblings	: 48
+core id		: 10
+cpu cores	: 24
+apicid		: 20
+initial apicid	: 20
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 16
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm constant_tsc rep_good nopl nonstop_tsc cpuid extd_apicid aperfmperf rapl pni pclmulqdq monitor ssse3 fma cx16 sse4_1 sse4_2 movbe popcnt aes xsave avx f16c rdrand lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt tce topoext perfctr_core perfctr_nb bpext perfctr_llc mwaitx cpb cat_l3 cdp_l3 hw_pstate ssbd mba ibpb stibp vmmcall fsgsbase bmi1 avx2 smep bmi2 cqm rdt_a rdseed adx smap clflushopt clwb sha_ni xsaveopt xsavec xgetbv1 xsaves cqm_llc cqm_occup_llc cqm_mbm_total cqm_mbm_local clzero irperf xsaveerptr rdpru wbnoinvd arat npt lbrv svm_lock nrip_save tsc_scale vmcb_clean flushbyasid decodeassists pausefilter pfthreshold avic v_vmsave_vmload vgif v_spec_ctrl umip rdpid overflow_recov succor smca sme sev sev_es
+bugs		: sysret_ss_attrs spectre_v1 spectre_v2 spec_store_bypass retbleed
+bogomips	: 7599.86
+TLB size	: 3072 4K pages
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 43 bits physical, 48 bits virtual
+power management: ts ttp tm hwpstate cpb eff_freq_ro [13] [14]
+
+processor	: 9
+vendor_id	: AuthenticAMD
+cpu family	: 23
+model		: 49
+model name	: AMD Ryzen Threadripper 3960X 24-Core Processor
+stepping	: 0
+microcode	: 0x8301039
+cpu MHz		: 2800.000
+cache size	: 512 KB
+physical id	: 0
+siblings	: 48
+core id		: 12
+cpu cores	: 24
+apicid		: 24
+initial apicid	: 24
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 16
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm constant_tsc rep_good nopl nonstop_tsc cpuid extd_apicid aperfmperf rapl pni pclmulqdq monitor ssse3 fma cx16 sse4_1 sse4_2 movbe popcnt aes xsave avx f16c rdrand lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt tce topoext perfctr_core perfctr_nb bpext perfctr_llc mwaitx cpb cat_l3 cdp_l3 hw_pstate ssbd mba ibpb stibp vmmcall fsgsbase bmi1 avx2 smep bmi2 cqm rdt_a rdseed adx smap clflushopt clwb sha_ni xsaveopt xsavec xgetbv1 xsaves cqm_llc cqm_occup_llc cqm_mbm_total cqm_mbm_local clzero irperf xsaveerptr rdpru wbnoinvd arat npt lbrv svm_lock nrip_save tsc_scale vmcb_clean flushbyasid decodeassists pausefilter pfthreshold avic v_vmsave_vmload vgif v_spec_ctrl umip rdpid overflow_recov succor smca sme sev sev_es
+bugs		: sysret_ss_attrs spectre_v1 spectre_v2 spec_store_bypass retbleed
+bogomips	: 7599.86
+TLB size	: 3072 4K pages
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 43 bits physical, 48 bits virtual
+power management: ts ttp tm hwpstate cpb eff_freq_ro [13] [14]
+
+processor	: 10
+vendor_id	: AuthenticAMD
+cpu family	: 23
+model		: 49
+model name	: AMD Ryzen Threadripper 3960X 24-Core Processor
+stepping	: 0
+microcode	: 0x8301039
+cpu MHz		: 2200.000
+cache size	: 512 KB
+physical id	: 0
+siblings	: 48
+core id		: 13
+cpu cores	: 24
+apicid		: 26
+initial apicid	: 26
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 16
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm constant_tsc rep_good nopl nonstop_tsc cpuid extd_apicid aperfmperf rapl pni pclmulqdq monitor ssse3 fma cx16 sse4_1 sse4_2 movbe popcnt aes xsave avx f16c rdrand lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt tce topoext perfctr_core perfctr_nb bpext perfctr_llc mwaitx cpb cat_l3 cdp_l3 hw_pstate ssbd mba ibpb stibp vmmcall fsgsbase bmi1 avx2 smep bmi2 cqm rdt_a rdseed adx smap clflushopt clwb sha_ni xsaveopt xsavec xgetbv1 xsaves cqm_llc cqm_occup_llc cqm_mbm_total cqm_mbm_local clzero irperf xsaveerptr rdpru wbnoinvd arat npt lbrv svm_lock nrip_save tsc_scale vmcb_clean flushbyasid decodeassists pausefilter pfthreshold avic v_vmsave_vmload vgif v_spec_ctrl umip rdpid overflow_recov succor smca sme sev sev_es
+bugs		: sysret_ss_attrs spectre_v1 spectre_v2 spec_store_bypass retbleed
+bogomips	: 7599.86
+TLB size	: 3072 4K pages
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 43 bits physical, 48 bits virtual
+power management: ts ttp tm hwpstate cpb eff_freq_ro [13] [14]
+
+processor	: 11
+vendor_id	: AuthenticAMD
+cpu family	: 23
+model		: 49
+model name	: AMD Ryzen Threadripper 3960X 24-Core Processor
+stepping	: 0
+microcode	: 0x8301039
+cpu MHz		: 2200.000
+cache size	: 512 KB
+physical id	: 0
+siblings	: 48
+core id		: 14
+cpu cores	: 24
+apicid		: 28
+initial apicid	: 28
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 16
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm constant_tsc rep_good nopl nonstop_tsc cpuid extd_apicid aperfmperf rapl pni pclmulqdq monitor ssse3 fma cx16 sse4_1 sse4_2 movbe popcnt aes xsave avx f16c rdrand lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt tce topoext perfctr_core perfctr_nb bpext perfctr_llc mwaitx cpb cat_l3 cdp_l3 hw_pstate ssbd mba ibpb stibp vmmcall fsgsbase bmi1 avx2 smep bmi2 cqm rdt_a rdseed adx smap clflushopt clwb sha_ni xsaveopt xsavec xgetbv1 xsaves cqm_llc cqm_occup_llc cqm_mbm_total cqm_mbm_local clzero irperf xsaveerptr rdpru wbnoinvd arat npt lbrv svm_lock nrip_save tsc_scale vmcb_clean flushbyasid decodeassists pausefilter pfthreshold avic v_vmsave_vmload vgif v_spec_ctrl umip rdpid overflow_recov succor smca sme sev sev_es
+bugs		: sysret_ss_attrs spectre_v1 spectre_v2 spec_store_bypass retbleed
+bogomips	: 7599.86
+TLB size	: 3072 4K pages
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 43 bits physical, 48 bits virtual
+power management: ts ttp tm hwpstate cpb eff_freq_ro [13] [14]
+
+processor	: 12
+vendor_id	: AuthenticAMD
+cpu family	: 23
+model		: 49
+model name	: AMD Ryzen Threadripper 3960X 24-Core Processor
+stepping	: 0
+microcode	: 0x8301039
+cpu MHz		: 2200.000
+cache size	: 512 KB
+physical id	: 0
+siblings	: 48
+core id		: 16
+cpu cores	: 24
+apicid		: 32
+initial apicid	: 32
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 16
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm constant_tsc rep_good nopl nonstop_tsc cpuid extd_apicid aperfmperf rapl pni pclmulqdq monitor ssse3 fma cx16 sse4_1 sse4_2 movbe popcnt aes xsave avx f16c rdrand lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt tce topoext perfctr_core perfctr_nb bpext perfctr_llc mwaitx cpb cat_l3 cdp_l3 hw_pstate ssbd mba ibpb stibp vmmcall fsgsbase bmi1 avx2 smep bmi2 cqm rdt_a rdseed adx smap clflushopt clwb sha_ni xsaveopt xsavec xgetbv1 xsaves cqm_llc cqm_occup_llc cqm_mbm_total cqm_mbm_local clzero irperf xsaveerptr rdpru wbnoinvd arat npt lbrv svm_lock nrip_save tsc_scale vmcb_clean flushbyasid decodeassists pausefilter pfthreshold avic v_vmsave_vmload vgif v_spec_ctrl umip rdpid overflow_recov succor smca sme sev sev_es
+bugs		: sysret_ss_attrs spectre_v1 spectre_v2 spec_store_bypass retbleed
+bogomips	: 7599.86
+TLB size	: 3072 4K pages
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 43 bits physical, 48 bits virtual
+power management: ts ttp tm hwpstate cpb eff_freq_ro [13] [14]
+
+processor	: 13
+vendor_id	: AuthenticAMD
+cpu family	: 23
+model		: 49
+model name	: AMD Ryzen Threadripper 3960X 24-Core Processor
+stepping	: 0
+microcode	: 0x8301039
+cpu MHz		: 2200.000
+cache size	: 512 KB
+physical id	: 0
+siblings	: 48
+core id		: 17
+cpu cores	: 24
+apicid		: 34
+initial apicid	: 34
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 16
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm constant_tsc rep_good nopl nonstop_tsc cpuid extd_apicid aperfmperf rapl pni pclmulqdq monitor ssse3 fma cx16 sse4_1 sse4_2 movbe popcnt aes xsave avx f16c rdrand lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt tce topoext perfctr_core perfctr_nb bpext perfctr_llc mwaitx cpb cat_l3 cdp_l3 hw_pstate ssbd mba ibpb stibp vmmcall fsgsbase bmi1 avx2 smep bmi2 cqm rdt_a rdseed adx smap clflushopt clwb sha_ni xsaveopt xsavec xgetbv1 xsaves cqm_llc cqm_occup_llc cqm_mbm_total cqm_mbm_local clzero irperf xsaveerptr rdpru wbnoinvd arat npt lbrv svm_lock nrip_save tsc_scale vmcb_clean flushbyasid decodeassists pausefilter pfthreshold avic v_vmsave_vmload vgif v_spec_ctrl umip rdpid overflow_recov succor smca sme sev sev_es
+bugs		: sysret_ss_attrs spectre_v1 spectre_v2 spec_store_bypass retbleed
+bogomips	: 7599.86
+TLB size	: 3072 4K pages
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 43 bits physical, 48 bits virtual
+power management: ts ttp tm hwpstate cpb eff_freq_ro [13] [14]
+
+processor	: 14
+vendor_id	: AuthenticAMD
+cpu family	: 23
+model		: 49
+model name	: AMD Ryzen Threadripper 3960X 24-Core Processor
+stepping	: 0
+microcode	: 0x8301039
+cpu MHz		: 2200.000
+cache size	: 512 KB
+physical id	: 0
+siblings	: 48
+core id		: 18
+cpu cores	: 24
+apicid		: 36
+initial apicid	: 36
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 16
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm constant_tsc rep_good nopl nonstop_tsc cpuid extd_apicid aperfmperf rapl pni pclmulqdq monitor ssse3 fma cx16 sse4_1 sse4_2 movbe popcnt aes xsave avx f16c rdrand lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt tce topoext perfctr_core perfctr_nb bpext perfctr_llc mwaitx cpb cat_l3 cdp_l3 hw_pstate ssbd mba ibpb stibp vmmcall fsgsbase bmi1 avx2 smep bmi2 cqm rdt_a rdseed adx smap clflushopt clwb sha_ni xsaveopt xsavec xgetbv1 xsaves cqm_llc cqm_occup_llc cqm_mbm_total cqm_mbm_local clzero irperf xsaveerptr rdpru wbnoinvd arat npt lbrv svm_lock nrip_save tsc_scale vmcb_clean flushbyasid decodeassists pausefilter pfthreshold avic v_vmsave_vmload vgif v_spec_ctrl umip rdpid overflow_recov succor smca sme sev sev_es
+bugs		: sysret_ss_attrs spectre_v1 spectre_v2 spec_store_bypass retbleed
+bogomips	: 7599.86
+TLB size	: 3072 4K pages
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 43 bits physical, 48 bits virtual
+power management: ts ttp tm hwpstate cpb eff_freq_ro [13] [14]
+
+processor	: 15
+vendor_id	: AuthenticAMD
+cpu family	: 23
+model		: 49
+model name	: AMD Ryzen Threadripper 3960X 24-Core Processor
+stepping	: 0
+microcode	: 0x8301039
+cpu MHz		: 2200.000
+cache size	: 512 KB
+physical id	: 0
+siblings	: 48
+core id		: 20
+cpu cores	: 24
+apicid		: 40
+initial apicid	: 40
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 16
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm constant_tsc rep_good nopl nonstop_tsc cpuid extd_apicid aperfmperf rapl pni pclmulqdq monitor ssse3 fma cx16 sse4_1 sse4_2 movbe popcnt aes xsave avx f16c rdrand lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt tce topoext perfctr_core perfctr_nb bpext perfctr_llc mwaitx cpb cat_l3 cdp_l3 hw_pstate ssbd mba ibpb stibp vmmcall fsgsbase bmi1 avx2 smep bmi2 cqm rdt_a rdseed adx smap clflushopt clwb sha_ni xsaveopt xsavec xgetbv1 xsaves cqm_llc cqm_occup_llc cqm_mbm_total cqm_mbm_local clzero irperf xsaveerptr rdpru wbnoinvd arat npt lbrv svm_lock nrip_save tsc_scale vmcb_clean flushbyasid decodeassists pausefilter pfthreshold avic v_vmsave_vmload vgif v_spec_ctrl umip rdpid overflow_recov succor smca sme sev sev_es
+bugs		: sysret_ss_attrs spectre_v1 spectre_v2 spec_store_bypass retbleed
+bogomips	: 7599.86
+TLB size	: 3072 4K pages
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 43 bits physical, 48 bits virtual
+power management: ts ttp tm hwpstate cpb eff_freq_ro [13] [14]
+
+processor	: 16
+vendor_id	: AuthenticAMD
+cpu family	: 23
+model		: 49
+model name	: AMD Ryzen Threadripper 3960X 24-Core Processor
+stepping	: 0
+microcode	: 0x8301039
+cpu MHz		: 2200.000
+cache size	: 512 KB
+physical id	: 0
+siblings	: 48
+core id		: 21
+cpu cores	: 24
+apicid		: 42
+initial apicid	: 42
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 16
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm constant_tsc rep_good nopl nonstop_tsc cpuid extd_apicid aperfmperf rapl pni pclmulqdq monitor ssse3 fma cx16 sse4_1 sse4_2 movbe popcnt aes xsave avx f16c rdrand lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt tce topoext perfctr_core perfctr_nb bpext perfctr_llc mwaitx cpb cat_l3 cdp_l3 hw_pstate ssbd mba ibpb stibp vmmcall fsgsbase bmi1 avx2 smep bmi2 cqm rdt_a rdseed adx smap clflushopt clwb sha_ni xsaveopt xsavec xgetbv1 xsaves cqm_llc cqm_occup_llc cqm_mbm_total cqm_mbm_local clzero irperf xsaveerptr rdpru wbnoinvd arat npt lbrv svm_lock nrip_save tsc_scale vmcb_clean flushbyasid decodeassists pausefilter pfthreshold avic v_vmsave_vmload vgif v_spec_ctrl umip rdpid overflow_recov succor smca sme sev sev_es
+bugs		: sysret_ss_attrs spectre_v1 spectre_v2 spec_store_bypass retbleed
+bogomips	: 7599.86
+TLB size	: 3072 4K pages
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 43 bits physical, 48 bits virtual
+power management: ts ttp tm hwpstate cpb eff_freq_ro [13] [14]
+
+processor	: 17
+vendor_id	: AuthenticAMD
+cpu family	: 23
+model		: 49
+model name	: AMD Ryzen Threadripper 3960X 24-Core Processor
+stepping	: 0
+microcode	: 0x8301039
+cpu MHz		: 2200.000
+cache size	: 512 KB
+physical id	: 0
+siblings	: 48
+core id		: 22
+cpu cores	: 24
+apicid		: 44
+initial apicid	: 44
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 16
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm constant_tsc rep_good nopl nonstop_tsc cpuid extd_apicid aperfmperf rapl pni pclmulqdq monitor ssse3 fma cx16 sse4_1 sse4_2 movbe popcnt aes xsave avx f16c rdrand lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt tce topoext perfctr_core perfctr_nb bpext perfctr_llc mwaitx cpb cat_l3 cdp_l3 hw_pstate ssbd mba ibpb stibp vmmcall fsgsbase bmi1 avx2 smep bmi2 cqm rdt_a rdseed adx smap clflushopt clwb sha_ni xsaveopt xsavec xgetbv1 xsaves cqm_llc cqm_occup_llc cqm_mbm_total cqm_mbm_local clzero irperf xsaveerptr rdpru wbnoinvd arat npt lbrv svm_lock nrip_save tsc_scale vmcb_clean flushbyasid decodeassists pausefilter pfthreshold avic v_vmsave_vmload vgif v_spec_ctrl umip rdpid overflow_recov succor smca sme sev sev_es
+bugs		: sysret_ss_attrs spectre_v1 spectre_v2 spec_store_bypass retbleed
+bogomips	: 7599.86
+TLB size	: 3072 4K pages
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 43 bits physical, 48 bits virtual
+power management: ts ttp tm hwpstate cpb eff_freq_ro [13] [14]
+
+processor	: 18
+vendor_id	: AuthenticAMD
+cpu family	: 23
+model		: 49
+model name	: AMD Ryzen Threadripper 3960X 24-Core Processor
+stepping	: 0
+microcode	: 0x8301039
+cpu MHz		: 2200.000
+cache size	: 512 KB
+physical id	: 0
+siblings	: 48
+core id		: 24
+cpu cores	: 24
+apicid		: 48
+initial apicid	: 48
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 16
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm constant_tsc rep_good nopl nonstop_tsc cpuid extd_apicid aperfmperf rapl pni pclmulqdq monitor ssse3 fma cx16 sse4_1 sse4_2 movbe popcnt aes xsave avx f16c rdrand lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt tce topoext perfctr_core perfctr_nb bpext perfctr_llc mwaitx cpb cat_l3 cdp_l3 hw_pstate ssbd mba ibpb stibp vmmcall fsgsbase bmi1 avx2 smep bmi2 cqm rdt_a rdseed adx smap clflushopt clwb sha_ni xsaveopt xsavec xgetbv1 xsaves cqm_llc cqm_occup_llc cqm_mbm_total cqm_mbm_local clzero irperf xsaveerptr rdpru wbnoinvd arat npt lbrv svm_lock nrip_save tsc_scale vmcb_clean flushbyasid decodeassists pausefilter pfthreshold avic v_vmsave_vmload vgif v_spec_ctrl umip rdpid overflow_recov succor smca sme sev sev_es
+bugs		: sysret_ss_attrs spectre_v1 spectre_v2 spec_store_bypass retbleed
+bogomips	: 7599.86
+TLB size	: 3072 4K pages
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 43 bits physical, 48 bits virtual
+power management: ts ttp tm hwpstate cpb eff_freq_ro [13] [14]
+
+processor	: 19
+vendor_id	: AuthenticAMD
+cpu family	: 23
+model		: 49
+model name	: AMD Ryzen Threadripper 3960X 24-Core Processor
+stepping	: 0
+microcode	: 0x8301039
+cpu MHz		: 2200.000
+cache size	: 512 KB
+physical id	: 0
+siblings	: 48
+core id		: 25
+cpu cores	: 24
+apicid		: 50
+initial apicid	: 50
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 16
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm constant_tsc rep_good nopl nonstop_tsc cpuid extd_apicid aperfmperf rapl pni pclmulqdq monitor ssse3 fma cx16 sse4_1 sse4_2 movbe popcnt aes xsave avx f16c rdrand lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt tce topoext perfctr_core perfctr_nb bpext perfctr_llc mwaitx cpb cat_l3 cdp_l3 hw_pstate ssbd mba ibpb stibp vmmcall fsgsbase bmi1 avx2 smep bmi2 cqm rdt_a rdseed adx smap clflushopt clwb sha_ni xsaveopt xsavec xgetbv1 xsaves cqm_llc cqm_occup_llc cqm_mbm_total cqm_mbm_local clzero irperf xsaveerptr rdpru wbnoinvd arat npt lbrv svm_lock nrip_save tsc_scale vmcb_clean flushbyasid decodeassists pausefilter pfthreshold avic v_vmsave_vmload vgif v_spec_ctrl umip rdpid overflow_recov succor smca sme sev sev_es
+bugs		: sysret_ss_attrs spectre_v1 spectre_v2 spec_store_bypass retbleed
+bogomips	: 7599.86
+TLB size	: 3072 4K pages
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 43 bits physical, 48 bits virtual
+power management: ts ttp tm hwpstate cpb eff_freq_ro [13] [14]
+
+processor	: 20
+vendor_id	: AuthenticAMD
+cpu family	: 23
+model		: 49
+model name	: AMD Ryzen Threadripper 3960X 24-Core Processor
+stepping	: 0
+microcode	: 0x8301039
+cpu MHz		: 2200.000
+cache size	: 512 KB
+physical id	: 0
+siblings	: 48
+core id		: 26
+cpu cores	: 24
+apicid		: 52
+initial apicid	: 52
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 16
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm constant_tsc rep_good nopl nonstop_tsc cpuid extd_apicid aperfmperf rapl pni pclmulqdq monitor ssse3 fma cx16 sse4_1 sse4_2 movbe popcnt aes xsave avx f16c rdrand lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt tce topoext perfctr_core perfctr_nb bpext perfctr_llc mwaitx cpb cat_l3 cdp_l3 hw_pstate ssbd mba ibpb stibp vmmcall fsgsbase bmi1 avx2 smep bmi2 cqm rdt_a rdseed adx smap clflushopt clwb sha_ni xsaveopt xsavec xgetbv1 xsaves cqm_llc cqm_occup_llc cqm_mbm_total cqm_mbm_local clzero irperf xsaveerptr rdpru wbnoinvd arat npt lbrv svm_lock nrip_save tsc_scale vmcb_clean flushbyasid decodeassists pausefilter pfthreshold avic v_vmsave_vmload vgif v_spec_ctrl umip rdpid overflow_recov succor smca sme sev sev_es
+bugs		: sysret_ss_attrs spectre_v1 spectre_v2 spec_store_bypass retbleed
+bogomips	: 7599.86
+TLB size	: 3072 4K pages
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 43 bits physical, 48 bits virtual
+power management: ts ttp tm hwpstate cpb eff_freq_ro [13] [14]
+
+processor	: 21
+vendor_id	: AuthenticAMD
+cpu family	: 23
+model		: 49
+model name	: AMD Ryzen Threadripper 3960X 24-Core Processor
+stepping	: 0
+microcode	: 0x8301039
+cpu MHz		: 2200.000
+cache size	: 512 KB
+physical id	: 0
+siblings	: 48
+core id		: 28
+cpu cores	: 24
+apicid		: 56
+initial apicid	: 56
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 16
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm constant_tsc rep_good nopl nonstop_tsc cpuid extd_apicid aperfmperf rapl pni pclmulqdq monitor ssse3 fma cx16 sse4_1 sse4_2 movbe popcnt aes xsave avx f16c rdrand lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt tce topoext perfctr_core perfctr_nb bpext perfctr_llc mwaitx cpb cat_l3 cdp_l3 hw_pstate ssbd mba ibpb stibp vmmcall fsgsbase bmi1 avx2 smep bmi2 cqm rdt_a rdseed adx smap clflushopt clwb sha_ni xsaveopt xsavec xgetbv1 xsaves cqm_llc cqm_occup_llc cqm_mbm_total cqm_mbm_local clzero irperf xsaveerptr rdpru wbnoinvd arat npt lbrv svm_lock nrip_save tsc_scale vmcb_clean flushbyasid decodeassists pausefilter pfthreshold avic v_vmsave_vmload vgif v_spec_ctrl umip rdpid overflow_recov succor smca sme sev sev_es
+bugs		: sysret_ss_attrs spectre_v1 spectre_v2 spec_store_bypass retbleed
+bogomips	: 7599.86
+TLB size	: 3072 4K pages
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 43 bits physical, 48 bits virtual
+power management: ts ttp tm hwpstate cpb eff_freq_ro [13] [14]
+
+processor	: 22
+vendor_id	: AuthenticAMD
+cpu family	: 23
+model		: 49
+model name	: AMD Ryzen Threadripper 3960X 24-Core Processor
+stepping	: 0
+microcode	: 0x8301039
+cpu MHz		: 2200.000
+cache size	: 512 KB
+physical id	: 0
+siblings	: 48
+core id		: 29
+cpu cores	: 24
+apicid		: 58
+initial apicid	: 58
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 16
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm constant_tsc rep_good nopl nonstop_tsc cpuid extd_apicid aperfmperf rapl pni pclmulqdq monitor ssse3 fma cx16 sse4_1 sse4_2 movbe popcnt aes xsave avx f16c rdrand lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt tce topoext perfctr_core perfctr_nb bpext perfctr_llc mwaitx cpb cat_l3 cdp_l3 hw_pstate ssbd mba ibpb stibp vmmcall fsgsbase bmi1 avx2 smep bmi2 cqm rdt_a rdseed adx smap clflushopt clwb sha_ni xsaveopt xsavec xgetbv1 xsaves cqm_llc cqm_occup_llc cqm_mbm_total cqm_mbm_local clzero irperf xsaveerptr rdpru wbnoinvd arat npt lbrv svm_lock nrip_save tsc_scale vmcb_clean flushbyasid decodeassists pausefilter pfthreshold avic v_vmsave_vmload vgif v_spec_ctrl umip rdpid overflow_recov succor smca sme sev sev_es
+bugs		: sysret_ss_attrs spectre_v1 spectre_v2 spec_store_bypass retbleed
+bogomips	: 7599.86
+TLB size	: 3072 4K pages
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 43 bits physical, 48 bits virtual
+power management: ts ttp tm hwpstate cpb eff_freq_ro [13] [14]
+
+processor	: 23
+vendor_id	: AuthenticAMD
+cpu family	: 23
+model		: 49
+model name	: AMD Ryzen Threadripper 3960X 24-Core Processor
+stepping	: 0
+microcode	: 0x8301039
+cpu MHz		: 2200.000
+cache size	: 512 KB
+physical id	: 0
+siblings	: 48
+core id		: 30
+cpu cores	: 24
+apicid		: 60
+initial apicid	: 60
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 16
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm constant_tsc rep_good nopl nonstop_tsc cpuid extd_apicid aperfmperf rapl pni pclmulqdq monitor ssse3 fma cx16 sse4_1 sse4_2 movbe popcnt aes xsave avx f16c rdrand lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt tce topoext perfctr_core perfctr_nb bpext perfctr_llc mwaitx cpb cat_l3 cdp_l3 hw_pstate ssbd mba ibpb stibp vmmcall fsgsbase bmi1 avx2 smep bmi2 cqm rdt_a rdseed adx smap clflushopt clwb sha_ni xsaveopt xsavec xgetbv1 xsaves cqm_llc cqm_occup_llc cqm_mbm_total cqm_mbm_local clzero irperf xsaveerptr rdpru wbnoinvd arat npt lbrv svm_lock nrip_save tsc_scale vmcb_clean flushbyasid decodeassists pausefilter pfthreshold avic v_vmsave_vmload vgif v_spec_ctrl umip rdpid overflow_recov succor smca sme sev sev_es
+bugs		: sysret_ss_attrs spectre_v1 spectre_v2 spec_store_bypass retbleed
+bogomips	: 7599.86
+TLB size	: 3072 4K pages
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 43 bits physical, 48 bits virtual
+power management: ts ttp tm hwpstate cpb eff_freq_ro [13] [14]
+
+processor	: 24
+vendor_id	: AuthenticAMD
+cpu family	: 23
+model		: 49
+model name	: AMD Ryzen Threadripper 3960X 24-Core Processor
+stepping	: 0
+microcode	: 0x8301039
+cpu MHz		: 2200.000
+cache size	: 512 KB
+physical id	: 0
+siblings	: 48
+core id		: 0
+cpu cores	: 24
+apicid		: 1
+initial apicid	: 1
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 16
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm constant_tsc rep_good nopl nonstop_tsc cpuid extd_apicid aperfmperf rapl pni pclmulqdq monitor ssse3 fma cx16 sse4_1 sse4_2 movbe popcnt aes xsave avx f16c rdrand lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt tce topoext perfctr_core perfctr_nb bpext perfctr_llc mwaitx cpb cat_l3 cdp_l3 hw_pstate ssbd mba ibpb stibp vmmcall fsgsbase bmi1 avx2 smep bmi2 cqm rdt_a rdseed adx smap clflushopt clwb sha_ni xsaveopt xsavec xgetbv1 xsaves cqm_llc cqm_occup_llc cqm_mbm_total cqm_mbm_local clzero irperf xsaveerptr rdpru wbnoinvd arat npt lbrv svm_lock nrip_save tsc_scale vmcb_clean flushbyasid decodeassists pausefilter pfthreshold avic v_vmsave_vmload vgif v_spec_ctrl umip rdpid overflow_recov succor smca sme sev sev_es
+bugs		: sysret_ss_attrs spectre_v1 spectre_v2 spec_store_bypass retbleed
+bogomips	: 7599.86
+TLB size	: 3072 4K pages
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 43 bits physical, 48 bits virtual
+power management: ts ttp tm hwpstate cpb eff_freq_ro [13] [14]
+
+processor	: 25
+vendor_id	: AuthenticAMD
+cpu family	: 23
+model		: 49
+model name	: AMD Ryzen Threadripper 3960X 24-Core Processor
+stepping	: 0
+microcode	: 0x8301039
+cpu MHz		: 2200.000
+cache size	: 512 KB
+physical id	: 0
+siblings	: 48
+core id		: 1
+cpu cores	: 24
+apicid		: 3
+initial apicid	: 3
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 16
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm constant_tsc rep_good nopl nonstop_tsc cpuid extd_apicid aperfmperf rapl pni pclmulqdq monitor ssse3 fma cx16 sse4_1 sse4_2 movbe popcnt aes xsave avx f16c rdrand lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt tce topoext perfctr_core perfctr_nb bpext perfctr_llc mwaitx cpb cat_l3 cdp_l3 hw_pstate ssbd mba ibpb stibp vmmcall fsgsbase bmi1 avx2 smep bmi2 cqm rdt_a rdseed adx smap clflushopt clwb sha_ni xsaveopt xsavec xgetbv1 xsaves cqm_llc cqm_occup_llc cqm_mbm_total cqm_mbm_local clzero irperf xsaveerptr rdpru wbnoinvd arat npt lbrv svm_lock nrip_save tsc_scale vmcb_clean flushbyasid decodeassists pausefilter pfthreshold avic v_vmsave_vmload vgif v_spec_ctrl umip rdpid overflow_recov succor smca sme sev sev_es
+bugs		: sysret_ss_attrs spectre_v1 spectre_v2 spec_store_bypass retbleed
+bogomips	: 7599.86
+TLB size	: 3072 4K pages
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 43 bits physical, 48 bits virtual
+power management: ts ttp tm hwpstate cpb eff_freq_ro [13] [14]
+
+processor	: 26
+vendor_id	: AuthenticAMD
+cpu family	: 23
+model		: 49
+model name	: AMD Ryzen Threadripper 3960X 24-Core Processor
+stepping	: 0
+microcode	: 0x8301039
+cpu MHz		: 2200.000
+cache size	: 512 KB
+physical id	: 0
+siblings	: 48
+core id		: 2
+cpu cores	: 24
+apicid		: 5
+initial apicid	: 5
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 16
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm constant_tsc rep_good nopl nonstop_tsc cpuid extd_apicid aperfmperf rapl pni pclmulqdq monitor ssse3 fma cx16 sse4_1 sse4_2 movbe popcnt aes xsave avx f16c rdrand lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt tce topoext perfctr_core perfctr_nb bpext perfctr_llc mwaitx cpb cat_l3 cdp_l3 hw_pstate ssbd mba ibpb stibp vmmcall fsgsbase bmi1 avx2 smep bmi2 cqm rdt_a rdseed adx smap clflushopt clwb sha_ni xsaveopt xsavec xgetbv1 xsaves cqm_llc cqm_occup_llc cqm_mbm_total cqm_mbm_local clzero irperf xsaveerptr rdpru wbnoinvd arat npt lbrv svm_lock nrip_save tsc_scale vmcb_clean flushbyasid decodeassists pausefilter pfthreshold avic v_vmsave_vmload vgif v_spec_ctrl umip rdpid overflow_recov succor smca sme sev sev_es
+bugs		: sysret_ss_attrs spectre_v1 spectre_v2 spec_store_bypass retbleed
+bogomips	: 7599.86
+TLB size	: 3072 4K pages
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 43 bits physical, 48 bits virtual
+power management: ts ttp tm hwpstate cpb eff_freq_ro [13] [14]
+
+processor	: 27
+vendor_id	: AuthenticAMD
+cpu family	: 23
+model		: 49
+model name	: AMD Ryzen Threadripper 3960X 24-Core Processor
+stepping	: 0
+microcode	: 0x8301039
+cpu MHz		: 2200.000
+cache size	: 512 KB
+physical id	: 0
+siblings	: 48
+core id		: 4
+cpu cores	: 24
+apicid		: 9
+initial apicid	: 9
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 16
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm constant_tsc rep_good nopl nonstop_tsc cpuid extd_apicid aperfmperf rapl pni pclmulqdq monitor ssse3 fma cx16 sse4_1 sse4_2 movbe popcnt aes xsave avx f16c rdrand lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt tce topoext perfctr_core perfctr_nb bpext perfctr_llc mwaitx cpb cat_l3 cdp_l3 hw_pstate ssbd mba ibpb stibp vmmcall fsgsbase bmi1 avx2 smep bmi2 cqm rdt_a rdseed adx smap clflushopt clwb sha_ni xsaveopt xsavec xgetbv1 xsaves cqm_llc cqm_occup_llc cqm_mbm_total cqm_mbm_local clzero irperf xsaveerptr rdpru wbnoinvd arat npt lbrv svm_lock nrip_save tsc_scale vmcb_clean flushbyasid decodeassists pausefilter pfthreshold avic v_vmsave_vmload vgif v_spec_ctrl umip rdpid overflow_recov succor smca sme sev sev_es
+bugs		: sysret_ss_attrs spectre_v1 spectre_v2 spec_store_bypass retbleed
+bogomips	: 7599.86
+TLB size	: 3072 4K pages
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 43 bits physical, 48 bits virtual
+power management: ts ttp tm hwpstate cpb eff_freq_ro [13] [14]
+
+processor	: 28
+vendor_id	: AuthenticAMD
+cpu family	: 23
+model		: 49
+model name	: AMD Ryzen Threadripper 3960X 24-Core Processor
+stepping	: 0
+microcode	: 0x8301039
+cpu MHz		: 3800.000
+cache size	: 512 KB
+physical id	: 0
+siblings	: 48
+core id		: 5
+cpu cores	: 24
+apicid		: 11
+initial apicid	: 11
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 16
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm constant_tsc rep_good nopl nonstop_tsc cpuid extd_apicid aperfmperf rapl pni pclmulqdq monitor ssse3 fma cx16 sse4_1 sse4_2 movbe popcnt aes xsave avx f16c rdrand lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt tce topoext perfctr_core perfctr_nb bpext perfctr_llc mwaitx cpb cat_l3 cdp_l3 hw_pstate ssbd mba ibpb stibp vmmcall fsgsbase bmi1 avx2 smep bmi2 cqm rdt_a rdseed adx smap clflushopt clwb sha_ni xsaveopt xsavec xgetbv1 xsaves cqm_llc cqm_occup_llc cqm_mbm_total cqm_mbm_local clzero irperf xsaveerptr rdpru wbnoinvd arat npt lbrv svm_lock nrip_save tsc_scale vmcb_clean flushbyasid decodeassists pausefilter pfthreshold avic v_vmsave_vmload vgif v_spec_ctrl umip rdpid overflow_recov succor smca sme sev sev_es
+bugs		: sysret_ss_attrs spectre_v1 spectre_v2 spec_store_bypass retbleed
+bogomips	: 7599.86
+TLB size	: 3072 4K pages
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 43 bits physical, 48 bits virtual
+power management: ts ttp tm hwpstate cpb eff_freq_ro [13] [14]
+
+processor	: 29
+vendor_id	: AuthenticAMD
+cpu family	: 23
+model		: 49
+model name	: AMD Ryzen Threadripper 3960X 24-Core Processor
+stepping	: 0
+microcode	: 0x8301039
+cpu MHz		: 2200.000
+cache size	: 512 KB
+physical id	: 0
+siblings	: 48
+core id		: 6
+cpu cores	: 24
+apicid		: 13
+initial apicid	: 13
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 16
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm constant_tsc rep_good nopl nonstop_tsc cpuid extd_apicid aperfmperf rapl pni pclmulqdq monitor ssse3 fma cx16 sse4_1 sse4_2 movbe popcnt aes xsave avx f16c rdrand lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt tce topoext perfctr_core perfctr_nb bpext perfctr_llc mwaitx cpb cat_l3 cdp_l3 hw_pstate ssbd mba ibpb stibp vmmcall fsgsbase bmi1 avx2 smep bmi2 cqm rdt_a rdseed adx smap clflushopt clwb sha_ni xsaveopt xsavec xgetbv1 xsaves cqm_llc cqm_occup_llc cqm_mbm_total cqm_mbm_local clzero irperf xsaveerptr rdpru wbnoinvd arat npt lbrv svm_lock nrip_save tsc_scale vmcb_clean flushbyasid decodeassists pausefilter pfthreshold avic v_vmsave_vmload vgif v_spec_ctrl umip rdpid overflow_recov succor smca sme sev sev_es
+bugs		: sysret_ss_attrs spectre_v1 spectre_v2 spec_store_bypass retbleed
+bogomips	: 7599.86
+TLB size	: 3072 4K pages
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 43 bits physical, 48 bits virtual
+power management: ts ttp tm hwpstate cpb eff_freq_ro [13] [14]
+
+processor	: 30
+vendor_id	: AuthenticAMD
+cpu family	: 23
+model		: 49
+model name	: AMD Ryzen Threadripper 3960X 24-Core Processor
+stepping	: 0
+microcode	: 0x8301039
+cpu MHz		: 2200.000
+cache size	: 512 KB
+physical id	: 0
+siblings	: 48
+core id		: 8
+cpu cores	: 24
+apicid		: 17
+initial apicid	: 17
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 16
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm constant_tsc rep_good nopl nonstop_tsc cpuid extd_apicid aperfmperf rapl pni pclmulqdq monitor ssse3 fma cx16 sse4_1 sse4_2 movbe popcnt aes xsave avx f16c rdrand lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt tce topoext perfctr_core perfctr_nb bpext perfctr_llc mwaitx cpb cat_l3 cdp_l3 hw_pstate ssbd mba ibpb stibp vmmcall fsgsbase bmi1 avx2 smep bmi2 cqm rdt_a rdseed adx smap clflushopt clwb sha_ni xsaveopt xsavec xgetbv1 xsaves cqm_llc cqm_occup_llc cqm_mbm_total cqm_mbm_local clzero irperf xsaveerptr rdpru wbnoinvd arat npt lbrv svm_lock nrip_save tsc_scale vmcb_clean flushbyasid decodeassists pausefilter pfthreshold avic v_vmsave_vmload vgif v_spec_ctrl umip rdpid overflow_recov succor smca sme sev sev_es
+bugs		: sysret_ss_attrs spectre_v1 spectre_v2 spec_store_bypass retbleed
+bogomips	: 7599.86
+TLB size	: 3072 4K pages
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 43 bits physical, 48 bits virtual
+power management: ts ttp tm hwpstate cpb eff_freq_ro [13] [14]
+
+processor	: 31
+vendor_id	: AuthenticAMD
+cpu family	: 23
+model		: 49
+model name	: AMD Ryzen Threadripper 3960X 24-Core Processor
+stepping	: 0
+microcode	: 0x8301039
+cpu MHz		: 3800.000
+cache size	: 512 KB
+physical id	: 0
+siblings	: 48
+core id		: 9
+cpu cores	: 24
+apicid		: 19
+initial apicid	: 19
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 16
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm constant_tsc rep_good nopl nonstop_tsc cpuid extd_apicid aperfmperf rapl pni pclmulqdq monitor ssse3 fma cx16 sse4_1 sse4_2 movbe popcnt aes xsave avx f16c rdrand lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt tce topoext perfctr_core perfctr_nb bpext perfctr_llc mwaitx cpb cat_l3 cdp_l3 hw_pstate ssbd mba ibpb stibp vmmcall fsgsbase bmi1 avx2 smep bmi2 cqm rdt_a rdseed adx smap clflushopt clwb sha_ni xsaveopt xsavec xgetbv1 xsaves cqm_llc cqm_occup_llc cqm_mbm_total cqm_mbm_local clzero irperf xsaveerptr rdpru wbnoinvd arat npt lbrv svm_lock nrip_save tsc_scale vmcb_clean flushbyasid decodeassists pausefilter pfthreshold avic v_vmsave_vmload vgif v_spec_ctrl umip rdpid overflow_recov succor smca sme sev sev_es
+bugs		: sysret_ss_attrs spectre_v1 spectre_v2 spec_store_bypass retbleed
+bogomips	: 7599.86
+TLB size	: 3072 4K pages
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 43 bits physical, 48 bits virtual
+power management: ts ttp tm hwpstate cpb eff_freq_ro [13] [14]
+
+processor	: 32
+vendor_id	: AuthenticAMD
+cpu family	: 23
+model		: 49
+model name	: AMD Ryzen Threadripper 3960X 24-Core Processor
+stepping	: 0
+microcode	: 0x8301039
+cpu MHz		: 2200.000
+cache size	: 512 KB
+physical id	: 0
+siblings	: 48
+core id		: 10
+cpu cores	: 24
+apicid		: 21
+initial apicid	: 21
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 16
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm constant_tsc rep_good nopl nonstop_tsc cpuid extd_apicid aperfmperf rapl pni pclmulqdq monitor ssse3 fma cx16 sse4_1 sse4_2 movbe popcnt aes xsave avx f16c rdrand lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt tce topoext perfctr_core perfctr_nb bpext perfctr_llc mwaitx cpb cat_l3 cdp_l3 hw_pstate ssbd mba ibpb stibp vmmcall fsgsbase bmi1 avx2 smep bmi2 cqm rdt_a rdseed adx smap clflushopt clwb sha_ni xsaveopt xsavec xgetbv1 xsaves cqm_llc cqm_occup_llc cqm_mbm_total cqm_mbm_local clzero irperf xsaveerptr rdpru wbnoinvd arat npt lbrv svm_lock nrip_save tsc_scale vmcb_clean flushbyasid decodeassists pausefilter pfthreshold avic v_vmsave_vmload vgif v_spec_ctrl umip rdpid overflow_recov succor smca sme sev sev_es
+bugs		: sysret_ss_attrs spectre_v1 spectre_v2 spec_store_bypass retbleed
+bogomips	: 7599.86
+TLB size	: 3072 4K pages
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 43 bits physical, 48 bits virtual
+power management: ts ttp tm hwpstate cpb eff_freq_ro [13] [14]
+
+processor	: 33
+vendor_id	: AuthenticAMD
+cpu family	: 23
+model		: 49
+model name	: AMD Ryzen Threadripper 3960X 24-Core Processor
+stepping	: 0
+microcode	: 0x8301039
+cpu MHz		: 2200.000
+cache size	: 512 KB
+physical id	: 0
+siblings	: 48
+core id		: 12
+cpu cores	: 24
+apicid		: 25
+initial apicid	: 25
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 16
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm constant_tsc rep_good nopl nonstop_tsc cpuid extd_apicid aperfmperf rapl pni pclmulqdq monitor ssse3 fma cx16 sse4_1 sse4_2 movbe popcnt aes xsave avx f16c rdrand lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt tce topoext perfctr_core perfctr_nb bpext perfctr_llc mwaitx cpb cat_l3 cdp_l3 hw_pstate ssbd mba ibpb stibp vmmcall fsgsbase bmi1 avx2 smep bmi2 cqm rdt_a rdseed adx smap clflushopt clwb sha_ni xsaveopt xsavec xgetbv1 xsaves cqm_llc cqm_occup_llc cqm_mbm_total cqm_mbm_local clzero irperf xsaveerptr rdpru wbnoinvd arat npt lbrv svm_lock nrip_save tsc_scale vmcb_clean flushbyasid decodeassists pausefilter pfthreshold avic v_vmsave_vmload vgif v_spec_ctrl umip rdpid overflow_recov succor smca sme sev sev_es
+bugs		: sysret_ss_attrs spectre_v1 spectre_v2 spec_store_bypass retbleed
+bogomips	: 7599.86
+TLB size	: 3072 4K pages
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 43 bits physical, 48 bits virtual
+power management: ts ttp tm hwpstate cpb eff_freq_ro [13] [14]
+
+processor	: 34
+vendor_id	: AuthenticAMD
+cpu family	: 23
+model		: 49
+model name	: AMD Ryzen Threadripper 3960X 24-Core Processor
+stepping	: 0
+microcode	: 0x8301039
+cpu MHz		: 2200.000
+cache size	: 512 KB
+physical id	: 0
+siblings	: 48
+core id		: 13
+cpu cores	: 24
+apicid		: 27
+initial apicid	: 27
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 16
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm constant_tsc rep_good nopl nonstop_tsc cpuid extd_apicid aperfmperf rapl pni pclmulqdq monitor ssse3 fma cx16 sse4_1 sse4_2 movbe popcnt aes xsave avx f16c rdrand lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt tce topoext perfctr_core perfctr_nb bpext perfctr_llc mwaitx cpb cat_l3 cdp_l3 hw_pstate ssbd mba ibpb stibp vmmcall fsgsbase bmi1 avx2 smep bmi2 cqm rdt_a rdseed adx smap clflushopt clwb sha_ni xsaveopt xsavec xgetbv1 xsaves cqm_llc cqm_occup_llc cqm_mbm_total cqm_mbm_local clzero irperf xsaveerptr rdpru wbnoinvd arat npt lbrv svm_lock nrip_save tsc_scale vmcb_clean flushbyasid decodeassists pausefilter pfthreshold avic v_vmsave_vmload vgif v_spec_ctrl umip rdpid overflow_recov succor smca sme sev sev_es
+bugs		: sysret_ss_attrs spectre_v1 spectre_v2 spec_store_bypass retbleed
+bogomips	: 7599.86
+TLB size	: 3072 4K pages
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 43 bits physical, 48 bits virtual
+power management: ts ttp tm hwpstate cpb eff_freq_ro [13] [14]
+
+processor	: 35
+vendor_id	: AuthenticAMD
+cpu family	: 23
+model		: 49
+model name	: AMD Ryzen Threadripper 3960X 24-Core Processor
+stepping	: 0
+microcode	: 0x8301039
+cpu MHz		: 2200.000
+cache size	: 512 KB
+physical id	: 0
+siblings	: 48
+core id		: 14
+cpu cores	: 24
+apicid		: 29
+initial apicid	: 29
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 16
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm constant_tsc rep_good nopl nonstop_tsc cpuid extd_apicid aperfmperf rapl pni pclmulqdq monitor ssse3 fma cx16 sse4_1 sse4_2 movbe popcnt aes xsave avx f16c rdrand lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt tce topoext perfctr_core perfctr_nb bpext perfctr_llc mwaitx cpb cat_l3 cdp_l3 hw_pstate ssbd mba ibpb stibp vmmcall fsgsbase bmi1 avx2 smep bmi2 cqm rdt_a rdseed adx smap clflushopt clwb sha_ni xsaveopt xsavec xgetbv1 xsaves cqm_llc cqm_occup_llc cqm_mbm_total cqm_mbm_local clzero irperf xsaveerptr rdpru wbnoinvd arat npt lbrv svm_lock nrip_save tsc_scale vmcb_clean flushbyasid decodeassists pausefilter pfthreshold avic v_vmsave_vmload vgif v_spec_ctrl umip rdpid overflow_recov succor smca sme sev sev_es
+bugs		: sysret_ss_attrs spectre_v1 spectre_v2 spec_store_bypass retbleed
+bogomips	: 7599.86
+TLB size	: 3072 4K pages
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 43 bits physical, 48 bits virtual
+power management: ts ttp tm hwpstate cpb eff_freq_ro [13] [14]
+
+processor	: 36
+vendor_id	: AuthenticAMD
+cpu family	: 23
+model		: 49
+model name	: AMD Ryzen Threadripper 3960X 24-Core Processor
+stepping	: 0
+microcode	: 0x8301039
+cpu MHz		: 2200.000
+cache size	: 512 KB
+physical id	: 0
+siblings	: 48
+core id		: 16
+cpu cores	: 24
+apicid		: 33
+initial apicid	: 33
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 16
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm constant_tsc rep_good nopl nonstop_tsc cpuid extd_apicid aperfmperf rapl pni pclmulqdq monitor ssse3 fma cx16 sse4_1 sse4_2 movbe popcnt aes xsave avx f16c rdrand lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt tce topoext perfctr_core perfctr_nb bpext perfctr_llc mwaitx cpb cat_l3 cdp_l3 hw_pstate ssbd mba ibpb stibp vmmcall fsgsbase bmi1 avx2 smep bmi2 cqm rdt_a rdseed adx smap clflushopt clwb sha_ni xsaveopt xsavec xgetbv1 xsaves cqm_llc cqm_occup_llc cqm_mbm_total cqm_mbm_local clzero irperf xsaveerptr rdpru wbnoinvd arat npt lbrv svm_lock nrip_save tsc_scale vmcb_clean flushbyasid decodeassists pausefilter pfthreshold avic v_vmsave_vmload vgif v_spec_ctrl umip rdpid overflow_recov succor smca sme sev sev_es
+bugs		: sysret_ss_attrs spectre_v1 spectre_v2 spec_store_bypass retbleed
+bogomips	: 7599.86
+TLB size	: 3072 4K pages
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 43 bits physical, 48 bits virtual
+power management: ts ttp tm hwpstate cpb eff_freq_ro [13] [14]
+
+processor	: 37
+vendor_id	: AuthenticAMD
+cpu family	: 23
+model		: 49
+model name	: AMD Ryzen Threadripper 3960X 24-Core Processor
+stepping	: 0
+microcode	: 0x8301039
+cpu MHz		: 2200.000
+cache size	: 512 KB
+physical id	: 0
+siblings	: 48
+core id		: 17
+cpu cores	: 24
+apicid		: 35
+initial apicid	: 35
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 16
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm constant_tsc rep_good nopl nonstop_tsc cpuid extd_apicid aperfmperf rapl pni pclmulqdq monitor ssse3 fma cx16 sse4_1 sse4_2 movbe popcnt aes xsave avx f16c rdrand lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt tce topoext perfctr_core perfctr_nb bpext perfctr_llc mwaitx cpb cat_l3 cdp_l3 hw_pstate ssbd mba ibpb stibp vmmcall fsgsbase bmi1 avx2 smep bmi2 cqm rdt_a rdseed adx smap clflushopt clwb sha_ni xsaveopt xsavec xgetbv1 xsaves cqm_llc cqm_occup_llc cqm_mbm_total cqm_mbm_local clzero irperf xsaveerptr rdpru wbnoinvd arat npt lbrv svm_lock nrip_save tsc_scale vmcb_clean flushbyasid decodeassists pausefilter pfthreshold avic v_vmsave_vmload vgif v_spec_ctrl umip rdpid overflow_recov succor smca sme sev sev_es
+bugs		: sysret_ss_attrs spectre_v1 spectre_v2 spec_store_bypass retbleed
+bogomips	: 7599.86
+TLB size	: 3072 4K pages
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 43 bits physical, 48 bits virtual
+power management: ts ttp tm hwpstate cpb eff_freq_ro [13] [14]
+
+processor	: 38
+vendor_id	: AuthenticAMD
+cpu family	: 23
+model		: 49
+model name	: AMD Ryzen Threadripper 3960X 24-Core Processor
+stepping	: 0
+microcode	: 0x8301039
+cpu MHz		: 2200.000
+cache size	: 512 KB
+physical id	: 0
+siblings	: 48
+core id		: 18
+cpu cores	: 24
+apicid		: 37
+initial apicid	: 37
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 16
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm constant_tsc rep_good nopl nonstop_tsc cpuid extd_apicid aperfmperf rapl pni pclmulqdq monitor ssse3 fma cx16 sse4_1 sse4_2 movbe popcnt aes xsave avx f16c rdrand lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt tce topoext perfctr_core perfctr_nb bpext perfctr_llc mwaitx cpb cat_l3 cdp_l3 hw_pstate ssbd mba ibpb stibp vmmcall fsgsbase bmi1 avx2 smep bmi2 cqm rdt_a rdseed adx smap clflushopt clwb sha_ni xsaveopt xsavec xgetbv1 xsaves cqm_llc cqm_occup_llc cqm_mbm_total cqm_mbm_local clzero irperf xsaveerptr rdpru wbnoinvd arat npt lbrv svm_lock nrip_save tsc_scale vmcb_clean flushbyasid decodeassists pausefilter pfthreshold avic v_vmsave_vmload vgif v_spec_ctrl umip rdpid overflow_recov succor smca sme sev sev_es
+bugs		: sysret_ss_attrs spectre_v1 spectre_v2 spec_store_bypass retbleed
+bogomips	: 7599.86
+TLB size	: 3072 4K pages
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 43 bits physical, 48 bits virtual
+power management: ts ttp tm hwpstate cpb eff_freq_ro [13] [14]
+
+processor	: 39
+vendor_id	: AuthenticAMD
+cpu family	: 23
+model		: 49
+model name	: AMD Ryzen Threadripper 3960X 24-Core Processor
+stepping	: 0
+microcode	: 0x8301039
+cpu MHz		: 2200.000
+cache size	: 512 KB
+physical id	: 0
+siblings	: 48
+core id		: 20
+cpu cores	: 24
+apicid		: 41
+initial apicid	: 41
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 16
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm constant_tsc rep_good nopl nonstop_tsc cpuid extd_apicid aperfmperf rapl pni pclmulqdq monitor ssse3 fma cx16 sse4_1 sse4_2 movbe popcnt aes xsave avx f16c rdrand lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt tce topoext perfctr_core perfctr_nb bpext perfctr_llc mwaitx cpb cat_l3 cdp_l3 hw_pstate ssbd mba ibpb stibp vmmcall fsgsbase bmi1 avx2 smep bmi2 cqm rdt_a rdseed adx smap clflushopt clwb sha_ni xsaveopt xsavec xgetbv1 xsaves cqm_llc cqm_occup_llc cqm_mbm_total cqm_mbm_local clzero irperf xsaveerptr rdpru wbnoinvd arat npt lbrv svm_lock nrip_save tsc_scale vmcb_clean flushbyasid decodeassists pausefilter pfthreshold avic v_vmsave_vmload vgif v_spec_ctrl umip rdpid overflow_recov succor smca sme sev sev_es
+bugs		: sysret_ss_attrs spectre_v1 spectre_v2 spec_store_bypass retbleed
+bogomips	: 7599.86
+TLB size	: 3072 4K pages
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 43 bits physical, 48 bits virtual
+power management: ts ttp tm hwpstate cpb eff_freq_ro [13] [14]
+
+processor	: 40
+vendor_id	: AuthenticAMD
+cpu family	: 23
+model		: 49
+model name	: AMD Ryzen Threadripper 3960X 24-Core Processor
+stepping	: 0
+microcode	: 0x8301039
+cpu MHz		: 2200.000
+cache size	: 512 KB
+physical id	: 0
+siblings	: 48
+core id		: 21
+cpu cores	: 24
+apicid		: 43
+initial apicid	: 43
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 16
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm constant_tsc rep_good nopl nonstop_tsc cpuid extd_apicid aperfmperf rapl pni pclmulqdq monitor ssse3 fma cx16 sse4_1 sse4_2 movbe popcnt aes xsave avx f16c rdrand lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt tce topoext perfctr_core perfctr_nb bpext perfctr_llc mwaitx cpb cat_l3 cdp_l3 hw_pstate ssbd mba ibpb stibp vmmcall fsgsbase bmi1 avx2 smep bmi2 cqm rdt_a rdseed adx smap clflushopt clwb sha_ni xsaveopt xsavec xgetbv1 xsaves cqm_llc cqm_occup_llc cqm_mbm_total cqm_mbm_local clzero irperf xsaveerptr rdpru wbnoinvd arat npt lbrv svm_lock nrip_save tsc_scale vmcb_clean flushbyasid decodeassists pausefilter pfthreshold avic v_vmsave_vmload vgif v_spec_ctrl umip rdpid overflow_recov succor smca sme sev sev_es
+bugs		: sysret_ss_attrs spectre_v1 spectre_v2 spec_store_bypass retbleed
+bogomips	: 7599.86
+TLB size	: 3072 4K pages
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 43 bits physical, 48 bits virtual
+power management: ts ttp tm hwpstate cpb eff_freq_ro [13] [14]
+
+processor	: 41
+vendor_id	: AuthenticAMD
+cpu family	: 23
+model		: 49
+model name	: AMD Ryzen Threadripper 3960X 24-Core Processor
+stepping	: 0
+microcode	: 0x8301039
+cpu MHz		: 4382.589
+cache size	: 512 KB
+physical id	: 0
+siblings	: 48
+core id		: 22
+cpu cores	: 24
+apicid		: 45
+initial apicid	: 45
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 16
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm constant_tsc rep_good nopl nonstop_tsc cpuid extd_apicid aperfmperf rapl pni pclmulqdq monitor ssse3 fma cx16 sse4_1 sse4_2 movbe popcnt aes xsave avx f16c rdrand lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt tce topoext perfctr_core perfctr_nb bpext perfctr_llc mwaitx cpb cat_l3 cdp_l3 hw_pstate ssbd mba ibpb stibp vmmcall fsgsbase bmi1 avx2 smep bmi2 cqm rdt_a rdseed adx smap clflushopt clwb sha_ni xsaveopt xsavec xgetbv1 xsaves cqm_llc cqm_occup_llc cqm_mbm_total cqm_mbm_local clzero irperf xsaveerptr rdpru wbnoinvd arat npt lbrv svm_lock nrip_save tsc_scale vmcb_clean flushbyasid decodeassists pausefilter pfthreshold avic v_vmsave_vmload vgif v_spec_ctrl umip rdpid overflow_recov succor smca sme sev sev_es
+bugs		: sysret_ss_attrs spectre_v1 spectre_v2 spec_store_bypass retbleed
+bogomips	: 7599.86
+TLB size	: 3072 4K pages
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 43 bits physical, 48 bits virtual
+power management: ts ttp tm hwpstate cpb eff_freq_ro [13] [14]
+
+processor	: 42
+vendor_id	: AuthenticAMD
+cpu family	: 23
+model		: 49
+model name	: AMD Ryzen Threadripper 3960X 24-Core Processor
+stepping	: 0
+microcode	: 0x8301039
+cpu MHz		: 2200.000
+cache size	: 512 KB
+physical id	: 0
+siblings	: 48
+core id		: 24
+cpu cores	: 24
+apicid		: 49
+initial apicid	: 49
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 16
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm constant_tsc rep_good nopl nonstop_tsc cpuid extd_apicid aperfmperf rapl pni pclmulqdq monitor ssse3 fma cx16 sse4_1 sse4_2 movbe popcnt aes xsave avx f16c rdrand lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt tce topoext perfctr_core perfctr_nb bpext perfctr_llc mwaitx cpb cat_l3 cdp_l3 hw_pstate ssbd mba ibpb stibp vmmcall fsgsbase bmi1 avx2 smep bmi2 cqm rdt_a rdseed adx smap clflushopt clwb sha_ni xsaveopt xsavec xgetbv1 xsaves cqm_llc cqm_occup_llc cqm_mbm_total cqm_mbm_local clzero irperf xsaveerptr rdpru wbnoinvd arat npt lbrv svm_lock nrip_save tsc_scale vmcb_clean flushbyasid decodeassists pausefilter pfthreshold avic v_vmsave_vmload vgif v_spec_ctrl umip rdpid overflow_recov succor smca sme sev sev_es
+bugs		: sysret_ss_attrs spectre_v1 spectre_v2 spec_store_bypass retbleed
+bogomips	: 7599.86
+TLB size	: 3072 4K pages
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 43 bits physical, 48 bits virtual
+power management: ts ttp tm hwpstate cpb eff_freq_ro [13] [14]
+
+processor	: 43
+vendor_id	: AuthenticAMD
+cpu family	: 23
+model		: 49
+model name	: AMD Ryzen Threadripper 3960X 24-Core Processor
+stepping	: 0
+microcode	: 0x8301039
+cpu MHz		: 2200.000
+cache size	: 512 KB
+physical id	: 0
+siblings	: 48
+core id		: 25
+cpu cores	: 24
+apicid		: 51
+initial apicid	: 51
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 16
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm constant_tsc rep_good nopl nonstop_tsc cpuid extd_apicid aperfmperf rapl pni pclmulqdq monitor ssse3 fma cx16 sse4_1 sse4_2 movbe popcnt aes xsave avx f16c rdrand lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt tce topoext perfctr_core perfctr_nb bpext perfctr_llc mwaitx cpb cat_l3 cdp_l3 hw_pstate ssbd mba ibpb stibp vmmcall fsgsbase bmi1 avx2 smep bmi2 cqm rdt_a rdseed adx smap clflushopt clwb sha_ni xsaveopt xsavec xgetbv1 xsaves cqm_llc cqm_occup_llc cqm_mbm_total cqm_mbm_local clzero irperf xsaveerptr rdpru wbnoinvd arat npt lbrv svm_lock nrip_save tsc_scale vmcb_clean flushbyasid decodeassists pausefilter pfthreshold avic v_vmsave_vmload vgif v_spec_ctrl umip rdpid overflow_recov succor smca sme sev sev_es
+bugs		: sysret_ss_attrs spectre_v1 spectre_v2 spec_store_bypass retbleed
+bogomips	: 7599.86
+TLB size	: 3072 4K pages
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 43 bits physical, 48 bits virtual
+power management: ts ttp tm hwpstate cpb eff_freq_ro [13] [14]
+
+processor	: 44
+vendor_id	: AuthenticAMD
+cpu family	: 23
+model		: 49
+model name	: AMD Ryzen Threadripper 3960X 24-Core Processor
+stepping	: 0
+microcode	: 0x8301039
+cpu MHz		: 2200.000
+cache size	: 512 KB
+physical id	: 0
+siblings	: 48
+core id		: 26
+cpu cores	: 24
+apicid		: 53
+initial apicid	: 53
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 16
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm constant_tsc rep_good nopl nonstop_tsc cpuid extd_apicid aperfmperf rapl pni pclmulqdq monitor ssse3 fma cx16 sse4_1 sse4_2 movbe popcnt aes xsave avx f16c rdrand lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt tce topoext perfctr_core perfctr_nb bpext perfctr_llc mwaitx cpb cat_l3 cdp_l3 hw_pstate ssbd mba ibpb stibp vmmcall fsgsbase bmi1 avx2 smep bmi2 cqm rdt_a rdseed adx smap clflushopt clwb sha_ni xsaveopt xsavec xgetbv1 xsaves cqm_llc cqm_occup_llc cqm_mbm_total cqm_mbm_local clzero irperf xsaveerptr rdpru wbnoinvd arat npt lbrv svm_lock nrip_save tsc_scale vmcb_clean flushbyasid decodeassists pausefilter pfthreshold avic v_vmsave_vmload vgif v_spec_ctrl umip rdpid overflow_recov succor smca sme sev sev_es
+bugs		: sysret_ss_attrs spectre_v1 spectre_v2 spec_store_bypass retbleed
+bogomips	: 7599.86
+TLB size	: 3072 4K pages
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 43 bits physical, 48 bits virtual
+power management: ts ttp tm hwpstate cpb eff_freq_ro [13] [14]
+
+processor	: 45
+vendor_id	: AuthenticAMD
+cpu family	: 23
+model		: 49
+model name	: AMD Ryzen Threadripper 3960X 24-Core Processor
+stepping	: 0
+microcode	: 0x8301039
+cpu MHz		: 2200.000
+cache size	: 512 KB
+physical id	: 0
+siblings	: 48
+core id		: 28
+cpu cores	: 24
+apicid		: 57
+initial apicid	: 57
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 16
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm constant_tsc rep_good nopl nonstop_tsc cpuid extd_apicid aperfmperf rapl pni pclmulqdq monitor ssse3 fma cx16 sse4_1 sse4_2 movbe popcnt aes xsave avx f16c rdrand lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt tce topoext perfctr_core perfctr_nb bpext perfctr_llc mwaitx cpb cat_l3 cdp_l3 hw_pstate ssbd mba ibpb stibp vmmcall fsgsbase bmi1 avx2 smep bmi2 cqm rdt_a rdseed adx smap clflushopt clwb sha_ni xsaveopt xsavec xgetbv1 xsaves cqm_llc cqm_occup_llc cqm_mbm_total cqm_mbm_local clzero irperf xsaveerptr rdpru wbnoinvd arat npt lbrv svm_lock nrip_save tsc_scale vmcb_clean flushbyasid decodeassists pausefilter pfthreshold avic v_vmsave_vmload vgif v_spec_ctrl umip rdpid overflow_recov succor smca sme sev sev_es
+bugs		: sysret_ss_attrs spectre_v1 spectre_v2 spec_store_bypass retbleed
+bogomips	: 7599.86
+TLB size	: 3072 4K pages
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 43 bits physical, 48 bits virtual
+power management: ts ttp tm hwpstate cpb eff_freq_ro [13] [14]
+
+processor	: 46
+vendor_id	: AuthenticAMD
+cpu family	: 23
+model		: 49
+model name	: AMD Ryzen Threadripper 3960X 24-Core Processor
+stepping	: 0
+microcode	: 0x8301039
+cpu MHz		: 2200.000
+cache size	: 512 KB
+physical id	: 0
+siblings	: 48
+core id		: 29
+cpu cores	: 24
+apicid		: 59
+initial apicid	: 59
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 16
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm constant_tsc rep_good nopl nonstop_tsc cpuid extd_apicid aperfmperf rapl pni pclmulqdq monitor ssse3 fma cx16 sse4_1 sse4_2 movbe popcnt aes xsave avx f16c rdrand lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt tce topoext perfctr_core perfctr_nb bpext perfctr_llc mwaitx cpb cat_l3 cdp_l3 hw_pstate ssbd mba ibpb stibp vmmcall fsgsbase bmi1 avx2 smep bmi2 cqm rdt_a rdseed adx smap clflushopt clwb sha_ni xsaveopt xsavec xgetbv1 xsaves cqm_llc cqm_occup_llc cqm_mbm_total cqm_mbm_local clzero irperf xsaveerptr rdpru wbnoinvd arat npt lbrv svm_lock nrip_save tsc_scale vmcb_clean flushbyasid decodeassists pausefilter pfthreshold avic v_vmsave_vmload vgif v_spec_ctrl umip rdpid overflow_recov succor smca sme sev sev_es
+bugs		: sysret_ss_attrs spectre_v1 spectre_v2 spec_store_bypass retbleed
+bogomips	: 7599.86
+TLB size	: 3072 4K pages
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 43 bits physical, 48 bits virtual
+power management: ts ttp tm hwpstate cpb eff_freq_ro [13] [14]
+
+processor	: 47
+vendor_id	: AuthenticAMD
+cpu family	: 23
+model		: 49
+model name	: AMD Ryzen Threadripper 3960X 24-Core Processor
+stepping	: 0
+microcode	: 0x8301039
+cpu MHz		: 2200.000
+cache size	: 512 KB
+physical id	: 0
+siblings	: 48
+core id		: 30
+cpu cores	: 24
+apicid		: 61
+initial apicid	: 61
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 16
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm constant_tsc rep_good nopl nonstop_tsc cpuid extd_apicid aperfmperf rapl pni pclmulqdq monitor ssse3 fma cx16 sse4_1 sse4_2 movbe popcnt aes xsave avx f16c rdrand lahf_lm cmp_legacy svm extapic cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw ibs skinit wdt tce topoext perfctr_core perfctr_nb bpext perfctr_llc mwaitx cpb cat_l3 cdp_l3 hw_pstate ssbd mba ibpb stibp vmmcall fsgsbase bmi1 avx2 smep bmi2 cqm rdt_a rdseed adx smap clflushopt clwb sha_ni xsaveopt xsavec xgetbv1 xsaves cqm_llc cqm_occup_llc cqm_mbm_total cqm_mbm_local clzero irperf xsaveerptr rdpru wbnoinvd arat npt lbrv svm_lock nrip_save tsc_scale vmcb_clean flushbyasid decodeassists pausefilter pfthreshold avic v_vmsave_vmload vgif v_spec_ctrl umip rdpid overflow_recov succor smca sme sev sev_es
+bugs		: sysret_ss_attrs spectre_v1 spectre_v2 spec_store_bypass retbleed
+bogomips	: 7599.86
+TLB size	: 3072 4K pages
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 43 bits physical, 48 bits virtual
+power management: ts ttp tm hwpstate cpb eff_freq_ro [13] [14]
+
+Device type (integral) : 3
+API Revision           : 0064785
+[End of Log Header]
+
+INFO : Enumerating AXI module BaseAddressMap     v1.0 at base address 0x00010000.
+INFO : Enumerating AXI module JESD204            ---- at base address 0x00011000.
+INFO : Enumerating AXI module JESD204PHY         v4.0 at base address 0x00012000.
+INFO : Enumerating AXI module SampleSorter       v1.0 at base address 0x00013000.
+INFO : Enumerating AXI module DramFlowController v1.0 at base address 0x00014000.
+INFO : Enumerating AXI module SPI                ---- at base address 0x00015000.
+INFO : Enumerating AXI module SPI                ---- at base address 0x00016000.
+INFO : Enumerating AXI module SPI                ---- at base address 0x00017000.
+INFO : Enumerating AXI module SPI                ---- at base address 0x00018000.
+TRACE: System manager synchronization complete (1).
+INFO : Enumerating AXI module I2C                ---- at base address 0x00019000.
+INFO : Enumerating AXI module IoChecker          v1.0 at base address 0x0001A000.
+INFO : Enumerating AXI module LicenseManager     v1.0 at base address 0x0001B000.
+INFO : Enumerating AXI module FirmwareInfo       v1.3 at base address 0x0001C000.
+INFO : Enumerating AXI module TriggerControl     v1.1 at base address 0x0001D000.
+INFO : Enumerating AXI module GainAndOffset      v1.0 at base address 0x0001E000.
+INFO : Enumerating AXI module TestPattern        v1.0 at base address 0x0001F000.
+INFO : Enumerating AXI module DBS                v1.0 at base address 0x00020000.
+INFO : Enumerating AXI module SampleSkip         v1.0 at base address 0x00021000.
+INFO : Enumerating AXI module LevelTrigger       v2.0 at base address 0x00022000.
+INFO : Enumerating AXI module Pretrigger         v1.0 at base address 0x00023000.
+INFO : Enumerating AXI module TriggerDelay       v1.0 at base address 0x00024000.
+INFO : Enumerating AXI module Acquisition        v1.0 at base address 0x00025000.
+INFO : Enumerating AXI module BarrelShifter      v1.0 at base address 0x00026000.
+INFO : Enumerating AXI module DebugCounters      v1.0 at base address 0x00027000.
+INFO : Enumerating AXI module P2pDispatcher      v1.1 at base address 0x00040000.
+INFO : Enumerating AXI module ADQ3Top            v2.0 at base address 0x00050000.
+INFO : Enumerating AXI module UserLogic          ---- at base address 0x00060000.
+INFO : Enumerating AXI module FirFilter          v1.0 at base address 0x00070000.
+INFO : Enumerating AXI module UserLogic          ---- at base address 0x00080000.
+INFO : Enumerating AXI module P2pPacker          v1.0 at base address 0x00090000.
+INFO : Communication interface: PCIe Gen3x8
+INFO : Firmware name: 2CH-FWDAQ-PCIE
+INFO : Firmware type: STANDARD
+INFO : Firmware revision: 2815113
+INFO : Firmware part number: 400-023-000
+INFO : FPGA DNA: 00000000400200018150f0040d3081c5
+INFO : Running idle I/O test on: SPI_SYSMAN
+INFO : Running idle I/O test on: SPI_EEPROM
+INFO : Attempting to enumerate and cache EEPROM.
+INFO :    Found EEPROM block: BASIC   , length 332
+INFO :    Found EEPROM block: REFCAL  , length 20
+INFO :    Found EEPROM block: INPRANG2, length 65
+INFO :    Found EEPROM block: DELAYLIN, length 118
+INFO :    Found EEPROM block: TRIGDEL , length 685
+INFO :    Found EEPROM block: CHANNELS, length 50
+INFO :    Found EEPROM block: ADJBIAS2, length 61
+INFO :    Found EEPROM block: GAINOFFS, length 36
+INFO :    Found EEPROM block: FEATURES, length 54
+INFO :    Found EEPROM block: CLOCKSYS, length 42
+INFO :    Found EEPROM block: LICENSE , length 50
+INFO :    Found EEPROM block: CALDATE , length 124
+INFO :    Found EEPROM block: LAST    , length 18
+INFO : Cached a total of 1671 bytes from the EEPROM. Took 0.07 seconds
+INFO : Successfully parsed EEPROM BASIC block.
+INFO : EEPROM BASIC block contents:
+INFO :   Product: ADQ32-DC-S2G5-BW1G0-R0V5-PCIe
+INFO :   Serial:  SPD-10702
+INFO :   PCB PN:  106-000-155-C
+INFO :   PCBA PN: 300-000-315-H
+INFO :   HWA PN:  320-002-002-H
+INFO :   HWSA PN: 
+INFO : Successfully parsed EEPROM LICENSE block.
+INFO : Successfully parsed EEPROM GAINOFFS block.
+INFO : Successfully parsed EEPROM CHANNELS block.
+INFO : Successfully parsed EEPROM FEATURES block.
+INFO : Successfully parsed EEPROM INPRANG2 block.
+INFO : Successfully parsed EEPROM TRIGDEL block.
+INFO : Successfully parsed EEPROM ADJBIAS2 block.
+INFO : Successfully parsed EEPROM REFCAL block.
+INFO : Successfully parsed EEPROM CLOCKSYS block.
+INFO : Successfully parsed EEPROM DELAYLIN block.
+INFO : EEPROM TRIGDEL block contents:
+INFO :   Trigger 2: 32 taps, 4 sample rate calibrations (1000.00, 1500.00, 2000.00, 2500.00 MSps)
+INFO :   Trigger 102: 32 taps, 1 sample rate calibrations (0.00 MSps)
+INFO : License hash comparison passed.
+INFO : License bits in current license:    0000011100000180
+INFO : License bits required by firmware:          00000080
+INFO : Optional licenses used by firmware: 00000110
+INFO : Valid license(s):
+INFO :   FWDAQ
+INFO :   Interleaving 2x
+INFO :   ADX
+INFO :   Sample rate up to 2.5 GS/s
+INFO :   Channel(s) 1, 2
+INFO : Running I/O activity test on: SPI_EEPROM
+INFO : ----------------------------------------------------
+INFO :  Sensor                           | Value    | Unit
+INFO : ----------------------------------------------------
+INFO :  Temperatures
+INFO : ----------------------------------------------------
+INFO :  Front-end temperature                43.625   degC 
+INFO :  Air inlet temperature                29.688   degC 
+INFO :  FPGA temperature                     46.345   degC 
+INFO :  +0V95 temperature                    41.000   degC 
+INFO :  ADC temperature                      55.921   degC 
+INFO : ----------------------------------------------------
+INFO :  Voltages
+INFO : ----------------------------------------------------
+INFO :  +5V1                                  5.153      V 
+INFO :  +3V3SM                                3.254      V 
+INFO :  +11VSM                               11.406      V 
+INFO :  VCXO monitor                          1.631      V 
+INFO :  +3V3                                  3.304      V 
+INFO :  +3V3CLK                               3.268      V 
+INFO :  +2V6A                                 2.554      V 
+INFO :  +2V5                                  2.509      V 
+INFO :  +1V8                                  1.803      V 
+INFO :  +0V6TTA                               0.618      V 
+INFO :  +0V6TTB                               0.615      V 
+INFO :  +1V1D                                 1.099      V 
+INFO :  +1V1A                                 1.098      V 
+INFO :  +1V9A                                 1.883      V 
+INFO :  +12V                                 12.152      V 
+INFO :  +7VA                                  7.013      V 
+INFO :  +5V0                                  4.967      V 
+INFO :  +1V2                                  1.206      V 
+INFO :  +1V0                                  0.987      V 
+INFO :  +0V95                                 0.953      V 
+INFO :  -11V                                -11.772      V 
+INFO :  -7V2A                                -7.194      V 
+INFO :  -3V4                                 -3.264      V 
+INFO :  -2V6                                 -2.572      V 
+INFO : ----------------------------------------------------
+INFO :  Currents
+INFO : ----------------------------------------------------
+INFO :  +0V95 output current                  6.125      A 
+INFO : ----------------------------------------------------
+INFO :  Power
+INFO : ----------------------------------------------------
+INFO :  +0V95 power                           5.830      W 
+INFO : ----------------------------------------------------
+INFO : Frequency estimate for INT_OSC: 48.59 MHz
+INFO : Running idle I/O test on: SPI
+INFO : Running idle I/O test on: SPI
+INFO : Running idle I/O test on: I2C
+INFO : Running I/O activity test on: I2C
+INFO : PLL detected: LMK04826B
+INFO : Detected DAC #0 at SPI address 00
+INFO : Running I/O activity test on: SPI
+INFO : Detected ADC12DJ2700 at SPI address 00
+INFO : Running I/O activity test on: SPI
+INFO : Frequency estimate for DRAM_C1_FREQ: 100.00 MHz
+INFO : Frequency estimate for PCIE_AXICLK_FREQ: 250.00 MHz
+INFO : Clock generator: Internal PLL.
+INFO : Reference source: Internal.
+INFO : Low jitter mode: enabled.
+INFO : Clock delay adjustment: disabled.
+INFO : VCXO frequency set to 10.00 MHz
+INFO : Selected VCO1 (2440 - 2505), CH div 1, for clock rate 2500.0 MHz
+TRACE: PLL1 enabled: False
+TRACE: VCO:              VCO1 (2440 - 2505 MHz)        
+TRACE: Reference freq:   10.000 MHz
+TRACE: VCXO freq:        10.00 MHz
+TRACE: Feedback mux:     SYSREF_DIV
+TRACE: PLL2 FB path:     FEEDBACK_MUX
+TRACE: PLL2 R-div:       4
+TRACE: PLL2 R-doubler:   Disabled
+TRACE: PLL2 N-div:       1
+TRACE: PLL2 N-div (VCO cal): 500
+TRACE: PLL2 VCO prescaler: 2
+TRACE: SYSREF_DIV divider: 1000
+TRACE: SYSREF_DIV freq:  2.500 MHz
+INFO : Frequency estimate for PLL2_REFCLK_FREQ: 10.00 MHz
+INFO : (VerifyPll2Lock:848) : PLL2 signaled lock detect.
+INFO : Frequency estimate for DATACLK_1X_FREQ: 312.51 MHz
+INFO : Frequency estimate for DATACLK_2X_FREQ: 625.01 MHz
+INFO : Frequency estimate for JESD_CORECLK_FREQ: 250.01 MHz
+INFO : Successfully set up JESD PHY 1. Number of transceiver interfaces: 8
+INFO : JESD PHY IP reset successfully.
+INFO : JESD IP reset successfully.
+INFO : JESD204 PHY signals CPLL lock.
+INFO : Frequency estimate for JESD_GTXCLK_FREQ: 250.01 MHz
+INFO : Clock reference ratio: (1000/32 - 1) * 2**25 = 0x3c800000 (gcd 8).
+INFO : Clock reference phase counter: 124.
+INFO : ADC (SPI address 0): SYSREF detector: 1....... .....11. .......1
+INFO : ADC (SPI address 0): JESD_EN = 1
+INFO : ADC (SPI address 0): LINK_UP = 1
+INFO : ADC (SPI address 0): SYNC_STATUS = 1
+INFO : ADC (SPI address 0): REALIGNED = 1
+INFO : ADC (SPI address 0): ALIGNED = 1
+INFO : ADC (SPI address 0): PLL_LOCKED = 1
+INFO : JESD204B IP for ADC1: No link errors detected
+INFO : JESD204B IP for ADC1: SYSREF has been captured.
+INFO : JESD204B IP for ADC1: synchronization achieved.
+INFO : Sample sorter: FIFO count = 32
+INFO : TRIG: Idelay interpolation for 2500 MSPs, 1.00 x (2000 -> 2500)
+INFO : Enumerating AXI module EventCore          v2.1 at base address 0x0001D400.
+INFO : Enumerating AXI module FunctionCore       v1.0 at base address 0x0001D800.
+INFO : Skip factor 1 -> scale mode 0, scale 1, inv value 1.000000.
+INFO : Skip factor 1 -> scale mode 0, scale 1, inv value 1.000000.
+INFO : DBS instance 0 - version 3655, 16 bits, target std7.
+INFO : DBS instance 1 - version 3655, 16 bits, target std7.
+INFO : DRAM0 test started.
+INFO : DRAM1 test started.
+INFO : DRAM0 test successful
+INFO : DRAM1 test successful
+INFO : DRAM FIFO range set to [0x0, 0x3FFFFFF]
+INFO : Skip factor 1 -> scale mode 0, scale 1, inv value 1.000000.
+INFO : Skip factor 1 -> scale mode 0, scale 1, inv value 1.000000.
+INFO : Setting trigger delay to 0 for channel 0.
+TRACE: Skipping the internal transfer thread.
+--------------------------
+End of Log Session for ADQ
+--------------------------
