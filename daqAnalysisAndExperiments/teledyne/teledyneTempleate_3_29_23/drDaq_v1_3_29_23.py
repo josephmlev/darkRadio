@@ -108,12 +108,4 @@ if __name__ == "__main__":
         plt.plot()
         plt.show()
 
-        plt.figure()
-        plt.title(f"{s.NOF_BUFFERS_TO_RECEIVE} FFTs Averaged")
-        plt.plot(np.linspace(0,s.SAMPLE_RATE/2/1e6,s.CH0_RECORD_LEN//2),10*np.log10(avgSpec_W_plotting['chASpec_W'][1:]*1000), label = 'CH A')
-        plt.plot(np.linspace(0,s.SAMPLE_RATE/2/1e6,s.CH0_RECORD_LEN//2),10*np.log10(avgSpec_W_plotting['chBSpec_W'][1:]*1000), alpha = 0.8, label = 'CH B')
-        plt.xlabel('Freq(MHz)')
-        plt.ylabel('Power (dBm)')
-        plt.legend(loc='upper right')
-        plt.plot()
-        plt.show()
+
