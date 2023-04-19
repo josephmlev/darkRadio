@@ -14,8 +14,8 @@ NOF_CHANNELS                    = 2 #can't currently change. Need to load 1 ch f
 CH0_RECORD_LEN                  = int(2**24) 
 CH1_RECORD_LEN                  = CH0_RECORD_LEN #Different lengths not currently accepted
 
-NOF_BUFFERS_TO_RECEIVE          = 500 #for each call of avgFFT()
-NOF_ACQUISITIONS_TO_TAKE        = 1 #number of times to call avgFFT()
+NOF_BUFFERS_TO_RECEIVE          = 7000 #for each call of avgFFT()
+NOF_ACQUISITIONS_TO_TAKE        = 465 #number of times to call avgFFT()
 
 NOF_GPU_BUFFERS                 = 2 #per channel. Crashes if not 2.
 
