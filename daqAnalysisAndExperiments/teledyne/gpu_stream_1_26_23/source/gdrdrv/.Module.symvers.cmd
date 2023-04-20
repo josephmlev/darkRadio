@@ -1,0 +1,1 @@
+cmd_/home/dradmin/Downloads/adq3x_nvidia_gpu_p2p_stream/source/gdrdrv/Module.symvers := sed 's/\.ko$$/\.o/' /home/dradmin/Downloads/adq3x_nvidia_gpu_p2p_stream/source/gdrdrv/modules.order | scripts/mod/modpost -m -a  -o /home/dradmin/Downloads/adq3x_nvidia_gpu_p2p_stream/source/gdrdrv/Module.symvers -e -i Module.symvers   -T -

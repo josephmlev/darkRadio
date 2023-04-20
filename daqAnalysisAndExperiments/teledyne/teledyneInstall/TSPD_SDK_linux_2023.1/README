@@ -1,0 +1,141 @@
+# INSTALLATION
+
+To install the SDK packages, enter the "packages" directory and find the linux
+distribution and processor architecture you are using. Specific instructions for
+each distribution follows below.
+
+After installing all necessary packages, reboot the system so that udev reads
+the updated configuration and the driver loads.
+
+## Ubuntu and Debian
+
+Install delivered versions of our packages using:
+
+    dpkg -i packagename
+
+Use the following order:
+
+- spd-adq-pci-dkms (not needed for USB devices)
+- libadq0
+- adqtools
+
+GUI applications:
+
+- adqassist (requires libadq0 and adqtools)
+- digitizerstudio (requires libadq0)
+
+## OpenSUSE Leap and SUSE Linux Enterprise
+
+**Note** For SUSE Linux Enterprise, use OpenSUSE Leap packages.
+
+Install `dkms` packge using:
+
+    zypper install dkms
+
+Install delivered versions of our packages using:
+
+    rpm -U packagename
+
+Use the following order:
+
+- spd-adq-pci-dkms (not needed for USB devices)
+- libadq0
+- adqtools
+
+GUI applications:
+
+- adqassist (requires libadq0 and adqtools)
+- digitizerstudio (requires libadq0)
+
+## Fedora
+
+Install delivered versions of our packages using:
+
+    dnf install packagename
+
+Use the following order:
+
+- spd-adq-pci-dkms (not needed for USB devices)
+- libadq0
+- adqtools
+
+GUI applications:
+
+- adqassist (requires libadq0 and adqtools)
+- digitizerstudio (requires libadq0)
+
+## AlmaLinux OS / CentOS / Red Hat Enterprise Linux / Scientific Linux
+
+**Note** For RHEL, use AlmaLinux packages.
+
+Install delivered versions of our packages using:
+
+    yum install packagename
+
+Use the following order:
+
+- spd-adq-pci-dkms (not needed for USB devices)
+- libadq0
+- adqtools
+
+GUI applications:
+
+- adqassist (requires libadq0 and adqtools)
+- digitizerstudio (requires libadq0 and EPEL, see below)
+
+**EPEL:** Digitizer Studio requries _hdf5_ and _udt_ which are only available
+through the EPEL (Extra Packages for Enterprise Linux) repository. To install
+Digitizer Studio you either need to download and install these packages, with
+dependencies, separately or enable the EPEL repository for automatic dependency
+resolution. Enabling EPEL is done by running the following command:
+
+    yum install epel-release
+
+AlmaLinux OS 8, CentOS 8 and Red Hat Enterprise Linux 8 also requires
+_powertools_:
+
+    yum install dnf-plugins-core && dnf config-manager --set-enabled powertools
+
+# Device access permissions
+
+ADQ devices show up as `/dev/adq_pcie_` and `/dev/adq_usb_`, the default udev
+setting is to add read/write access to the user group "adq". The libadq0 package
+will create a user group called "adq" if that group doesn't already exist in the
+system. To be able to access the devices, in order to add your user to the "adq"
+group use the command:
+
+    usermod -a -G adq username
+
+The user will have to logout and login again for the changes to take effect.
+
+# Kernel module version compatibility
+
+The PCIe kernel module supports kernel versions from 2.6.32 and forward, however
+kernel version 3.8.0 or newer is recommended.
+
+The PCIe kernel module is not signed and thus will not load if your kernel uses
+"secure boot". If "secure boot" is enabled, it will need to be disabled before
+the kernel module can be loaded. Refer to your distribution documentation on how
+to do this.
+
+# API user guide
+
+The API user guide is included as a .pdf document in the "doc" directory. All
+API functions are described there.
+
+# Example code
+
+Example code for different languages can be found in the "examples" directory.
+
+## C/C++ examples
+
+C/C++ example code is compiled using Make by going to the directory with the
+Makefile and running "make". To setup include paths and defines for the compiler
+"pkg-config" is used in the C/C++ examples. If not already installed, pkg-config
+can be installed using the appropriate distribution package tools.
+
+## Python examples
+
+The Python examples are written for Python 3. They use the "ctypes" module to
+call ADQAPI functions and convert Python data structures to the appropriate
+format.

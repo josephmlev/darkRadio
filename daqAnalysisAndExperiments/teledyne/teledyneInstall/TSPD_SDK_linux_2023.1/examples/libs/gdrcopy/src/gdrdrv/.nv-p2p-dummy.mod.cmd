@@ -1,0 +1,1 @@
+cmd_/home/dradmin/Desktop/TSPD_SDK_linux_2023.1/examples/libs/gdrcopy/src/gdrdrv/nv-p2p-dummy.mod := printf '%s\n'   nv-p2p-dummy.o | awk '!x[$$0]++ { print("/home/dradmin/Desktop/TSPD_SDK_linux_2023.1/examples/libs/gdrcopy/src/gdrdrv/"$$0) }' > /home/dradmin/Desktop/TSPD_SDK_linux_2023.1/examples/libs/gdrcopy/src/gdrdrv/nv-p2p-dummy.mod

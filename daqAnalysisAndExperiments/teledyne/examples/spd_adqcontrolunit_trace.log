@@ -1,11 +1,14 @@
 ---------------------------------------------------------------------
 Log and error trace for ADQControlUnit
-API Revision : 64785
+API Revision : 2023.1
 ---------------------------------------------------------------------
-INFO : (ListDevices:309) : ListDevices found 0 QPCIE devices.
-INFO : (ListDevices:455) : ListDevices found 16 USB devices.
-INFO : (ListDevices:694) : ListDevices found 16 USB devices.
-INFO : (OpenDeviceInterface:924) : OpenDeviceInterface: Opening interface to device from info list entry 0.
-INFO : (OpenDeviceInterface:1471) : OpenDeviceInterface: Device interface successfully opened.
-INFO : (SetupDevice:1538) : SetupDevice: Setting up device from info list entry 0.
-INFO : (SetupDevice:1544) : SetupDevice: Found opened ADQ object that matches info entry.
+INFO : (ListDevices:308) : ListDevices found 0 QPCIE devices.
+INFO : (ListDevices:454) : ListDevices found 17 USB devices.
+INFO : (ListDevices:692) : ListDevices found 17 USB devices.
+INFO : (OpenDeviceInterface:922) : OpenDeviceInterface: Opening interface to device from info list entry 0.
+INFO : (OpenDeviceInterface:1472) : OpenDeviceInterface: Device interface successfully opened.
+INFO : (SetupDevice:1539) : SetupDevice: Setting up device from info list entry 0.
+INFO : (SetupDevice:1545) : SetupDevice: Found opened ADQ object that matches info entry.
+-------------------------------------
+End of Log Session for ADQControlUnit
+-------------------------------------
