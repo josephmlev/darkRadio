@@ -49,6 +49,7 @@ def getSData(fileNames):
 # Calculate q value from formula usin dimensions of the room
 def calcQData(s11Complex, meanS11, freqs):
 	num = np.mean(np.abs(s11Complex - meanS11)**2, axis = 0)
+	#num = (np.abs(s11Complex - meanS11)**2)
 	den = (-1*np.abs(meanS11)**2 + 1)**2
 	volume = 3.05 * 2.45 * 3.67
 	wavelength = 3e2 / freqs[0]
@@ -61,7 +62,7 @@ label_font = {'fontname':'sans-serif', 'size':'16', 'color':'black', 'weight':'n
 title_font = {'fontname':'sans-serif', 'size':'16', 'color':'black', 'weight':'bold'}
 legend_font = {'family':'sans-serif', 'size':'10', 'style':'normal'} 
 
-
+LIGHTSPEED = 3.0e8
 
 
 dataDir = '/home/bgodfrey/DarkRadio/darkRadio/VNA/QTesting/Data/'
@@ -75,18 +76,23 @@ fileNamesRedone = sorted(getAllFiles(dataDirRedone))
 freqs, vswr, reflec, s11Mag, s11Phase, s11Complex = getSData(fileNames)
 freqsRedone, vswrRedone, reflecRedone, s11MagRedone, s11PhaseRedone, s11ComplexRedone = getSData(fileNamesRedone)
 
+
+
 meanS11 = np.mean(s11Complex, axis = 0)
+print(meanS11)
 
 meanS11Redone = np.mean(s11ComplexRedone, axis = 0)
-
+meanImpedanceRedone = np.abs(50 * (1 + meanS11Redone) / (1 - meanS11Redone))
 
 num, den, qVal = calcQData(s11Complex, meanS11, freqs)
 numRedone, denRedone, qValRedone = calcQData(s11ComplexRedone, meanS11Redone, freqsRedone)
 
 
+
 # Plot frequencies and q values 
-plt.plot(freqs[0], 10*np.log10(qVal), label = 'First Run')
+#plt.plot(freqs[0], (qVal), label = 'First Run')
 plt.plot(freqsRedone[0], 10*np.log10(qValRedone), label = 'Second Run')
+
 #plt.gca().set_yscale('log')
 
 
@@ -94,7 +100,43 @@ plt.xlabel('Frequency (MHz)', labelpad = 15, **label_font)
 plt.ylabel('Q (dB)', **label_font)
 plt.tight_layout()
 plt.grid()
-plt.legend(prop = legend_font)
+#plt.legend(prop = legend_font)
+plt.savefig('CompositeQ_6-27-23', dpi = 100)
 
 #plt.savefig('CompositeQFirstAttempt_MedianFit.png', dpi = 100)
 plt.show()
+
+antFac = 9.73 * freqsRedone[0] * 1e6 / LIGHTSPEED/np.sqrt(meanImpedanceRedone/50.)
+
+
+antFac2 = 9.73 * freqsRedone[0] * 1e6 / LIGHTSPEED*np.sqrt(1 - np.abs(meanS11Redone))
+
+
+plt.plot(freqsRedone[0], 20*np.log10(antFac))
+plt.xlabel('Frequency (MHz)', labelpad = 15, **label_font)
+plt.ylabel(r'Composite Antenna Factor (dBm$^{-1}$)', **label_font)
+plt.tight_layout()
+plt.grid()
+plt.legend(prop = legend_font)
+
+plt.savefig('CompositeAF_6-27-23', dpi = 100)
+plt.show()
+
+
+lowFreq = (np.argmin(np.abs(freqsRedone[0] - 50)))
+highFreq = (np.argmin(np.abs(freqsRedone[0] - 300)))
+plt.plot(freqsRedone[0][lowFreq:highFreq], (20*np.log10(antFac2) - 5*np.log10(qValRedone))[lowFreq:highFreq], alpha = 0.7)
+
+print(np.mean((20*np.log10(antFac) - 5*np.log10(qValRedone))[lowFreq:highFreq]))
+
+plt.xlabel('Frequency (MHz)', labelpad = 15, **label_font)
+plt.ylabel(r'Effective Antenna Factor (dBm$^{-1}$)', **label_font)
+plt.tight_layout()
+plt.grid()
+#plt.legend(prop = legend_font)
+plt.savefig('EffectiveAF_7-12-23.pdf', dpi = 100)
+plt.show()
+
+df = {'Frequency (MHz)': freqsRedone[0], 'QVal (linear)': qValRedone, 'Composite AF (m^-1)': antFac, 'Effective AF (dBm^-1)': 20*np.log10(antFac) - 5*np.log10(qValRedone)}
+allData_df = pd.DataFrame(data = df)
+allData = allData_df.to_csv('AllData_6-27-23.csv')

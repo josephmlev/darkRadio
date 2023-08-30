@@ -87,8 +87,8 @@ num, den, qVal = calcQData(s11Complex, meanS11, freqs)
 numRedone, denRedone, qValRedone = calcQData(s11ComplexRedone, meanS11Redone, freqsRedone)
 
 
-medQVal = np.median(np.reshape(qVal[:-1], (-1, 25)), axis = 1)
-medFreqs = np.median(np.reshape(freqs[0][:-1], (-1, 25)), axis = 1)
+#medQVal = np.median(np.reshape(qVal[:-1], (-1, 25)), axis = 1)
+#medFreqs = np.median(np.reshape(freqs[0][:-1], (-1, 25)), axis = 1)
 
 
 plt.plot(freqs[0], 10*np.log10(qVal), label = 'First Run')
