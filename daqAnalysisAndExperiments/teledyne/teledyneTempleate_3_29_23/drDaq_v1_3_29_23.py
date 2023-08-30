@@ -22,7 +22,7 @@ if __name__ == "__main__":
         time.sleep(s.INIT_SLEEP_TIME)
 
     if s.SWITCH:
-        numLoops = s.NOF_ACQUISITIONS_TO_TAKE//2
+        numLoops = s.NOF_ACQUISITIONS_TO_TAKE - (s.NOF_ACQUISITIONS_TO_TAKE//s.SWITCH_DUTYCYCLE) + 1
     else:
         numLoops = s.NOF_ACQUISITIONS_TO_TAKE
 
@@ -53,8 +53,10 @@ if __name__ == "__main__":
                                     s)
                             )
         t.start()
+        print(f'Acquisition of single buffer took   : {round((time.time()-ti),4)}')
+        print(f'Theoretical time for single buffer  : {round((1/s.SAMPLE_RATE * s.CH0_RECORD_LEN * s.NOF_BUFFERS_TO_RECEIVE), 4)} seconds \n')
 
-        if s.SWITCH:
+        if s.SWITCH and (acqLoopNum % s.SWITCH_DUTYCYCLE == 0):
             switchPos = 1
             arduino.switch(switchPos)
             time.sleep(s.SWITCH_SLEEP_TIME)
@@ -71,12 +73,15 @@ if __name__ == "__main__":
                                         s)
                                 )
             t.start()
-
-        print(f'Acquisition of single buffer took   : {round((time.time()-ti),4)}')
-        print(f'Theoretical time for single buffer  : {round((1/s.SAMPLE_RATE * s.CH0_RECORD_LEN * s.NOF_BUFFERS_TO_RECEIVE), 4)} seconds \n')
+            print(f'Acquisition of TWO buffers took   : {round((time.time()-ti),4)}')
+            print(f'Theoretical time for TWO buffer  : {round((2/s.SAMPLE_RATE * s.CH0_RECORD_LEN * s.NOF_BUFFERS_TO_RECEIVE), 4)} seconds \n')
 
     avgSpec.exit()
     date_time_exit = datetime.datetime.now()
+    
+    #save battery life
+    if s.SWITCH:
+        arduino.switch(0)
 
     time.sleep(1.5)
     print('\n#############################')
