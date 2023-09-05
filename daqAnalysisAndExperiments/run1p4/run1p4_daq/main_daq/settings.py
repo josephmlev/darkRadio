@@ -69,7 +69,7 @@ MANUAL_ACQNUM                   = -1 # Manually set acquisition number. Set to -
                                      
 READ_ONLY_H5                    = 0 # Makes H5 files read only. Annoying for testing, good for actual data. Note, last H5 file will not be made read only
 
-ANT_POS_IDX                     = 0 # Written to H5 and database, does not affect behavor.
+ANT_POS_IDX                     = 8 # Written to H5 and database, does not affect behavor.
                                     # Should be in setup dict below, but I want it to be obvious
 
 SAVE_AMP_CHAIN                  = 1 # save the following dictonary. Can be modified

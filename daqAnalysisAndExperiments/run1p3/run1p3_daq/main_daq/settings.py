@@ -61,14 +61,14 @@ SAVE_H5                         = 1 # Should h5 be saved AND database.txt be upd
 SWITCH                          = 1 #Controlls if a switch should be used. Requires Arduino to be connected. Should configure automatically
 SWITCH_SLEEP_TIME		= .5 #Time in seconds to sleep after switching
 
-SWITCH_DUTYCYCLE 		= 1 # Really 1/duty cycle. If loopNum % SWITCH_DUTYCYCLE == 0 then switch. Buggy, test if using.
+SWITCH_DUTYCYCLE 		= 15 # Really 1/duty cycle. If loopNum % SWITCH_DUTYCYCLE == 0 then switch. Buggy, test if using.
 
 MANUAL_ACQNUM                   = -1 # Manually set acquisition number. Set to -1 to 
                                      # get from database. NOT TESTED
                                      
 READ_ONLY_H5                    = 0 # Makes H5 files read only. Annoying for testing, good for actual data. Note, last H5 file will not be made read only
 
-ANT_POS_IDX                     = 0 # Written to H5 and database, does not affect behavor.
+ANT_POS_IDX                     = 5 # Written to H5 and database, does not affect behavor.
                                     # Should be in setup dict below, but I want it to be obvious
 
 SAVE_AMP_CHAIN                  = 1 # save the following dictonary. Can be modified
@@ -78,7 +78,7 @@ SETUP_DICT                      = { 'AMP1'          : 'PAS_1012',
                                     'PATCH PANNEL'  : 'YES',
                                     'HPF'           : '288S+',
                                     'LPF'           : 'HSP50+',
-                                    'ATTENUATOR'    : '4dB_FIXED', 
+                                    'ATTENUATOR'    : '8dB_FIXED', 
                                     'ADC'           : 'ADQ32',
                                     'CLOCK'         : 'SRS_VIA_VALON',
                                     }

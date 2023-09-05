@@ -43,10 +43,10 @@ def valonCom(command,
         raise Exception("Valon Not Found")
 
     # Change the ownership of the serial port device file to the current user
-    os.system('sudo chown {0}:{0} /dev/ttyUSB0'.format(username))
+    os.system(('sudo chown {0}:{0}'+ port).format(username))
 
     # Configure the serial connection
-    ser = serial.Serial('/dev/ttyUSB0', 9600, timeout =.1 )
+    ser = serial.Serial(port, 9600, timeout =.1 )
 
     # Construct the command string to set the frequency
     commandStr = str(command) + '\r'
