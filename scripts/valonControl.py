@@ -12,8 +12,12 @@ import serial.tools.list_ports
 import getpass
 import os
 import pyvisa
+import time
 
-
+# This is a very basic command line script that allows you to talk to a Valon synth
+# It can handle multple Valons connected, but can only talk to one. If 
+# you want to talk to multple at the same time, you can run multple 
+# instances of this script
 
 # Get the current username
 username = getpass.getuser()
@@ -39,40 +43,63 @@ if matching_ports:
 else:
     print("No matching port found.")
 
+########
+# A bunch of garbage logic to connect if multple valons are found
+########
+# If you have multple valons, name their serial numbers here
+valonSN_lookup = {'5019'    : '12203141', #nickname:SN
+                '5009'      : '12202784'
+                }
+
+if len(matching_ports)>1:
+    print("Multple Valons found. Please select from the following list:")
+    for valName in valonSN_lookup:
+        print(valName)
+    chosenValonName = input()
+    if chosenValonName not in valonSN_lookup:
+        print('Error! Chosen name not in provided valon SN lookup table')
+        raise(ValueError)
+    else:
+        print(f'connecting to {chosenValonName}')
+    
+    # Search for a specific keyword in the port description
+    keyword         = valonSN_lookup[chosenValonName]
+    matching_ports  = [(p.device, p.description) for p in ports if keyword in p.description.lower()]
+
+    for port, desc, hwid in sorted(ports):
+        if keyword in hwid:
+            port = port
+            break
+        else:
+            continue
+
 # Change the ownership of the serial port device file to the current user
-os.system('sudo chown {0}:{0} /dev/ttyUSB0'.format(username))
+os.system(('sudo chown {0}:{0} '+port).format(username))
 
 # Configure the serial connection
-ser = serial.Serial('/dev/ttyUSB0', 9600, timeout =1)
+ser = serial.Serial(port, 9600, timeout =.1)
 
 def writeCmd(text):
-    # Calculate the frequency tuning word for the desired frequency
-    
     # Construct the command string to set the frequency
-    command = str(text) + '\r'
+    command = str(text)
     
     # Send the command to the device
-    ser.write(command.encode('utf-8'))
+    # There is a slick way to do this, but I did it very explicit 
+    ser.write(bytearray(command, encoding='utf-8') + b"\r")
+    s = command.encode()
     
     # Wait for the device to respond
     while True:
         response        = ser.readline()
-        responseClean  = response.decode()
+        responseClean  = response.decode('utf-8')
         responseStrip  = responseClean.strip()
         if not responseStrip:
             break
-        print(f'Command Recieved: {responseStrip}')
+        print(f'Command Received: {responseStrip}')
         if 'error' in responseStrip:
             print('******** Error recieved from valon ********')
             raise ValueError
         
-    
-    # Check for errors in the response
-    #if response != b'OK\n':
-    #    raise Exception('Error setting frequency: ' + response.decode('utf-8'))
-
-#ser.write(b'F 100000000 \r')
-#print(ser.readline())
 while True:
     cmd = input("Enter your command or h for examples ")
     print(cmd)
@@ -88,129 +115,3 @@ while True:
 
 
 
-
-
-import sys
-import serial
-import serial.tools.list_ports
-
-class VSerialPort( serial.Serial ):
-
-    portLines = []
-    portLineCount = 0
-    portLineIndex = 0
-    
-    def __init__( self ):
-        # Call the base constructor
-        serial.Serial.__init__( self )
-
-        portList = []
-        for port, desc, hwid in serial.tools.list_ports.comports():
-            print( 'Port: ', port, ' Desc: ', desc, ' HwId: ', hwid )
-            if ( hwid.find( "FTDI" ) != -1 ):       # on Windows PC
-                portList.append( port )
-            elif ( desc.find( "Future" ) != -1 ):   # on Raspberry Pi
-                portList.append( port )
-            else:
-                print('asdf')
-                portList.append( port )
-
-        if ( len( portList ) == 0 ):
-            print( "No FTDI com ports are available" )
-            return
-        
-        self.baudrate = 9600
-        self.timeout = 1.0
-        self.port = portList[ 0 ]
-        self.open()
-
-        self.write( '\r' )
-        self.readAll()
-        if ( len( self.portLines ) == 0 ):
-            self.baudrate = 115200
-            self.write( '\r' )
-            self.readAll()
-            if ( len( self.portLines ) == 0 ):
-                print( "Can't communicate with 5009" )
-                # exit()
-
-        print( "Using " + self.port )
-
-        # ----- End of Constructor -----
-                
-    def writeline( self, text ):
-        print( text )
-        if ( not self.isOpen() ):
-            return
-        self.write( text + '\r' )
-
-        
-    def readAll( self ):
-        # Prepare the array to hold the incoming lines of text
-        del self.portLines[:]   # clear input array   
-        self.portLineCount = self.portLineIndex = 0
-
-        if ( not self.isOpen() ):
-            return
-
-        text = self.readline()
-        while ( 1 ):
-            if ( text == "" ):
-                return 
-            sys.stdout.write( text )
-
-            self.portLines.append( text )
-            self.portLineCount += 1
-
-            # Stop reading when we get a prompt 
-            if ( len( text ) == 5 ):
-                if text[ 4 ] == '>':
-                    sys.stdout.flush()
-                    return
-
-            text = self.readline()
-
-    # Read from the array of previously-received lines of text
-    def lineGet( self ):
-        i = self.portLineIndex
-        self.portLineIndex += 1
-        if ( self.portLineIndex > self.portLineCount ):
-            return ''
-        return self.portLines[ i ]
-
-#valon = VSerialPort()
-#valon.writeline('f1000000000')
-
-
-
-'''
-rm = pyvisa.ResourceManager()
-rm.list_resources()
-rm.open_resource('USB0')'''
-
-'''
-source = b'1'
-freq = b'1.7G'
-ser.write(b"S " + (source) + b"; f " + (freq))'''
-
-
-'''
-#Finding Valon resource name
-unplug = input('make sure valon is unplugged, press enter to confirm')
-l1 = list(rm.list_resources())
-plugin = input('plug in valon, press enter to confirm')
-l2 = list(rm.list_resources())
-
-difference = list(set(l2) - set(l1))
-valonName = difference[0]
-print(valonName)
-inst = rm.open_resource(valonName)
-#----------------
-#Valon Control
-while True:
-    source = input("Choose source (1 or 2): ")
-    freq = input("Input desired frequence, add H,M,G for units, ex: 1.7G = 1.7 GHz: ")
-    att = input("Input desire attenuation, The attenuator has a range of 0dB to 31.5dB in 0.5dB steps: ")
-    print(inst.query("S " + source + "; f " + freq))
-    print(inst.query("S " + source + "; att " + att))
-'''
