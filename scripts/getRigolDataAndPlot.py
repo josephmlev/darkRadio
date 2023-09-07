@@ -13,7 +13,7 @@ import pyvisa as visa
 
 plt.close('all')
 
-ADDRESS = 'TCPIP0::169.254.113.142::INSTR'
+ADDRESS = 'TCPIP0::169.254.113.164::INSTR'
 startFreq = 2.4799991 * 10**9 #Hz
 stopFreq =  2.4799993 * 10**9 #Hz
 nPoints = 10000 

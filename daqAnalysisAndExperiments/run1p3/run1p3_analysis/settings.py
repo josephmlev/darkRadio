@@ -54,7 +54,7 @@ SAVE_W_SPEC                     = 0 #Saves last spec to .npy.
 PATH_TO_SAVE_SINGLE_SPEC        ='/drBigBoy/darkRadio/daqAnalysisAndExperiments/run1p3//runTesting_3_30_23/32dB_attTest_long_vetoConnected' #Where to save above
 
 NUM_SPEC_PER_FILE               = 15 #How many spectra to put in a file. Keep files around 1GB. 16 is good
-SAVE_DIRECTORY                  = '/RunData/run1p3_4_19_23/main_data/' #directory to save data. Note this needs to be created ahead of time
+SAVE_DIRECTORY                  = '/drBiggerBoy/run1p3/main_data/' #directory to save data. Note this needs to be created ahead of time
                                                                 #and there should be a subdirectory called data. 
 
 SAVE_H5                         = 1 # Should h5 be saved AND database.txt be updated. 
