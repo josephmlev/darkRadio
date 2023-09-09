@@ -30,4 +30,11 @@ Expecting external clock, clock is off
 Error 2.
 > Segmentation fault (core dumped)
 Usually caused by not running insmod.sh. 
-Solved by darkRadio/daqAnalysisAndExperiments/teledyne/teledyneInstall/gdrcopy$ ./insmod.sh 
+Solved by darkRadio/daqAnalysisAndExperiments/teledyne/teledyneInstall/gdrcopy$ ./insmod.sh
+
+If ./insmod.sh returns chmod: `cannot access '/dev/gdrdrv': No such file or directory`:
+1) Run "make clean" in the gdrcopy folder
+2) Installer the correct kernel-headers: sudo apt-get install linux-headers-$(uname -r)
+3) Navigate to the gdrcopy folder and rebuild the module: make config driver lib
+4) Reinstall it into the system: sudo make lib_install && sudo ldconfig
+5) Insert the module: ./insmod.sh 
