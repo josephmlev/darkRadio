@@ -1,1 +1,1 @@
-/home/dradmin/Desktop/TSPD_SDK_linux_2023.1/examples/libs/gdrcopy/src/gdrdrv/nv-p2p-dummy.o
+/drBigBoy/darkRadio/daqAnalysisAndExperiments/teledyne/teledyneInstall/gdrcopy/src/gdrdrv/nv-p2p-dummy.o

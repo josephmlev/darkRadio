@@ -1,5 +1,5 @@
 nv-p2p-dummy.o: \
- /home/dradmin/Desktop/TSPD_SDK_linux_2023.1/examples/libs/gdrcopy/src/gdrdrv/nv-p2p-dummy.c \
+ /drBigBoy/darkRadio/daqAnalysisAndExperiments/teledyne/teledyneInstall/gdrcopy/src/gdrdrv/nv-p2p-dummy.c \
  include/linux/compiler-version.h include/linux/kconfig.h \
  include/generated/autoconf.h include/linux/compiler_types.h \
  include/linux/compiler_attributes.h include/linux/compiler-gcc.h \
@@ -71,11 +71,12 @@ nv-p2p-dummy.o: \
  include/linux/kernel.h include/linux/stdarg.h include/linux/align.h \
  include/linux/limits.h include/uapi/linux/limits.h include/vdso/limits.h \
  include/linux/bitops.h include/linux/typecheck.h \
+ include/asm-generic/bitops/generic-non-atomic.h \
  arch/x86/include/asm/bitops.h arch/x86/include/asm/rmwcc.h \
  include/asm-generic/bitops/sched.h arch/x86/include/asm/arch_hweight.h \
  include/asm-generic/bitops/const_hweight.h \
  include/asm-generic/bitops/instrumented-atomic.h \
- include/linux/instrumented.h \
+ include/linux/instrumented.h include/linux/kmsan-checks.h \
  include/asm-generic/bitops/instrumented-non-atomic.h \
  include/asm-generic/bitops/instrumented-lock.h \
  include/asm-generic/bitops/le.h \
@@ -89,28 +90,30 @@ nv-p2p-dummy.o: \
  include/linux/once_lite.h include/linux/dynamic_debug.h \
  include/linux/static_call_types.h include/linux/instruction_pointer.h \
  include/asm-generic/percpu.h include/linux/threads.h \
- include/linux/percpu-defs.h arch/x86/include/asm/GEN-for-each-reg.h \
- arch/x86/include/asm/proto.h arch/x86/include/uapi/asm/ldt.h \
- arch/x86/include/uapi/asm/sigcontext.h arch/x86/include/asm/current.h \
- arch/x86/include/asm/page.h arch/x86/include/asm/page_64.h \
- include/linux/range.h include/asm-generic/memory_model.h \
- include/linux/pfn.h include/asm-generic/getorder.h \
- arch/x86/include/asm/msr.h arch/x86/include/asm/msr-index.h \
- arch/x86/include/asm/cpumask.h include/linux/cpumask.h \
- include/linux/bitmap.h include/linux/find.h include/linux/string.h \
- include/linux/errno.h include/uapi/linux/errno.h \
- include/uapi/linux/string.h arch/x86/include/asm/string.h \
- arch/x86/include/asm/string_64.h include/linux/fortify-string.h \
+ include/linux/percpu-defs.h arch/x86/include/asm/current.h \
+ arch/x86/include/asm/asm-offsets.h include/generated/asm-offsets.h \
+ arch/x86/include/asm/GEN-for-each-reg.h arch/x86/include/asm/proto.h \
+ arch/x86/include/uapi/asm/ldt.h arch/x86/include/uapi/asm/sigcontext.h \
+ arch/x86/include/asm/cpuid.h arch/x86/include/asm/string.h \
+ arch/x86/include/asm/string_64.h arch/x86/include/asm/paravirt.h \
+ include/linux/bug.h arch/x86/include/asm/bug.h \
+ include/linux/instrumentation.h include/asm-generic/bug.h \
+ include/linux/cpumask.h include/linux/bitmap.h include/linux/find.h \
+ include/linux/string.h include/linux/errno.h include/uapi/linux/errno.h \
+ include/uapi/linux/string.h include/linux/fortify-string.h \
  include/linux/atomic.h arch/x86/include/asm/atomic.h \
  arch/x86/include/asm/cmpxchg.h arch/x86/include/asm/cmpxchg_64.h \
  arch/x86/include/asm/atomic64_64.h \
  include/linux/atomic/atomic-arch-fallback.h \
  include/linux/atomic/atomic-long.h \
- include/linux/atomic/atomic-instrumented.h include/linux/bug.h \
- arch/x86/include/asm/bug.h include/linux/instrumentation.h \
- include/asm-generic/bug.h arch/x86/include/uapi/asm/msr.h \
+ include/linux/atomic/atomic-instrumented.h include/linux/gfp_types.h \
+ include/linux/numa.h arch/x86/include/asm/frame.h \
+ arch/x86/include/asm/page.h arch/x86/include/asm/page_64.h \
+ include/linux/range.h include/asm-generic/memory_model.h \
+ include/linux/pfn.h include/asm-generic/getorder.h \
+ arch/x86/include/asm/msr.h arch/x86/include/asm/msr-index.h \
+ arch/x86/include/asm/cpumask.h arch/x86/include/uapi/asm/msr.h \
  arch/x86/include/asm/shared/msr.h include/linux/tracepoint-defs.h \
- arch/x86/include/asm/paravirt.h arch/x86/include/asm/frame.h \
  arch/x86/include/asm/special_insns.h include/linux/irqflags.h \
  arch/x86/include/asm/irqflags.h arch/x86/include/asm/fpu/types.h \
  arch/x86/include/asm/vmxfeatures.h arch/x86/include/asm/vdso/processor.h \
@@ -134,7 +137,8 @@ nv-p2p-dummy.o: \
  include/linux/rwlock.h include/linux/spinlock_api_smp.h \
  include/linux/rwlock_api_smp.h include/linux/refcount.h \
  include/linux/rbtree.h include/linux/rbtree_types.h \
- include/linux/rcupdate.h include/linux/rcutree.h include/linux/rwsem.h \
+ include/linux/rcupdate.h include/linux/context_tracking_irq.h \
+ include/linux/rcutree.h include/linux/maple_tree.h include/linux/rwsem.h \
  include/linux/osq_lock.h include/linux/completion.h \
  include/linux/swait.h include/linux/wait.h include/uapi/linux/wait.h \
  include/linux/uprobes.h arch/x86/include/asm/uprobes.h \
@@ -146,16 +150,18 @@ nv-p2p-dummy.o: \
  include/linux/timekeeping.h include/linux/clocksource_ids.h \
  include/linux/debugobjects.h include/linux/rcu_segcblist.h \
  include/linux/srcutree.h include/linux/rcu_node_tree.h \
- include/linux/page-flags-layout.h include/linux/numa.h \
- include/generated/bounds.h include/linux/seqlock.h \
+ include/linux/page-flags-layout.h include/generated/bounds.h \
+ include/linux/seqlock.h include/linux/percpu_counter.h \
+ include/linux/percpu.h include/linux/mmdebug.h \
  arch/x86/include/asm/mmu.h include/linux/kmod.h include/linux/umh.h \
- include/linux/gfp.h include/linux/mmdebug.h include/linux/mmzone.h \
- include/linux/nodemask.h include/linux/pageblock-flags.h \
- include/linux/page-flags.h include/linux/local_lock.h \
- include/linux/local_lock_internal.h include/linux/memory_hotplug.h \
- arch/x86/include/asm/mmzone.h arch/x86/include/asm/mmzone_64.h \
- include/linux/topology.h include/linux/arch_topology.h \
- include/linux/percpu.h arch/x86/include/asm/topology.h \
+ include/linux/gfp.h include/linux/mmzone.h include/linux/nodemask.h \
+ include/linux/random.h include/uapi/linux/random.h include/linux/irqnr.h \
+ include/uapi/linux/irqnr.h include/linux/prandom.h include/linux/once.h \
+ include/linux/pageblock-flags.h include/linux/page-flags.h \
+ include/linux/local_lock.h include/linux/local_lock_internal.h \
+ include/linux/memory_hotplug.h arch/x86/include/asm/mmzone.h \
+ arch/x86/include/asm/mmzone_64.h include/linux/topology.h \
+ include/linux/arch_topology.h arch/x86/include/asm/topology.h \
  arch/x86/include/asm/mpspec.h arch/x86/include/asm/mpspec_def.h \
  arch/x86/include/asm/x86_init.h arch/x86/include/asm/apicdef.h \
  include/asm-generic/topology.h include/linux/sysctl.h \
@@ -166,27 +172,21 @@ nv-p2p-dummy.o: \
  include/uapi/linux/elf-em.h include/linux/kobject.h \
  include/linux/sysfs.h include/linux/kernfs.h include/linux/idr.h \
  include/linux/radix-tree.h include/linux/xarray.h \
- include/linux/kconfig.h include/linux/kobject_ns.h \
- include/linux/moduleparam.h include/linux/rbtree_latch.h \
- include/linux/error-injection.h include/asm-generic/error-injection.h \
- include/linux/cfi.h arch/x86/include/asm/module.h \
- include/asm-generic/module.h arch/x86/include/asm/orc_types.h \
- include/linux/slab.h include/linux/overflow.h \
- include/linux/percpu-refcount.h include/linux/kasan.h \
- include/linux/kasan-enabled.h include/linux/delay.h \
- include/linux/sched.h include/uapi/linux/sched.h include/linux/pid.h \
- include/linux/rculist.h include/linux/sem.h include/uapi/linux/sem.h \
- include/linux/ipc.h include/linux/rhashtable-types.h \
- include/uapi/linux/ipc.h arch/x86/include/generated/uapi/asm/ipcbuf.h \
+ include/linux/kconfig.h include/linux/sched/mm.h include/linux/sched.h \
+ include/uapi/linux/sched.h include/linux/pid.h include/linux/rculist.h \
+ include/linux/sem.h include/uapi/linux/sem.h include/linux/ipc.h \
+ include/linux/rhashtable-types.h include/uapi/linux/ipc.h \
+ arch/x86/include/generated/uapi/asm/ipcbuf.h \
  include/uapi/asm-generic/ipcbuf.h arch/x86/include/uapi/asm/sembuf.h \
  include/linux/shm.h include/uapi/linux/shm.h \
  include/uapi/asm-generic/hugetlb_encode.h \
  arch/x86/include/uapi/asm/shmbuf.h include/uapi/asm-generic/shmbuf.h \
- arch/x86/include/asm/shmparam.h include/linux/plist.h \
- include/linux/hrtimer.h include/linux/hrtimer_defs.h \
- include/linux/timerqueue.h include/linux/seccomp.h \
- include/uapi/linux/seccomp.h arch/x86/include/asm/seccomp.h \
- arch/x86/include/asm/unistd.h arch/x86/include/uapi/asm/unistd.h \
+ arch/x86/include/asm/shmparam.h include/linux/kmsan_types.h \
+ include/linux/plist.h include/linux/hrtimer.h \
+ include/linux/hrtimer_defs.h include/linux/timerqueue.h \
+ include/linux/seccomp.h include/uapi/linux/seccomp.h \
+ arch/x86/include/asm/seccomp.h arch/x86/include/asm/unistd.h \
+ arch/x86/include/uapi/asm/unistd.h \
  arch/x86/include/generated/uapi/asm/unistd_64.h \
  arch/x86/include/generated/asm/unistd_64_x32.h \
  arch/x86/include/generated/asm/unistd_32_ia32.h \
@@ -203,14 +203,23 @@ nv-p2p-dummy.o: \
  arch/x86/include/uapi/asm/siginfo.h include/uapi/asm-generic/siginfo.h \
  include/linux/syscall_user_dispatch.h include/linux/task_io_accounting.h \
  include/linux/posix-timers.h include/linux/alarmtimer.h \
- include/uapi/linux/rseq.h include/linux/kcsan.h \
+ include/uapi/linux/rseq.h include/linux/kcsan.h include/linux/rv.h \
  arch/x86/include/generated/asm/kmap_size.h \
- include/asm-generic/kmap_size.h arch/x86/include/asm/delay.h \
- include/asm-generic/delay.h include/linux/uaccess.h \
- include/linux/fault-inject-usercopy.h arch/x86/include/asm/uaccess.h \
- arch/x86/include/asm/smap.h arch/x86/include/asm/extable.h \
- include/asm-generic/access_ok.h arch/x86/include/asm/uaccess_64.h \
- include/linux/fs.h include/linux/wait_bit.h include/linux/kdev_t.h \
+ include/asm-generic/kmap_size.h include/linux/sync_core.h \
+ arch/x86/include/asm/sync_core.h include/linux/ioasid.h \
+ include/linux/kobject_ns.h include/linux/moduleparam.h \
+ include/linux/rbtree_latch.h include/linux/error-injection.h \
+ include/asm-generic/error-injection.h arch/x86/include/asm/module.h \
+ include/asm-generic/module.h arch/x86/include/asm/orc_types.h \
+ include/linux/slab.h include/linux/overflow.h \
+ include/linux/percpu-refcount.h include/linux/kasan.h \
+ include/linux/kasan-enabled.h include/linux/delay.h \
+ arch/x86/include/asm/delay.h include/asm-generic/delay.h \
+ include/linux/uaccess.h include/linux/fault-inject-usercopy.h \
+ arch/x86/include/asm/uaccess.h arch/x86/include/asm/smap.h \
+ arch/x86/include/asm/extable.h include/asm-generic/access_ok.h \
+ arch/x86/include/asm/uaccess_64.h include/linux/fs.h \
+ include/linux/wait_bit.h include/linux/kdev_t.h \
  include/uapi/linux/kdev_t.h include/linux/dcache.h \
  include/linux/rculist_bl.h include/linux/list_bl.h \
  include/linux/bit_spinlock.h include/linux/lockref.h \
@@ -225,26 +234,27 @@ nv-p2p-dummy.o: \
  include/linux/signal.h include/linux/sched/jobctl.h \
  include/linux/sched/task.h include/linux/cred.h include/linux/key.h \
  include/linux/assoc_array.h include/linux/sched/user.h \
- include/linux/percpu_counter.h include/linux/ratelimit.h \
- include/linux/rcu_sync.h include/linux/delayed_call.h \
- include/linux/uuid.h include/uapi/linux/uuid.h include/linux/errseq.h \
- include/linux/ioprio.h include/linux/sched/rt.h \
- include/linux/iocontext.h include/uapi/linux/ioprio.h \
- include/linux/fs_types.h include/linux/mount.h \
- include/linux/mnt_idmapping.h include/uapi/linux/fs.h \
- include/linux/quota.h include/uapi/linux/dqblk_xfs.h \
- include/linux/dqblk_v1.h include/linux/dqblk_v2.h \
- include/linux/dqblk_qtree.h include/linux/projid.h \
- include/uapi/linux/quota.h include/linux/nfs_fs_i.h include/linux/mm.h \
- include/linux/mmap_lock.h include/linux/page_ext.h \
- include/linux/stacktrace.h include/linux/stackdepot.h \
- include/linux/page_ref.h include/linux/sizes.h include/linux/pgtable.h \
+ include/linux/ratelimit.h include/linux/rcu_sync.h \
+ include/linux/delayed_call.h include/linux/uuid.h \
+ include/uapi/linux/uuid.h include/linux/errseq.h include/linux/ioprio.h \
+ include/linux/sched/rt.h include/linux/iocontext.h \
+ include/uapi/linux/ioprio.h include/linux/fs_types.h \
+ include/linux/mount.h include/linux/mnt_idmapping.h \
+ include/uapi/linux/fs.h include/linux/quota.h \
+ include/uapi/linux/dqblk_xfs.h include/linux/dqblk_v1.h \
+ include/linux/dqblk_v2.h include/linux/dqblk_qtree.h \
+ include/linux/projid.h include/uapi/linux/quota.h \
+ include/linux/nfs_fs_i.h include/linux/mm.h include/linux/mmap_lock.h \
+ include/linux/page_ext.h include/linux/stacktrace.h \
+ include/linux/stackdepot.h include/linux/page_ref.h \
+ include/linux/sizes.h include/linux/pgtable.h \
  arch/x86/include/asm/pgtable.h arch/x86/include/asm/pkru.h \
  arch/x86/include/asm/fpu/api.h arch/x86/include/asm/coco.h \
  include/asm-generic/pgtable_uffd.h include/linux/page_table_check.h \
  arch/x86/include/asm/pgtable_64.h arch/x86/include/asm/fixmap.h \
  arch/x86/include/uapi/asm/vsyscall.h include/asm-generic/fixmap.h \
- arch/x86/include/asm/pgtable-invert.h include/linux/huge_mm.h \
+ arch/x86/include/asm/pgtable-invert.h include/linux/memremap.h \
+ include/linux/ioport.h include/linux/huge_mm.h \
  include/linux/sched/coredump.h include/linux/vmstat.h \
  include/linux/vm_event_item.h include/linux/io.h \
  arch/x86/include/asm/io.h arch/x86/include/generated/asm/early_ioremap.h \
@@ -253,4 +263,4 @@ nv-p2p-dummy.o: \
  include/asm-generic/io.h include/linux/logic_pio.h \
  include/linux/fwnode.h include/linux/vmalloc.h \
  arch/x86/include/asm/vmalloc.h arch/x86/include/asm/pgtable_areas.h \
- /usr/src/nvidia-srv-515.86.01/nvidia/nv-p2p.h
+ /usr/src/nvidia-srv-525.125.06/nvidia/nv-p2p.h

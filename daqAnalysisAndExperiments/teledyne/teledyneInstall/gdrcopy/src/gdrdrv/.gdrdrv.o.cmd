@@ -1,8 +1,8 @@
-cmd_/home/dradmin/Desktop/TSPD_SDK_linux_2023.1/examples/libs/gdrcopy/src/gdrdrv/gdrdrv.o := gcc -Wp,-MMD,/home/dradmin/Desktop/TSPD_SDK_linux_2023.1/examples/libs/gdrcopy/src/gdrdrv/.gdrdrv.o.d -nostdinc -I./arch/x86/include -I./arch/x86/include/generated  -I./include -I./arch/x86/include/uapi -I./arch/x86/include/generated/uapi -I./include/uapi -I./include/generated/uapi -include ./include/linux/compiler-version.h -include ./include/linux/kconfig.h -I./ubuntu/include -include ./include/linux/compiler_types.h -D__KERNEL__ -fmacro-prefix-map=./= -Wall -Wundef -Werror=strict-prototypes -Wno-trigraphs -fno-strict-aliasing -fno-common -fshort-wchar -fno-PIE -Werror=implicit-function-declaration -Werror=implicit-int -Werror=return-type -Wno-format-security -std=gnu11 -mno-sse -mno-mmx -mno-sse2 -mno-3dnow -mno-avx -fcf-protection=none -m64 -falign-jumps=1 -falign-loops=1 -mno-80387 -mno-fp-ret-in-387 -mpreferred-stack-boundary=3 -mskip-rax-setup -mtune=generic -mno-red-zone -mcmodel=kernel -Wno-sign-compare -fno-asynchronous-unwind-tables -mindirect-branch=thunk-extern -mindirect-branch-register -mindirect-branch-cs-prefix -mfunction-return=thunk-extern -fno-jump-tables -mharden-sls=all -fno-delete-null-pointer-checks -Wno-frame-address -Wno-format-truncation -Wno-format-overflow -Wno-address-of-packed-member -O2 -fno-allow-store-data-races -Wframe-larger-than=1024 -fstack-protector-strong -Wimplicit-fallthrough=5 -Wno-main -Wno-unused-but-set-variable -Wno-unused-const-variable -fno-omit-frame-pointer -fno-optimize-sibling-calls -fno-stack-clash-protection -fzero-call-used-regs=used-gpr -pg -mrecord-mcount -mfentry -DCC_USING_FENTRY -Wdeclaration-after-statement -Wvla -Wno-pointer-sign -Wcast-function-type -Wno-stringop-truncation -Wno-stringop-overflow -Wno-restrict -Wno-maybe-uninitialized -Wno-alloc-size-larger-than -fno-strict-overflow -fno-stack-check -fconserve-stack -Werror=date-time -Werror=incompatible-pointer-types -Werror=designated-init -Wno-packed-not-aligned -g -gdwarf-5 -I/usr/src/nvidia-srv-515.86.01/nvidia  -fsanitize=bounds -fsanitize=shift -fsanitize=bool -fsanitize=enum  -DMODULE  -DKBUILD_BASENAME='"gdrdrv"' -DKBUILD_MODNAME='"gdrdrv"' -D__KBUILD_MODNAME=kmod_gdrdrv -c -o /home/dradmin/Desktop/TSPD_SDK_linux_2023.1/examples/libs/gdrcopy/src/gdrdrv/gdrdrv.o /home/dradmin/Desktop/TSPD_SDK_linux_2023.1/examples/libs/gdrcopy/src/gdrdrv/gdrdrv.c   ; ./tools/objtool/objtool  --hacks=jump_label  --hacks=noinstr     --retpoline  --rethunk  --sls  --stackval  --static-call  --uaccess   --module  /home/dradmin/Desktop/TSPD_SDK_linux_2023.1/examples/libs/gdrcopy/src/gdrdrv/gdrdrv.o
+cmd_/drBigBoy/darkRadio/daqAnalysisAndExperiments/teledyne/teledyneInstall/gdrcopy/src/gdrdrv/gdrdrv.o := gcc-11 -Wp,-MMD,/drBigBoy/darkRadio/daqAnalysisAndExperiments/teledyne/teledyneInstall/gdrcopy/src/gdrdrv/.gdrdrv.o.d -nostdinc -I./arch/x86/include -I./arch/x86/include/generated  -I./include -I./arch/x86/include/uapi -I./arch/x86/include/generated/uapi -I./include/uapi -I./include/generated/uapi -include ./include/linux/compiler-version.h -include ./include/linux/kconfig.h -I./ubuntu/include -include ./include/linux/compiler_types.h -D__KERNEL__ -fmacro-prefix-map=./= -Wall -Wundef -Werror=strict-prototypes -Wno-trigraphs -fno-strict-aliasing -fno-common -fshort-wchar -fno-PIE -Werror=implicit-function-declaration -Werror=implicit-int -Werror=return-type -Wno-format-security -funsigned-char -std=gnu11 -mno-sse -mno-mmx -mno-sse2 -mno-3dnow -mno-avx -fcf-protection=none -m64 -falign-jumps=1 -falign-loops=1 -mno-80387 -mno-fp-ret-in-387 -mpreferred-stack-boundary=3 -mskip-rax-setup -mtune=generic -mno-red-zone -mcmodel=kernel -Wno-sign-compare -fno-asynchronous-unwind-tables -mindirect-branch=thunk-extern -mindirect-branch-register -mindirect-branch-cs-prefix -mfunction-return=thunk-extern -fno-jump-tables -mharden-sls=all -fpatchable-function-entry=16,16 -fno-delete-null-pointer-checks -Wno-frame-address -Wno-format-truncation -Wno-format-overflow -Wno-address-of-packed-member -O2 -fno-allow-store-data-races -Wframe-larger-than=1024 -fstack-protector-strong -Wno-main -Wno-unused-but-set-variable -Wno-unused-const-variable -fno-omit-frame-pointer -fno-optimize-sibling-calls -fno-stack-clash-protection -fzero-call-used-regs=used-gpr -pg -mrecord-mcount -mfentry -DCC_USING_FENTRY -falign-functions=16 -Wdeclaration-after-statement -Wvla -Wno-pointer-sign -Wcast-function-type -Wno-stringop-truncation -Wno-stringop-overflow -Wno-restrict -Wno-maybe-uninitialized -Wno-array-bounds -Wno-alloc-size-larger-than -Wimplicit-fallthrough=5 -fno-strict-overflow -fno-stack-check -fconserve-stack -Werror=date-time -Werror=incompatible-pointer-types -Werror=designated-init -Wno-packed-not-aligned -g -gdwarf-5 -I/usr/src/nvidia-srv-525.125.06/nvidia  -fsanitize=bounds -fsanitize=shift -fsanitize=bool -fsanitize=enum  -DMODULE  -DKBUILD_BASENAME='"gdrdrv"' -DKBUILD_MODNAME='"gdrdrv"' -D__KBUILD_MODNAME=kmod_gdrdrv -c -o /drBigBoy/darkRadio/daqAnalysisAndExperiments/teledyne/teledyneInstall/gdrcopy/src/gdrdrv/gdrdrv.o /drBigBoy/darkRadio/daqAnalysisAndExperiments/teledyne/teledyneInstall/gdrcopy/src/gdrdrv/gdrdrv.c   ; ./tools/objtool/objtool --hacks=jump_label --hacks=noinstr --hacks=skylake --retpoline --rethunk --sls --stackval --static-call --uaccess --prefix=16   --module /drBigBoy/darkRadio/daqAnalysisAndExperiments/teledyne/teledyneInstall/gdrcopy/src/gdrdrv/gdrdrv.o
 
-source_/home/dradmin/Desktop/TSPD_SDK_linux_2023.1/examples/libs/gdrcopy/src/gdrdrv/gdrdrv.o := /home/dradmin/Desktop/TSPD_SDK_linux_2023.1/examples/libs/gdrcopy/src/gdrdrv/gdrdrv.c
+source_/drBigBoy/darkRadio/daqAnalysisAndExperiments/teledyne/teledyneInstall/gdrcopy/src/gdrdrv/gdrdrv.o := /drBigBoy/darkRadio/daqAnalysisAndExperiments/teledyne/teledyneInstall/gdrcopy/src/gdrdrv/gdrdrv.c
 
-deps_/home/dradmin/Desktop/TSPD_SDK_linux_2023.1/examples/libs/gdrcopy/src/gdrdrv/gdrdrv.o := \
+deps_/drBigBoy/darkRadio/daqAnalysisAndExperiments/teledyne/teledyneInstall/gdrcopy/src/gdrdrv/gdrdrv.o := \
     $(wildcard include/config/X86_64) \
     $(wildcard include/config/X86_32) \
     $(wildcard include/config/PPC64) \
@@ -17,6 +17,8 @@ deps_/home/dradmin/Desktop/TSPD_SDK_linux_2023.1/examples/libs/gdrcopy/src/gdrdr
   include/linux/compiler_types.h \
     $(wildcard include/config/DEBUG_INFO_BTF) \
     $(wildcard include/config/PAHOLE_HAS_BTF_TAG) \
+    $(wildcard include/config/FUNCTION_ALIGNMENT) \
+    $(wildcard include/config/CC_IS_GCC) \
     $(wildcard include/config/HAVE_ARCH_COMPILER_H) \
     $(wildcard include/config/CC_HAS_ASM_INLINE) \
   include/linux/compiler_attributes.h \
@@ -32,7 +34,7 @@ deps_/home/dradmin/Desktop/TSPD_SDK_linux_2023.1/examples/libs/gdrcopy/src/gdrdr
     $(wildcard include/config/MODULES_TREE_LOOKUP) \
     $(wildcard include/config/LIVEPATCH) \
     $(wildcard include/config/STACKTRACE_BUILD_ID) \
-    $(wildcard include/config/CFI_CLANG) \
+    $(wildcard include/config/ARCH_USES_CFI_TRAPS) \
     $(wildcard include/config/MODULE_SIG) \
     $(wildcard include/config/ARCH_WANTS_MODULES_DATA_IN_VMALLOC) \
     $(wildcard include/config/GENERIC_BUG) \
@@ -48,6 +50,7 @@ deps_/home/dradmin/Desktop/TSPD_SDK_linux_2023.1/examples/libs/gdrcopy/src/gdrdr
     $(wildcard include/config/FTRACE_MCOUNT_RECORD) \
     $(wildcard include/config/KPROBES) \
     $(wildcard include/config/HAVE_STATIC_CALL_INLINE) \
+    $(wildcard include/config/KUNIT) \
     $(wildcard include/config/PRINTK_INDEX) \
     $(wildcard include/config/MODULE_UNLOAD) \
     $(wildcard include/config/CONSTRUCTORS) \
@@ -102,6 +105,7 @@ deps_/home/dradmin/Desktop/TSPD_SDK_linux_2023.1/examples/libs/gdrcopy/src/gdrdr
   include/uapi/linux/const.h \
   arch/x86/include/asm/barrier.h \
   arch/x86/include/asm/alternative.h \
+    $(wildcard include/config/CALL_THUNKS) \
   include/linux/stringify.h \
   arch/x86/include/asm/asm.h \
   arch/x86/include/asm/extable_fixup_types.h \
@@ -127,9 +131,10 @@ deps_/home/dradmin/Desktop/TSPD_SDK_linux_2023.1/examples/libs/gdrcopy/src/gdrdr
     $(wildcard include/config/HAVE_ARCH_PREL32_RELOCATIONS) \
     $(wildcard include/config/TRIM_UNUSED_KSYMS) \
   arch/x86/include/asm/linkage.h \
-    $(wildcard include/config/X86_ALIGNMENT_16) \
+    $(wildcard include/config/CALL_PADDING) \
     $(wildcard include/config/RETHUNK) \
     $(wildcard include/config/SLS) \
+    $(wildcard include/config/FUNCTION_PADDING_BYTES) \
   arch/x86/include/asm/ibt.h \
     $(wildcard include/config/X86_KERNEL_IBT) \
   include/linux/math64.h \
@@ -169,6 +174,7 @@ deps_/home/dradmin/Desktop/TSPD_SDK_linux_2023.1/examples/libs/gdrcopy/src/gdrdr
     $(wildcard include/config/ARCH_HAS_MEM_ENCRYPT) \
     $(wildcard include/config/AMD_MEM_ENCRYPT) \
   arch/x86/include/asm/mem_encrypt.h \
+    $(wildcard include/config/X86_MEM_ENCRYPT) \
   include/linux/init.h \
     $(wildcard include/config/STRICT_KERNEL_RWX) \
     $(wildcard include/config/STRICT_MODULE_RWX) \
@@ -221,11 +227,14 @@ deps_/home/dradmin/Desktop/TSPD_SDK_linux_2023.1/examples/libs/gdrcopy/src/gdrdr
     $(wildcard include/config/HAVE_ARCH_USERFAULTFD_WP) \
     $(wildcard include/config/PROC_FS) \
   arch/x86/include/asm/pgtable_64_types.h \
+    $(wildcard include/config/KMSAN) \
     $(wildcard include/config/DEBUG_KMAP_LOCAL_FORCE_MAP) \
   arch/x86/include/asm/sparsemem.h \
     $(wildcard include/config/SPARSEMEM) \
     $(wildcard include/config/NUMA_KEEP_MEMINFO) \
   arch/x86/include/asm/nospec-branch.h \
+    $(wildcard include/config/CALL_THUNKS_DEBUG) \
+    $(wildcard include/config/CALL_DEPTH_TRACKING) \
     $(wildcard include/config/DEBUG_ENTRY) \
     $(wildcard include/config/CPU_UNRET_ENTRY) \
     $(wildcard include/config/CPU_IBPB_ENTRY) \
@@ -278,14 +287,15 @@ deps_/home/dradmin/Desktop/TSPD_SDK_linux_2023.1/examples/libs/gdrcopy/src/gdrdr
   include/vdso/limits.h \
   include/linux/bitops.h \
   include/linux/typecheck.h \
+  include/asm-generic/bitops/generic-non-atomic.h \
   arch/x86/include/asm/bitops.h \
   arch/x86/include/asm/rmwcc.h \
-    $(wildcard include/config/CC_HAS_ASM_GOTO) \
   include/asm-generic/bitops/sched.h \
   arch/x86/include/asm/arch_hweight.h \
   include/asm-generic/bitops/const_hweight.h \
   include/asm-generic/bitops/instrumented-atomic.h \
   include/linux/instrumented.h \
+  include/linux/kmsan-checks.h \
   include/asm-generic/bitops/instrumented-non-atomic.h \
     $(wildcard include/config/KCSAN_ASSUME_PLAIN_WRITES_ATOMIC) \
   include/asm-generic/bitops/instrumented-lock.h \
@@ -331,11 +341,58 @@ deps_/home/dradmin/Desktop/TSPD_SDK_linux_2023.1/examples/libs/gdrcopy/src/gdrdr
     $(wildcard include/config/BASE_SMALL) \
   include/linux/percpu-defs.h \
     $(wildcard include/config/DEBUG_FORCE_WEAK_PER_CPU) \
+  arch/x86/include/asm/current.h \
+  arch/x86/include/asm/asm-offsets.h \
+  include/generated/asm-offsets.h \
   arch/x86/include/asm/GEN-for-each-reg.h \
   arch/x86/include/asm/proto.h \
   arch/x86/include/uapi/asm/ldt.h \
   arch/x86/include/uapi/asm/sigcontext.h \
-  arch/x86/include/asm/current.h \
+  arch/x86/include/asm/cpuid.h \
+  arch/x86/include/asm/string.h \
+  arch/x86/include/asm/string_64.h \
+    $(wildcard include/config/ARCH_HAS_UACCESS_FLUSHCACHE) \
+  arch/x86/include/asm/paravirt.h \
+    $(wildcard include/config/PARAVIRT_SPINLOCKS) \
+  include/linux/bug.h \
+    $(wildcard include/config/BUG_ON_DATA_CORRUPTION) \
+  arch/x86/include/asm/bug.h \
+    $(wildcard include/config/DEBUG_BUGVERBOSE) \
+  include/linux/instrumentation.h \
+    $(wildcard include/config/NOINSTR_VALIDATION) \
+  include/asm-generic/bug.h \
+    $(wildcard include/config/BUG) \
+    $(wildcard include/config/GENERIC_BUG_RELATIVE_POINTERS) \
+  include/linux/cpumask.h \
+    $(wildcard include/config/FORCE_NR_CPUS) \
+    $(wildcard include/config/HOTPLUG_CPU) \
+    $(wildcard include/config/DEBUG_PER_CPU_MAPS) \
+    $(wildcard include/config/CPUMASK_OFFSTACK) \
+  include/linux/bitmap.h \
+  include/linux/find.h \
+  include/linux/string.h \
+    $(wildcard include/config/BINARY_PRINTF) \
+    $(wildcard include/config/FORTIFY_SOURCE) \
+  include/linux/errno.h \
+  include/uapi/linux/errno.h \
+  include/uapi/linux/string.h \
+  include/linux/fortify-string.h \
+  include/linux/atomic.h \
+  arch/x86/include/asm/atomic.h \
+  arch/x86/include/asm/cmpxchg.h \
+  arch/x86/include/asm/cmpxchg_64.h \
+  arch/x86/include/asm/atomic64_64.h \
+  include/linux/atomic/atomic-arch-fallback.h \
+    $(wildcard include/config/GENERIC_ATOMIC64) \
+  include/linux/atomic/atomic-long.h \
+  include/linux/atomic/atomic-instrumented.h \
+  include/linux/gfp_types.h \
+    $(wildcard include/config/KASAN_HW_TAGS) \
+  include/linux/numa.h \
+    $(wildcard include/config/NODES_SHIFT) \
+    $(wildcard include/config/NUMA) \
+    $(wildcard include/config/HAVE_ARCH_NODE_DEV_GROUP) \
+  arch/x86/include/asm/frame.h \
   arch/x86/include/asm/page.h \
   arch/x86/include/asm/page_64.h \
     $(wildcard include/config/DEBUG_VIRTUAL) \
@@ -349,46 +406,9 @@ deps_/home/dradmin/Desktop/TSPD_SDK_linux_2023.1/examples/libs/gdrcopy/src/gdrdr
   arch/x86/include/asm/msr.h \
   arch/x86/include/asm/msr-index.h \
   arch/x86/include/asm/cpumask.h \
-  include/linux/cpumask.h \
-    $(wildcard include/config/CPUMASK_OFFSTACK) \
-    $(wildcard include/config/HOTPLUG_CPU) \
-    $(wildcard include/config/DEBUG_PER_CPU_MAPS) \
-  include/linux/bitmap.h \
-  include/linux/find.h \
-  include/linux/string.h \
-    $(wildcard include/config/BINARY_PRINTF) \
-    $(wildcard include/config/FORTIFY_SOURCE) \
-  include/linux/errno.h \
-  include/uapi/linux/errno.h \
-  include/uapi/linux/string.h \
-  arch/x86/include/asm/string.h \
-  arch/x86/include/asm/string_64.h \
-    $(wildcard include/config/ARCH_HAS_UACCESS_FLUSHCACHE) \
-  include/linux/fortify-string.h \
-  include/linux/atomic.h \
-  arch/x86/include/asm/atomic.h \
-  arch/x86/include/asm/cmpxchg.h \
-  arch/x86/include/asm/cmpxchg_64.h \
-  arch/x86/include/asm/atomic64_64.h \
-  include/linux/atomic/atomic-arch-fallback.h \
-    $(wildcard include/config/GENERIC_ATOMIC64) \
-  include/linux/atomic/atomic-long.h \
-  include/linux/atomic/atomic-instrumented.h \
-  include/linux/bug.h \
-    $(wildcard include/config/BUG_ON_DATA_CORRUPTION) \
-  arch/x86/include/asm/bug.h \
-    $(wildcard include/config/DEBUG_BUGVERBOSE) \
-  include/linux/instrumentation.h \
-    $(wildcard include/config/NOINSTR_VALIDATION) \
-  include/asm-generic/bug.h \
-    $(wildcard include/config/BUG) \
-    $(wildcard include/config/GENERIC_BUG_RELATIVE_POINTERS) \
   arch/x86/include/uapi/asm/msr.h \
   arch/x86/include/asm/shared/msr.h \
   include/linux/tracepoint-defs.h \
-  arch/x86/include/asm/paravirt.h \
-    $(wildcard include/config/PARAVIRT_SPINLOCKS) \
-  arch/x86/include/asm/frame.h \
   arch/x86/include/asm/special_insns.h \
   include/linux/irqflags.h \
     $(wildcard include/config/TRACE_IRQFLAGS) \
@@ -418,8 +438,8 @@ deps_/home/dradmin/Desktop/TSPD_SDK_linux_2023.1/examples/libs/gdrcopy/src/gdrdr
     $(wildcard include/config/HAVE_ALIGNED_STRUCT_PAGE) \
     $(wildcard include/config/MEMCG) \
     $(wildcard include/config/USERFAULTFD) \
+    $(wildcard include/config/ANON_VMA_NAME) \
     $(wildcard include/config/SWAP) \
-    $(wildcard include/config/NUMA) \
     $(wildcard include/config/HAVE_ARCH_COMPAT_MMAP_BASES) \
     $(wildcard include/config/MEMBARRIER) \
     $(wildcard include/config/AIO) \
@@ -430,6 +450,7 @@ deps_/home/dradmin/Desktop/TSPD_SDK_linux_2023.1/examples/libs/gdrcopy/src/gdrdr
     $(wildcard include/config/HUGETLB_PAGE) \
     $(wildcard include/config/IOMMU_SVA) \
     $(wildcard include/config/KSM) \
+    $(wildcard include/config/LRU_GEN) \
   include/linux/mm_types_task.h \
     $(wildcard include/config/SPLIT_PTLOCK_CPUS) \
     $(wildcard include/config/ARCH_ENABLE_SPLIT_PMD_PTLOCK) \
@@ -514,9 +535,11 @@ deps_/home/dradmin/Desktop/TSPD_SDK_linux_2023.1/examples/libs/gdrcopy/src/gdrdr
     $(wildcard include/config/PREEMPT_RCU) \
     $(wildcard include/config/TINY_RCU) \
     $(wildcard include/config/RCU_STRICT_GRACE_PERIOD) \
+    $(wildcard include/config/RCU_LAZY) \
     $(wildcard include/config/TASKS_RCU_GENERIC) \
     $(wildcard include/config/RCU_STALL_COMMON) \
     $(wildcard include/config/NO_HZ_FULL) \
+    $(wildcard include/config/KVM_XFER_TO_GUEST_WORK) \
     $(wildcard include/config/RCU_NOCB_CPU) \
     $(wildcard include/config/TASKS_RCU) \
     $(wildcard include/config/TASKS_TRACE_RCU) \
@@ -525,7 +548,13 @@ deps_/home/dradmin/Desktop/TSPD_SDK_linux_2023.1/examples/libs/gdrcopy/src/gdrdr
     $(wildcard include/config/DEBUG_OBJECTS_RCU_HEAD) \
     $(wildcard include/config/PROVE_RCU) \
     $(wildcard include/config/ARCH_WEAK_RELEASE_ACQUIRE) \
+  include/linux/context_tracking_irq.h \
+    $(wildcard include/config/CONTEXT_TRACKING_IDLE) \
   include/linux/rcutree.h \
+  include/linux/maple_tree.h \
+    $(wildcard include/config/MAPLE_RCU_DISABLED) \
+    $(wildcard include/config/DEBUG_MAPLE_TREE_VERBOSE) \
+    $(wildcard include/config/DEBUG_MAPLE_TREE) \
   include/linux/rwsem.h \
     $(wildcard include/config/RWSEM_SPIN_ON_OWNER) \
     $(wildcard include/config/DEBUG_RWSEMS) \
@@ -544,7 +573,7 @@ deps_/home/dradmin/Desktop/TSPD_SDK_linux_2023.1/examples/libs/gdrcopy/src/gdrdr
   include/linux/debug_locks.h \
   include/linux/srcu.h \
     $(wildcard include/config/TINY_SRCU) \
-    $(wildcard include/config/SRCU) \
+    $(wildcard include/config/NEED_SRCU_NMI_SAFE) \
   include/linux/workqueue.h \
     $(wildcard include/config/DEBUG_OBJECTS_WORK) \
     $(wildcard include/config/FREEZER) \
@@ -568,12 +597,16 @@ deps_/home/dradmin/Desktop/TSPD_SDK_linux_2023.1/examples/libs/gdrcopy/src/gdrdr
     $(wildcard include/config/RCU_FANOUT) \
     $(wildcard include/config/RCU_FANOUT_LEAF) \
   include/linux/page-flags-layout.h \
-    $(wildcard include/config/KASAN_HW_TAGS) \
-  include/linux/numa.h \
-    $(wildcard include/config/NODES_SHIFT) \
-    $(wildcard include/config/HAVE_ARCH_NODE_DEV_GROUP) \
   include/generated/bounds.h \
   include/linux/seqlock.h \
+  include/linux/percpu_counter.h \
+  include/linux/percpu.h \
+    $(wildcard include/config/NEED_PER_CPU_EMBED_FIRST_CHUNK) \
+    $(wildcard include/config/NEED_PER_CPU_PAGE_FIRST_CHUNK) \
+  include/linux/mmdebug.h \
+    $(wildcard include/config/DEBUG_VM) \
+    $(wildcard include/config/DEBUG_VM_IRQSOFF) \
+    $(wildcard include/config/DEBUG_VM_PGFLAGS) \
   arch/x86/include/asm/mmu.h \
     $(wildcard include/config/MODIFY_LDT_SYSCALL) \
   include/linux/kmod.h \
@@ -586,13 +619,11 @@ deps_/home/dradmin/Desktop/TSPD_SDK_linux_2023.1/examples/libs/gdrcopy/src/gdrdr
     $(wildcard include/config/PM_SLEEP) \
     $(wildcard include/config/CONTIG_ALLOC) \
     $(wildcard include/config/CMA) \
-  include/linux/mmdebug.h \
-    $(wildcard include/config/DEBUG_VM) \
-    $(wildcard include/config/DEBUG_VM_PGFLAGS) \
   include/linux/mmzone.h \
-    $(wildcard include/config/FORCE_MAX_ZONEORDER) \
+    $(wildcard include/config/ARCH_FORCE_MAX_ORDER) \
     $(wildcard include/config/MEMORY_ISOLATION) \
     $(wildcard include/config/ZSMALLOC) \
+    $(wildcard include/config/LRU_GEN_STATS) \
     $(wildcard include/config/MEMORY_HOTPLUG) \
     $(wildcard include/config/COMPACTION) \
     $(wildcard include/config/PAGE_EXTENSION) \
@@ -601,21 +632,27 @@ deps_/home/dradmin/Desktop/TSPD_SDK_linux_2023.1/examples/libs/gdrcopy/src/gdrdr
     $(wildcard include/config/SPARSEMEM_EXTREME) \
     $(wildcard include/config/HAVE_ARCH_PFN_VALID) \
   include/linux/nodemask.h \
+  include/linux/random.h \
+    $(wildcard include/config/VMGENID) \
+  include/uapi/linux/random.h \
+  include/linux/irqnr.h \
+  include/uapi/linux/irqnr.h \
+  include/linux/prandom.h \
+  include/linux/once.h \
   include/linux/pageblock-flags.h \
     $(wildcard include/config/HUGETLB_PAGE_SIZE_VARIABLE) \
   include/linux/page-flags.h \
     $(wildcard include/config/ARCH_USES_PG_UNCACHED) \
     $(wildcard include/config/MEMORY_FAILURE) \
     $(wildcard include/config/PAGE_IDLE_FLAG) \
+    $(wildcard include/config/ARCH_USES_PG_ARCH_X) \
     $(wildcard include/config/HUGETLB_PAGE_OPTIMIZE_VMEMMAP) \
-    $(wildcard include/config/HUGETLB_PAGE_OPTIMIZE_VMEMMAP_DEFAULT_ON) \
   include/linux/local_lock.h \
   include/linux/local_lock_internal.h \
   include/linux/memory_hotplug.h \
     $(wildcard include/config/HAVE_ARCH_NODEDATA_EXTENSION) \
     $(wildcard include/config/ARCH_HAS_ADD_PAGES) \
     $(wildcard include/config/MEMORY_HOTREMOVE) \
-    $(wildcard include/config/MHP_MEMMAP_ON_MEMORY) \
   arch/x86/include/asm/mmzone.h \
   arch/x86/include/asm/mmzone_64.h \
   include/linux/topology.h \
@@ -624,9 +661,6 @@ deps_/home/dradmin/Desktop/TSPD_SDK_linux_2023.1/examples/libs/gdrcopy/src/gdrdr
   include/linux/arch_topology.h \
     $(wildcard include/config/ACPI_CPPC_LIB) \
     $(wildcard include/config/GENERIC_ARCH_TOPOLOGY) \
-  include/linux/percpu.h \
-    $(wildcard include/config/NEED_PER_CPU_EMBED_FIRST_CHUNK) \
-    $(wildcard include/config/NEED_PER_CPU_PAGE_FIRST_CHUNK) \
   arch/x86/include/asm/topology.h \
     $(wildcard include/config/SCHED_MC_PRIO) \
   arch/x86/include/asm/mpspec.h \
@@ -661,37 +695,8 @@ deps_/home/dradmin/Desktop/TSPD_SDK_linux_2023.1/examples/libs/gdrcopy/src/gdrdr
   include/linux/xarray.h \
     $(wildcard include/config/XARRAY_MULTI) \
   include/linux/kconfig.h \
-  include/linux/kobject_ns.h \
-  include/linux/moduleparam.h \
-    $(wildcard include/config/ALPHA) \
-    $(wildcard include/config/IA64) \
-  include/linux/rbtree_latch.h \
-  include/linux/error-injection.h \
-  include/asm-generic/error-injection.h \
-  include/linux/cfi.h \
-    $(wildcard include/config/CFI_CLANG_SHADOW) \
-  arch/x86/include/asm/module.h \
-    $(wildcard include/config/UNWINDER_ORC) \
-  include/asm-generic/module.h \
-    $(wildcard include/config/HAVE_MOD_ARCH_SPECIFIC) \
-    $(wildcard include/config/MODULES_USE_ELF_REL) \
-    $(wildcard include/config/MODULES_USE_ELF_RELA) \
-  arch/x86/include/asm/orc_types.h \
-  include/linux/slab.h \
-    $(wildcard include/config/DEBUG_SLAB) \
-    $(wildcard include/config/FAILSLAB) \
-    $(wildcard include/config/MEMCG_KMEM) \
-    $(wildcard include/config/SLAB) \
-    $(wildcard include/config/SLUB) \
-    $(wildcard include/config/SLOB) \
-  include/linux/overflow.h \
-  include/linux/percpu-refcount.h \
-  include/linux/kasan.h \
-    $(wildcard include/config/KASAN_STACK) \
-    $(wildcard include/config/KASAN_VMALLOC) \
-    $(wildcard include/config/KASAN_INLINE) \
-  include/linux/kasan-enabled.h \
-  include/linux/delay.h \
+  include/linux/sched/mm.h \
+    $(wildcard include/config/ARCH_HAS_MEMBARRIER_CALLBACKS) \
   include/linux/sched.h \
     $(wildcard include/config/VIRT_CPU_ACCOUNTING_NATIVE) \
     $(wildcard include/config/SCHED_INFO) \
@@ -705,13 +710,14 @@ deps_/home/dradmin/Desktop/TSPD_SDK_linux_2023.1/examples/libs/gdrcopy/src/gdrdr
     $(wildcard include/config/KMAP_LOCAL) \
     $(wildcard include/config/CGROUP_SCHED) \
     $(wildcard include/config/BLK_DEV_IO_TRACE) \
-    $(wildcard include/config/PSI) \
     $(wildcard include/config/COMPAT_BRK) \
     $(wildcard include/config/CGROUPS) \
     $(wildcard include/config/BLK_CGROUP) \
+    $(wildcard include/config/PSI) \
     $(wildcard include/config/PAGE_OWNER) \
     $(wildcard include/config/EVENTFD) \
     $(wildcard include/config/CPU_SUP_INTEL) \
+    $(wildcard include/config/TASK_DELAY_ACCT) \
     $(wildcard include/config/ARCH_HAS_SCALED_CPUTIME) \
     $(wildcard include/config/VIRT_CPU_ACCOUNTING_GEN) \
     $(wildcard include/config/POSIX_CPUTIMERS) \
@@ -730,10 +736,8 @@ deps_/home/dradmin/Desktop/TSPD_SDK_linux_2023.1/examples/libs/gdrcopy/src/gdrdr
     $(wildcard include/config/FUTEX) \
     $(wildcard include/config/PERF_EVENTS) \
     $(wildcard include/config/RSEQ) \
-    $(wildcard include/config/TASK_DELAY_ACCT) \
     $(wildcard include/config/FAULT_INJECTION) \
     $(wildcard include/config/LATENCYTOP) \
-    $(wildcard include/config/KUNIT) \
     $(wildcard include/config/FUNCTION_GRAPH_TRACER) \
     $(wildcard include/config/BCACHE) \
     $(wildcard include/config/VMAP_STACK) \
@@ -744,6 +748,7 @@ deps_/home/dradmin/Desktop/TSPD_SDK_linux_2023.1/examples/libs/gdrcopy/src/gdrdr
     $(wildcard include/config/KRETPROBES) \
     $(wildcard include/config/RETHOOK) \
     $(wildcard include/config/ARCH_HAS_PARANOID_L1D_FLUSH) \
+    $(wildcard include/config/RV) \
     $(wildcard include/config/ARCH_TASK_STRUCT_ON_STACK) \
     $(wildcard include/config/PREEMPT_NONE) \
     $(wildcard include/config/PREEMPT_VOLUNTARY) \
@@ -766,6 +771,7 @@ deps_/home/dradmin/Desktop/TSPD_SDK_linux_2023.1/examples/libs/gdrcopy/src/gdrdr
   arch/x86/include/uapi/asm/shmbuf.h \
   include/uapi/asm-generic/shmbuf.h \
   arch/x86/include/asm/shmparam.h \
+  include/linux/kmsan_types.h \
   include/linux/plist.h \
     $(wildcard include/config/DEBUG_PLIST) \
   include/linux/hrtimer.h \
@@ -814,9 +820,47 @@ deps_/home/dradmin/Desktop/TSPD_SDK_linux_2023.1/examples/libs/gdrcopy/src/gdrdr
     $(wildcard include/config/RTC_CLASS) \
   include/uapi/linux/rseq.h \
   include/linux/kcsan.h \
+  include/linux/rv.h \
+    $(wildcard include/config/RV_REACTORS) \
   arch/x86/include/generated/asm/kmap_size.h \
   include/asm-generic/kmap_size.h \
     $(wildcard include/config/DEBUG_KMAP_LOCAL) \
+  include/linux/sync_core.h \
+    $(wildcard include/config/ARCH_HAS_SYNC_CORE_BEFORE_USERMODE) \
+  arch/x86/include/asm/sync_core.h \
+  include/linux/ioasid.h \
+    $(wildcard include/config/IOASID) \
+  include/linux/kobject_ns.h \
+  include/linux/moduleparam.h \
+    $(wildcard include/config/ALPHA) \
+    $(wildcard include/config/IA64) \
+  include/linux/rbtree_latch.h \
+  include/linux/error-injection.h \
+  include/asm-generic/error-injection.h \
+  arch/x86/include/asm/module.h \
+    $(wildcard include/config/UNWINDER_ORC) \
+  include/asm-generic/module.h \
+    $(wildcard include/config/HAVE_MOD_ARCH_SPECIFIC) \
+    $(wildcard include/config/MODULES_USE_ELF_REL) \
+    $(wildcard include/config/MODULES_USE_ELF_RELA) \
+  arch/x86/include/asm/orc_types.h \
+  include/linux/slab.h \
+    $(wildcard include/config/DEBUG_SLAB) \
+    $(wildcard include/config/FAILSLAB) \
+    $(wildcard include/config/MEMCG_KMEM) \
+    $(wildcard include/config/KFENCE) \
+    $(wildcard include/config/SLUB_TINY) \
+    $(wildcard include/config/SLAB) \
+    $(wildcard include/config/SLUB) \
+    $(wildcard include/config/SLOB) \
+  include/linux/overflow.h \
+  include/linux/percpu-refcount.h \
+  include/linux/kasan.h \
+    $(wildcard include/config/KASAN_STACK) \
+    $(wildcard include/config/KASAN_VMALLOC) \
+    $(wildcard include/config/KASAN_INLINE) \
+  include/linux/kasan-enabled.h \
+  include/linux/delay.h \
   arch/x86/include/asm/delay.h \
   include/asm-generic/delay.h \
   include/linux/uaccess.h \
@@ -848,7 +892,6 @@ deps_/home/dradmin/Desktop/TSPD_SDK_linux_2023.1/examples/libs/gdrcopy/src/gdrdr
     $(wildcard include/config/QUOTA) \
     $(wildcard include/config/FS_DAX) \
     $(wildcard include/config/BLOCK) \
-    $(wildcard include/config/MIGRATION) \
   include/linux/wait_bit.h \
   include/linux/kdev_t.h \
   include/uapi/linux/kdev_t.h \
@@ -865,6 +908,7 @@ deps_/home/dradmin/Desktop/TSPD_SDK_linux_2023.1/examples/libs/gdrcopy/src/gdrdr
   include/linux/path.h \
   include/linux/list_lru.h \
   include/linux/shrinker.h \
+    $(wildcard include/config/SHRINKER_DEBUG) \
   include/linux/capability.h \
   include/uapi/linux/capability.h \
   include/linux/semaphore.h \
@@ -898,8 +942,8 @@ deps_/home/dradmin/Desktop/TSPD_SDK_linux_2023.1/examples/libs/gdrcopy/src/gdrdr
     $(wildcard include/config/ASSOCIATIVE_ARRAY) \
   include/linux/sched/user.h \
     $(wildcard include/config/VFIO_PCI_ZDEV_KVM) \
+    $(wildcard include/config/IOMMUFD) \
     $(wildcard include/config/WATCH_QUEUE) \
-  include/linux/percpu_counter.h \
   include/linux/ratelimit.h \
   include/linux/rcu_sync.h \
   include/linux/delayed_call.h \
@@ -935,16 +979,17 @@ deps_/home/dradmin/Desktop/TSPD_SDK_linux_2023.1/examples/libs/gdrcopy/src/gdrdr
     $(wildcard include/config/ARM64_MTE) \
     $(wildcard include/config/HAVE_ARCH_USERFAULTFD_MINOR) \
     $(wildcard include/config/SHMEM) \
+    $(wildcard include/config/MIGRATION) \
     $(wildcard include/config/ARCH_HAS_PTE_SPECIAL) \
     $(wildcard include/config/ARCH_HAS_PTE_DEVMAP) \
     $(wildcard include/config/DEBUG_VM_RB) \
+    $(wildcard include/config/HAVE_FAST_GUP) \
     $(wildcard include/config/PAGE_POISONING) \
     $(wildcard include/config/INIT_ON_ALLOC_DEFAULT_ON) \
     $(wildcard include/config/INIT_ON_FREE_DEFAULT_ON) \
     $(wildcard include/config/DEBUG_PAGEALLOC) \
     $(wildcard include/config/HUGETLBFS) \
     $(wildcard include/config/MAPPING_DIRTY_HELPERS) \
-    $(wildcard include/config/ANON_VMA_NAME) \
   include/linux/mmap_lock.h \
   include/linux/page_ext.h \
   include/linux/stacktrace.h \
@@ -958,7 +1003,8 @@ deps_/home/dradmin/Desktop/TSPD_SDK_linux_2023.1/examples/libs/gdrcopy/src/gdrdr
   include/linux/sizes.h \
   include/linux/pgtable.h \
     $(wildcard include/config/HIGHPTE) \
-    $(wildcard include/config/GUP_GET_PTE_LOW_HIGH) \
+    $(wildcard include/config/ARCH_HAS_NONLEAF_PMD_YOUNG) \
+    $(wildcard include/config/GUP_GET_PXX_LOW_HIGH) \
     $(wildcard include/config/HAVE_ARCH_TRANSPARENT_HUGEPAGE_PUD) \
     $(wildcard include/config/HAVE_ARCH_SOFT_DIRTY) \
     $(wildcard include/config/ARCH_ENABLE_THP_MIGRATION) \
@@ -983,13 +1029,16 @@ deps_/home/dradmin/Desktop/TSPD_SDK_linux_2023.1/examples/libs/gdrcopy/src/gdrdr
   arch/x86/include/uapi/asm/vsyscall.h \
   include/asm-generic/fixmap.h \
   arch/x86/include/asm/pgtable-invert.h \
+  include/linux/memremap.h \
+    $(wildcard include/config/DEVICE_PRIVATE) \
+    $(wildcard include/config/PCI_P2PDMA) \
+  include/linux/ioport.h \
   include/linux/huge_mm.h \
   include/linux/sched/coredump.h \
     $(wildcard include/config/CORE_DUMP_DEFAULT_ELF_HEADERS) \
   include/linux/vmstat.h \
     $(wildcard include/config/VM_EVENT_COUNTERS) \
     $(wildcard include/config/DEBUG_TLBFLUSH) \
-    $(wildcard include/config/DEBUG_VM_VMACACHE) \
   include/linux/vm_event_item.h \
     $(wildcard include/config/MEMORY_BALLOON) \
     $(wildcard include/config/BALLOON_COMPACTION) \
@@ -1010,8 +1059,8 @@ deps_/home/dradmin/Desktop/TSPD_SDK_linux_2023.1/examples/libs/gdrcopy/src/gdrdr
     $(wildcard include/config/GENERIC_PCI_IOMAP) \
   include/asm-generic/io.h \
     $(wildcard include/config/GENERIC_IOMAP) \
+    $(wildcard include/config/TRACE_MMIO_ACCESS) \
     $(wildcard include/config/GENERIC_IOREMAP) \
-    $(wildcard include/config/VIRT_TO_BUS) \
   include/linux/logic_pio.h \
     $(wildcard include/config/INDIRECT_PIO) \
   include/linux/fwnode.h \
@@ -1019,11 +1068,11 @@ deps_/home/dradmin/Desktop/TSPD_SDK_linux_2023.1/examples/libs/gdrcopy/src/gdrdr
     $(wildcard include/config/HAVE_ARCH_HUGE_VMALLOC) \
   arch/x86/include/asm/vmalloc.h \
   arch/x86/include/asm/pgtable_areas.h \
-  /home/dradmin/Desktop/TSPD_SDK_linux_2023.1/examples/libs/gdrcopy/src/gdrdrv/gdrdrv.h \
-  /usr/src/nvidia-srv-515.86.01/nvidia/nv-p2p.h \
+  /drBigBoy/darkRadio/daqAnalysisAndExperiments/teledyne/teledyneInstall/gdrcopy/src/gdrdrv/gdrdrv.h \
+  /usr/src/nvidia-srv-525.125.06/nvidia/nv-p2p.h \
 
-/home/dradmin/Desktop/TSPD_SDK_linux_2023.1/examples/libs/gdrcopy/src/gdrdrv/gdrdrv.o: $(deps_/home/dradmin/Desktop/TSPD_SDK_linux_2023.1/examples/libs/gdrcopy/src/gdrdrv/gdrdrv.o)
+/drBigBoy/darkRadio/daqAnalysisAndExperiments/teledyne/teledyneInstall/gdrcopy/src/gdrdrv/gdrdrv.o: $(deps_/drBigBoy/darkRadio/daqAnalysisAndExperiments/teledyne/teledyneInstall/gdrcopy/src/gdrdrv/gdrdrv.o)
 
-$(deps_/home/dradmin/Desktop/TSPD_SDK_linux_2023.1/examples/libs/gdrcopy/src/gdrdrv/gdrdrv.o):
+$(deps_/drBigBoy/darkRadio/daqAnalysisAndExperiments/teledyne/teledyneInstall/gdrcopy/src/gdrdrv/gdrdrv.o):
 
-/home/dradmin/Desktop/TSPD_SDK_linux_2023.1/examples/libs/gdrcopy/src/gdrdrv/gdrdrv.o: $(wildcard ./tools/objtool/objtool)
+/drBigBoy/darkRadio/daqAnalysisAndExperiments/teledyne/teledyneInstall/gdrcopy/src/gdrdrv/gdrdrv.o: $(wildcard ./tools/objtool/objtool)
