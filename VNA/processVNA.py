@@ -1,4 +1,5 @@
 import argparse
+import difflib
 import glob
 import matplotlib.pyplot as plt 
 import numpy as np
@@ -9,7 +10,7 @@ import sys
 
 # Various font names
 label_font = {'fontname':'sans-serif', 'size':'16', 'color':'black', 'weight':'normal',
-          'verticalalignment':'bottom'} 
+		  'verticalalignment':'bottom'} 
 title_font = {'fontname':'sans-serif', 'size':'16', 'color':'black', 'weight':'bold'}
 legend_font = {'family':'sans-serif', 'size':'10', 'style':'normal'} 
 
@@ -33,12 +34,20 @@ def getManufacturerData(ampName, colName):
 	for aFilename in glob.glob('./ManufacturerData/' + '*' + str(findName) + '*'):
 		manFiles.append(aFilename)	
 
+
+	maxSize = 0
 	if len(manFiles) == 0:
 		print('NO MANUFACTURER DATA FOUND')
 		return np.empty(1), np.empty(1)
+	else:
+		for val in manFiles:
+			s = difflib.SequenceMatcher(None, val, ampName)
+			pos_a, pos_b, size = s.find_longest_match(0, len(val), 0, len(ampName))
+			if size > maxSize:
+				maxSize = size 
+				holder = val
 
-	
-	allData = pd.read_csv(manFiles[0])
+	allData = pd.read_csv(holder)
 
 	freqs = np.asarray(allData['Frequency'])/1E6 
 	if colName in allData:
@@ -87,6 +96,7 @@ parser.add_argument('-sd', '--savedir', help = 'Give save directory default is .
 parser.add_argument('-man', '--man', help = 'Get associated manufacturer data', default = False, action = 'store_true')
 parser.add_argument('-xra', '--xrange', help = 'Set x-range requires(xmin, xmax) setting', required = False)
 parser.add_argument('-yra', '--yrange', help = 'Set x-range requires (ymin, ymax) setting', required = False)
+parser.add_argument('-fit', help = 'Plot the median fit', required = False, default = False, action = 'store_true')
 
 args = parser.parse_args()
 
@@ -152,7 +162,7 @@ if len(processFiles) == 0:
 	sys.exit(1)
 
 
-if len(args.columns) == 0:
+if (args.columns) == None:
 	print('NO DATA TO PLOT')
 	sys.exit(1)
 
@@ -199,6 +209,23 @@ for aFile in processFiles:
 			if aKey in data:
 				goodMan = True
 				plotData = np.asarray(data[aKey])
+				if args.fit:
+					medLen = 25
+					freqFlag = True
+					if 'Frequency' in data.keys():
+						freqs = np.asarray(data['Frequency'])/1E6
+					else:
+						freqs = np.asarray(range(len(plotData)))
+						freqFlag = False
+					plt.xlabel('Frequency (MHz)', labelpad = 15, **label_font) if freqFlag else plt.xlabel('Index', labelpad = 15, **label_font)
+
+					extraBit = len(plotData)%medLen
+					medFitAmps = [np.median(x) for x in (np.reshape(plotData[:-extraBit], (-1, medLen)) if extraBit != 0 else np.reshape(plotData, (-1, medLen)))]
+					medFitFreqs = [np.median(x) for x in (np.reshape(freqs[:-extraBit], (-1, medLen)) if extraBit != 0 else np.reshape(freqs, (-1, medLen)))]
+					
+					plotData = medFitAmps
+					freqs = medFitFreqs
+					
 				if args.man:
 					manFreqs, manAmps = getManufacturerData(ampName, aKey)
 					if len(allMan) > 0:
@@ -216,7 +243,7 @@ for aFile in processFiles:
 
 				if args.man and goodMan:
 					if len(args.columns) <= 1:
-						plt.plot(manFreqs, manAmps, label = 'Manufacturer ' + str(ampName[:ampName.index('-')]))
+						plt.plot(manFreqs, manAmps, label = 'Manufacturer ' + str(ampName[:ampName.index('_')]))
 					else:
 						plotTitle = str(ampName[:ampName.index('_')]) 
 						if 'S21' in aKey:
@@ -229,19 +256,19 @@ for aFile in processFiles:
 							plotTitle += ' DIRECTIVITY'
 						plt.plot(manFreqs, manAmps, label = 'Manufacturer ' + plotTitle)
 
-				freqFlag = True
-				if 'Frequency' in data.keys():
-					freqs = np.asarray(data['Frequency'])/1E6
-				else:
-					freqs = np.asarray(range(len(plotData)))
-					freqFlag = False
-				plt.xlabel('Frequency (MHz)', labelpad = 15, **label_font) if freqFlag else plt.xlabel('Index', labelpad = 15, **label_font)
+				if not(args.fit):
+					freqFlag = True
+					if 'Frequency' in data.keys():
+						freqs = np.asarray(data['Frequency'])/1E6
+					else:
+						freqs = np.asarray(range(len(plotData)))
+						freqFlag = False
+					plt.xlabel('Frequency (MHz)', labelpad = 15, **label_font) if freqFlag else plt.xlabel('Index', labelpad = 15, **label_font)
 				if 'S21_Magnitude' in aKey:
 					if len(args.columns) <=  1:
 						plt.plot(freqs[1:], plotData[1:], label = ampName)
 					else:
-						plt.plot(freqs[1:], plotData[1:], label = ampName + ' GAIN')
-
+						plt.plot(freqs[1:], plotData[1:], label = ampName + ' GAIN')					
 					if 'GAIN' not in allCols:
 						allCols.append('GAIN')
 					plt.ylabel('GAIN (dB)', **label_font)
@@ -291,7 +318,8 @@ for aFile in processFiles:
 				if not(args.overlay):
 					if args.save:
 						plt.tight_layout()
-						plt.savefig(args.savedir + ampName + '.png')
+						#plt.gcf().set_size_inches(10, 5.6)
+						#plt.savefig(args.savedir + ampName + '.png', dpi = 200)
 						plt.gca().clear()
 					else:
 						plt.tight_layout()
@@ -303,6 +331,7 @@ if args.overlay:
 	plt.tight_layout()
 	plt.legend(prop = legend_font)
 	if args.save:
+		plt.gcf().set_size_inches(10, 5.6)
 		plt.savefig(args.savedir + ampName[:ampName.rindex('_')] + '_Overlaid.png')
 	else:
 		print(allAmpNames)
