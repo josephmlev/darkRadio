@@ -13,6 +13,7 @@ from dash.dependencies import Input, Output
 import settings as s
 import matplotlib.pyplot as plt
 import os
+import scipy
 
 import numpy as np 
 import scipy.signal as spsig
@@ -110,16 +111,15 @@ fig = go.Figure()
 fig = make_subplots(
     rows=5, cols=1,
     subplot_titles=(
-        "Main Channel (Instantaneous)",
-        "Veto Channel (Instantaneous)",
-        "Main Channel (Average)",
-        "Veto Channel (Average)",
-        "Norm Spec (Linear Ratio, Average)"
+        "Main Channel (dBm, Instantaneous)",
+        "Veto Channel (dBm, Instantaneous)",
+        "Main Channel (dBm, Average)",
+        "Veto Channel (dBm, Average)",
+        "Norm Spec (Linear Z-score, Average)"
     ),
     shared_xaxes=True,
     vertical_spacing=0.05,
-    x_title='Frequency (MHz)',
-    y_title='Power (dBm)'
+    x_title='Frequency (MHz)'
 )
 
 fig.update_layout(height=2000, width=2000,
@@ -256,13 +256,25 @@ def update_graph_live(n):
         spec        = 10**(chB_avg_switch0/10)
         medianFilt = median_filt(spec, filter_size=medFiltBins)
         H = (butter_filt(medianFilt, cutoff = butterFreq, order = butterOrder))
+        # Compute the z-scores
 
         #Norm spec: mean = 1, STD = 1
         normSpec    = spec / H
+
+        mean_normSpec = np.mean(normSpec[500000:-500000])
+        std_normSpec = 1.483*scipy.stats.median_abs_deviation(normSpec[500000:-500000])
+        z_scores = (normSpec - mean_normSpec) / std_normSpec
+
+
+        #fig.add_trace(
+        #    {"x": freqs[1000:], "y": normSpec[1000:], "name": "Antenna Norm"},
+        #    row = 5, col = 1,
+        #)       
+        # Add the trace for z-scores on the secondary y-axis
         fig.add_trace(
-            {"x": freqs[1000:], "y": normSpec[1000:], "name": "Antenna Norm"},
-            row = 5, col = 1,
-        )        
+            {"x": freqs[1000:], "y": z_scores[1000:], "name": "Z Scores", "yaxis": "y2"},
+            row=5, col=1,
+        )
         
     except:
         print('Error encountered in plotting code. Likley reading data before it was written')

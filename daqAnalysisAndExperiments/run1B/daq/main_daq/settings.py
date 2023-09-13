@@ -14,8 +14,8 @@ NOF_CHANNELS                    = 2 #can't currently change. Need to load 1 ch f
 CH0_RECORD_LEN                  = int(2**23) 
 CH1_RECORD_LEN                  = CH0_RECORD_LEN #Different lengths not currently accepted
 
-NOF_BUFFERS_TO_RECEIVE          = 100 #for each call of avgFFT()
-NOF_ACQUISITIONS_TO_TAKE        = 1 #number of times to call avgFFT()
+NOF_BUFFERS_TO_RECEIVE          = 85000 #for each call of avgFFT()
+NOF_ACQUISITIONS_TO_TAKE        = 140 #number of times to call avgFFT()
 
 NOF_GPU_BUFFERS                 = 2 #per channel. Crashes if not 2.
 
@@ -51,18 +51,18 @@ PERIODIC_EVENT_SOURCE_PERIOD    = int((CH0_RECORD_LEN + 100) * DEAD_TIME_RATIO)
 
 # Save a single spectrum for testing or simple DAQ stuff
 # NOF_ACQUISITIONS_TO_TAKE should be 1
-SAVE_W_SPEC                     = 1 #Saves last spec to .npy.
-PATH_TO_SAVE_SINGLE_SPEC        ='/drBigBoy/darkRadio/daqAnalysisAndExperiments/run1B/daq/systemTesting/data_gitignore/antSpec24asdfasdf' #Where to save above
+SAVE_W_SPEC                     = 0 #Saves last spec to .npy.
+PATH_TO_SAVE_SINGLE_SPEC        ='/drBigBoy/darkRadio/daqAnalysisAndExperiments/run1B/daq/systemTesting/data_gitignore/antSpec28asdf' #Where to save above
 
-NUM_SPEC_PER_FILE               = 16 #How many spectra to put in a file. Keep files around 1GB. 16 is good
+NUM_SPEC_PER_FILE               = 32 #How many spectra to put in a file. Keep files around 1GB. 16 is good
 SAVE_DIRECTORY                  = '/drBiggerBoy/run1Bp1/' #directory to save data. Note this needs to be created ahead of time
                                                                 #and there should be a subdirectory called data. 
 
 SAVE_H5                         = 1 # Should h5 be saved AND database.txt be updated. 
 
-SWITCH                          = 0 #Controlls if a switch should be used. Requires Arduino to be connected. Should configure automatically
+SWITCH                          = 1 #Controlls if a switch should be used. Requires Arduino to be connected. Should configure automatically
 SWITCH_SLEEP_TIME		= .5 #Time in seconds to sleep after switching
-TEMPERATURE			= 0 # Should temperature be collected with arduino
+TEMPERATURE			= 1 # Should temperature be collected with arduino
 
 SWITCH_DUTYCYCLE 		= 15 # Really 1/duty cycle. If loopNum % SWITCH_DUTYCYCLE == 0 then switch. Buggy, test if using.
 
@@ -71,15 +71,17 @@ MANUAL_ACQNUM                   = -1 # Manually set acquisition number. Set to -
                                      
 READ_ONLY_H5                    = 0 # Makes H5 files read only. Annoying for testing, good for actual data. Note, last H5 file will not be made read only
 
-ANT_POS_IDX                     = 8 # Written to H5 and database, does not affect behavor.
+ANT_POS_IDX                     = 0 # Written to H5 and database, does not affect behavor.
                                     # Should be in setup dict below, but I want it to be obvious
 
 SAVE_AMP_CHAIN                  = 1 # save the following dictonary. Can be modified
 SETUP_DICT                      = { 'AMP1'          : '1012_E_PbAcid',
                                     'AMP2'          : 'ZKL_9p05VReg',
+                                    'ATT'           : '3+1dB_FIXED',
+                                    'CABLE'	    : 'PINK_6FT',
+                                    'ATT'           : '1dB',
                                     'LPF'           : 'ZXR250',
 				    'HPF'           : '1050',
-                                    'ATTENUATOR'    : '4dB_FIXED', 
                                     'ADC'           : 'ADQ32',
                                     'CLOCK'         : 'SRS_VIA_VALON',
                                     }
