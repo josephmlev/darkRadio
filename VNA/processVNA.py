@@ -23,7 +23,6 @@ def getManufacturerData(ampName, colName):
 	if not(os.path.exists('./ManufacturerData/')):
 		print('COULD NOT FIND ManufacturerData IN CURRENT DIRECTORY')
 		return np.empty(1), np.emtpy(1)
-	
 	if ampName.index('-') < ampName.index('_'):
 		findName = ampName[:ampName.index('-')]
 	else:
