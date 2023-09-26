@@ -7,10 +7,10 @@ import pyadq
 NOF_CHANNELS                    = 2 #can't currently change. Need to load 1 ch firmware
 
 #Can't go highter than 2^24 on DR2 without modifying bios settings. Stay above 2^16
-CH0_RECORD_LEN                  = int(2**24) 
+CH0_RECORD_LEN                  = int(2**23) 
 CH1_RECORD_LEN                  = CH0_RECORD_LEN #Different lengths not currently accepted
 
-NOF_BUFFERS_TO_RECEIVE          = 20 * 514 #for each call of avgFFT()
+NOF_BUFFERS_TO_RECEIVE          = 1000 #for each call of avgFFT()
 NOF_ACQUISITIONS_TO_TAKE        = 1 #number of times to call avgFFT()
 
 NOF_GPU_BUFFERS                 = 2 #per channel. Crashes if not 2.
@@ -24,20 +24,20 @@ ADQ_CLOCK_SOURCE                = 1 # 0 = INTERNAL, 1 = EXTERNAL
 				    # If external clock is used, it must be set up seperatly!!!
 				    # See valon_Init.py
 
-CH0_SAMPLE_SKIP_FACTOR          = 4  #For factors below 8, only power-of-two values are allowed 
+CH0_SAMPLE_SKIP_FACTOR          = 1  #For factors below 8, only power-of-two values are allowed 
 CH1_SAMPLE_SKIP_FACTOR          = CH0_SAMPLE_SKIP_FACTOR #Different values are untested
 
 # Must be 2.5e9 if ADQ_CLOCK_SOURCE==0
 # Else, must be between 1e9 and 2.5e9. 
 # Use sample skip to get lower than 1GHz
 # Should be a multple of 20MHz for best performance
-CLOCK_RATE                      = 2.5e9 #Hz
+CLOCK_RATE                      = 2.4e9 #Hz
 
 VALON_EXT_10MHZ                 = 1
 
 SAMPLE_RATE                     = CLOCK_RATE/CH0_SAMPLE_SKIP_FACTOR 
 
-PERIODIC_EVENT_SOURCE_PERIOD    = int(CH0_RECORD_LEN + 100)  
+PERIODIC_EVENT_SOURCE_PERIOD    = int(CH0_RECORD_LEN*2 + 100)  
 
 ##########################################################
 # SAVING
@@ -82,12 +82,12 @@ SETUP_DICT                      = { 'AMP1'          : 'PAS_1012',
 ##########################################################
 # TESTING
 PLOT_FINAL_SPEC			= 1 # Plots the last call from avgFFT
-VERBOSE_MODE                    = 0 # Print info
+VERBOSE_MODE                    = 1 # Print info
 PRINT_BUF_COUNT                 = 0 # Prints how many buffers have been collected
-TEST_MODE                       = 0 # Copy to cpu, ~100ms overhead
+TEST_MODE                       = 1 # Copy to cpu, ~100ms overhead
 CH_TO_TEST                      = 1 # Sets which channel to plot and save. assumes TEST_MODE = 1
 SAVE_BUFFER                     = 0 # Sets if the buffer should be saved.   //      //      //
-PLOT_TIME_DOMAIN                = 0 # Plots time domain data                //      //      // 
+PLOT_TIME_DOMAIN                = 1 # Plots time domain data                //      //      // 
 # Available test pattern signals:
 #   - ADQ_TEST_PATTERN_SOURCE_DISABLE (required to see ADC data)
 #   - ADQ_TEST_PATTERN_SOURCE_COUNT_UP
