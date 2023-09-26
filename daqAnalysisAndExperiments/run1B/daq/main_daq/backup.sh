@@ -5,8 +5,8 @@
 # peloton using jmlev's account
 
 # main data to RAID
-sudo rsync --progress -avzu /drBiggerBoy/run1p4  /media/dradmin/RAID\ 1/drBackups/run1p4_5_10_23/
+sudo rsync --progress -avzu /drBiggerBoy/run1Bp1  /media/dradmin/RAID\ 1/drBackups/run1Bp1_9_14_23/
 
 # main data to dr3
-rsync -avz --progress -e ssh /drBiggerBoy/run1p4 dark-radio@darkradio3.physics.ucdavis.edu:/RunData/run1p4_5_10_23/
+rsync -avz --progress -e ssh /drBiggerBoy/run1Bp1 dark-radio@darkradio3.physics.ucdavis.edu:/RunData/run1Bp1_9_14_23/
 

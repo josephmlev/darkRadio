@@ -14,9 +14,8 @@ NOF_CHANNELS                    = 2 #can't currently change. Need to load 1 ch f
 CH0_RECORD_LEN                  = int(2**23) 
 CH1_RECORD_LEN                  = CH0_RECORD_LEN #Different lengths not currently accepted
 
-NOF_BUFFERS_TO_RECEIVE          = 85000 #for each call of avgFFT()
-NOF_ACQUISITIONS_TO_TAKE        = 140 #number of times to call avgFFT()
-
+NOF_BUFFERS_TO_RECEIVE          = 81000 #for each call of avgFFT()
+NOF_ACQUISITIONS_TO_TAKE        = 143
 NOF_GPU_BUFFERS                 = 2 #per channel. Crashes if not 2.
 
 INIT_SLEEP_TIME			= 0 #Time in seconds to sleep before starting anything
@@ -71,15 +70,15 @@ MANUAL_ACQNUM                   = -1 # Manually set acquisition number. Set to -
                                      
 READ_ONLY_H5                    = 0 # Makes H5 files read only. Annoying for testing, good for actual data. Note, last H5 file will not be made read only
 
-ANT_POS_IDX                     = 0 # Written to H5 and database, does not affect behavor.
+ANT_POS_IDX                     = 8 # Written to H5 and database, does not affect behavor.
                                     # Should be in setup dict below, but I want it to be obvious
 
 SAVE_AMP_CHAIN                  = 1 # save the following dictonary. Can be modified
 SETUP_DICT                      = { 'AMP1'          : '1012_E_PbAcid',
                                     'AMP2'          : 'ZKL_9p05VReg',
-                                    'ATT'           : '3+1dB_FIXED',
+                                    'ATT1'           : '3_PLUS_1dB_FIXED',
                                     'CABLE'	    : 'PINK_6FT',
-                                    'ATT'           : '1dB',
+                                    'ATT2'           : '1dB',
                                     'LPF'           : 'ZXR250',
 				    'HPF'           : '1050',
                                     'ADC'           : 'ADQ32',
