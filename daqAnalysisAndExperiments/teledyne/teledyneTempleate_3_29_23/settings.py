@@ -7,10 +7,10 @@ import pyadq
 NOF_CHANNELS                    = 2 #can't currently change. Need to load 1 ch firmware
 
 #Can't go highter than 2^24 on DR2 without modifying bios settings. Stay above 2^16
-CH0_RECORD_LEN                  = int(2**23) 
+CH0_RECORD_LEN                  = int(2**18) 
 CH1_RECORD_LEN                  = CH0_RECORD_LEN #Different lengths not currently accepted
 
-NOF_BUFFERS_TO_RECEIVE          = 1000 #for each call of avgFFT()
+NOF_BUFFERS_TO_RECEIVE          = 40000 #for each call of avgFFT()
 NOF_ACQUISITIONS_TO_TAKE        = 1 #number of times to call avgFFT()
 
 NOF_GPU_BUFFERS                 = 2 #per channel. Crashes if not 2.
@@ -31,7 +31,7 @@ CH1_SAMPLE_SKIP_FACTOR          = CH0_SAMPLE_SKIP_FACTOR #Different values are u
 # Else, must be between 1e9 and 2.5e9. 
 # Use sample skip to get lower than 1GHz
 # Should be a multple of 20MHz for best performance
-CLOCK_RATE                      = 2.4e9 #Hz
+CLOCK_RATE                      = 2.5e9 #Hz
 
 VALON_EXT_10MHZ                 = 1
 
@@ -45,8 +45,8 @@ PERIODIC_EVENT_SOURCE_PERIOD    = int(CH0_RECORD_LEN*2 + 100)
 
 # Save a single spectrum for testing or simple DAQ stuff
 # NOF_ACQUISITIONS_TO_TAKE should be 1
-SAVE_W_SPEC                     = 0 #Saves last spec to .npy.
-PATH_TO_SAVE_SINGLE_SPEC        ='/drBigBoy/darkRadio/daqAnalysisAndExperiments/run1p4/termSpec_run1p4AmpChainPlus5dBAttenuation_gitignore' #Where to save above
+SAVE_W_SPEC                     = 1 #Saves last spec to .npy.
+PATH_TO_SAVE_SINGLE_SPEC        ='/drBigBoy/darkRadio/daqAnalysisAndExperiments/run1B/daq/systemTesting/data_gitignore/antSpec94' #Where to save above
 
 NUM_SPEC_PER_FILE               = 25 #How many spectra to put in a file. Keep files around 1GB. 16 is good
 SAVE_DIRECTORY                  = '/drBiggerBoy/run1p4_termRun/' #directory to save data. Note this needs to be created ahead of time
@@ -87,7 +87,7 @@ PRINT_BUF_COUNT                 = 0 # Prints how many buffers have been collecte
 TEST_MODE                       = 1 # Copy to cpu, ~100ms overhead
 CH_TO_TEST                      = 1 # Sets which channel to plot and save. assumes TEST_MODE = 1
 SAVE_BUFFER                     = 0 # Sets if the buffer should be saved.   //      //      //
-PLOT_TIME_DOMAIN                = 1 # Plots time domain data                //      //      // 
+PLOT_TIME_DOMAIN                = 0 # Plots time domain data                //      //      // 
 # Available test pattern signals:
 #   - ADQ_TEST_PATTERN_SOURCE_DISABLE (required to see ADC data)
 #   - ADQ_TEST_PATTERN_SOURCE_COUNT_UP
