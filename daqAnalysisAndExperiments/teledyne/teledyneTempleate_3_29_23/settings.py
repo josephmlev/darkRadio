@@ -10,7 +10,7 @@ NOF_CHANNELS                    = 2 #can't currently change. Need to load 1 ch f
 CH0_RECORD_LEN                  = int(2**18) 
 CH1_RECORD_LEN                  = CH0_RECORD_LEN #Different lengths not currently accepted
 
-NOF_BUFFERS_TO_RECEIVE          = 40000 #for each call of avgFFT()
+NOF_BUFFERS_TO_RECEIVE          = 100000 #for each call of avgFFT()
 NOF_ACQUISITIONS_TO_TAKE        = 1 #number of times to call avgFFT()
 
 NOF_GPU_BUFFERS                 = 2 #per channel. Crashes if not 2.
@@ -37,7 +37,7 @@ VALON_EXT_10MHZ                 = 1
 
 SAMPLE_RATE                     = CLOCK_RATE/CH0_SAMPLE_SKIP_FACTOR 
 
-PERIODIC_EVENT_SOURCE_PERIOD    = int(CH0_RECORD_LEN*2 + 100)  
+PERIODIC_EVENT_SOURCE_PERIOD    = int(CH0_RECORD_LEN*2.2 + 100)  
 
 ##########################################################
 # SAVING
@@ -46,7 +46,7 @@ PERIODIC_EVENT_SOURCE_PERIOD    = int(CH0_RECORD_LEN*2 + 100)
 # Save a single spectrum for testing or simple DAQ stuff
 # NOF_ACQUISITIONS_TO_TAKE should be 1
 SAVE_W_SPEC                     = 1 #Saves last spec to .npy.
-PATH_TO_SAVE_SINGLE_SPEC        ='/drBigBoy/darkRadio/daqAnalysisAndExperiments/run1B/daq/systemTesting/data_gitignore/antSpec94' #Where to save above
+PATH_TO_SAVE_SINGLE_SPEC        ='/drBigBoy/darkRadio/daqAnalysisAndExperiments/run1p4/thermalNoiseVsH/data_10_15_23_gitignore/term_extra10dBMcAmp_49' #Where to save above
 
 NUM_SPEC_PER_FILE               = 25 #How many spectra to put in a file. Keep files around 1GB. 16 is good
 SAVE_DIRECTORY                  = '/drBiggerBoy/run1p4_termRun/' #directory to save data. Note this needs to be created ahead of time
