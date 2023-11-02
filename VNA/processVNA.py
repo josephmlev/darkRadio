@@ -29,7 +29,6 @@ def getManufacturerData(ampName, colName):
 		findName = ampName[:ampName.index('_')]
 
 	manFiles = []
-	
 	for aFilename in glob.glob('./ManufacturerData/' + '*' + str(findName) + '*'):
 		manFiles.append(aFilename)	
 
@@ -187,6 +186,7 @@ allCols = []
 
 for aFile in processFiles:
 		#ampName = aFile[aFile.rindex('/') + 1:aFile.rindex('.')]
+		aFile = aFile.replace('\\', '/')
 		ampName = aFile[aFile.rindex('/')+1:aFile.rindex('.')]
 		
 		if ampName[:ampName.index('_')] not in allAmpNames:
