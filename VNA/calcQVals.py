@@ -81,10 +81,18 @@ freqsRedone, vswrRedone, reflecRedone, s11MagRedone, s11PhaseRedone, s11ComplexR
 meanS11 = np.mean(s11Complex, axis = 0)
 
 meanS11Redone = np.mean(s11ComplexRedone, axis = 0)
-plt.plot(freqs[0], 20*np.log10(np.abs(meanS11Redone)))
+#plt.plot(freqs[0], 20*np.log10(np.abs(meanS11Redone)))
+plt.plot(freqs[0], 1 - np.abs(meanS11Redone)**2)
 plt.xlabel('Frequency (Hz)', labelpad = 15, **label_font)
-plt.ylabel('S11 (log)', **label_font)
+plt.ylabel('Matching', **label_font)
 plt.show()
+
+with open('S11Test_10-3-23.txt', 'w') as f:
+	f.write('Frequency (MHz)\tMatching Parameter (linear)\n')
+	for val in zip(freqs[0], 1 - np.abs(meanS11Redone)**2):
+		f.write(str(val[0]) + '\t' + str(val[1]) + '\n')
+
+
 sys.exit(1)
 
 meanImpedanceRedone = np.abs(50 * (1 + meanS11Redone) / (1 - meanS11Redone))
