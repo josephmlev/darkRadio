@@ -79,9 +79,14 @@ freqsRedone, vswrRedone, reflecRedone, s11MagRedone, s11PhaseRedone, s11ComplexR
 
 
 meanS11 = np.mean(s11Complex, axis = 0)
-print(meanS11)
 
 meanS11Redone = np.mean(s11ComplexRedone, axis = 0)
+plt.plot(freqs[0], 20*np.log10(np.abs(meanS11Redone)))
+plt.xlabel('Frequency (Hz)', labelpad = 15, **label_font)
+plt.ylabel('S11 (log)', **label_font)
+plt.show()
+sys.exit(1)
+
 meanImpedanceRedone = np.abs(50 * (1 + meanS11Redone) / (1 - meanS11Redone))
 
 num, den, qVal = calcQData(s11Complex, meanS11, freqs)
