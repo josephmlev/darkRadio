@@ -28,6 +28,7 @@
 #include <iostream>
 #include <iomanip>
 #include <cuda.h>
+#include <cuda_runtime_api.h>
 
 using namespace std;
 

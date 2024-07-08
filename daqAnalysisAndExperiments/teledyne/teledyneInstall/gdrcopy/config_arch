@@ -19,7 +19,6 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 # DEALINGS IN THE SOFTWARE.
 
-topdir="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")" && pwd)"
 dir=$(mktemp -d)
 src=$dir/arch.c
 exe=$dir/arch
@@ -41,6 +40,6 @@ int main(int argc, char *argv[])
 }
 EOF
 
-gcc -I "${topdir}/include" -I "${topdir}/src" "$src" -o "$exe"
+gcc -I $PWD -I $PWD/src $src -o $exe
 $exe
-rm -rf "$dir"
+rm -rf $dir

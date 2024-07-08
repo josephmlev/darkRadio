@@ -31,6 +31,7 @@
 namespace gdrcopy {
     namespace test {
         bool print_dbg_msg = false;
+        const char *testname = "";
 
         void print_dbg(const char* fmt, ...)
         {
@@ -49,7 +50,7 @@ namespace gdrcopy {
             size_t allocated_size;
 
             if (aligned_mapping)
-                allocated_size = size + GPU_PAGE_SIZE - 1;
+                allocated_size = PAGE_ROUND_UP(size, GPU_PAGE_SIZE);
             else
                 allocated_size = size;
 
