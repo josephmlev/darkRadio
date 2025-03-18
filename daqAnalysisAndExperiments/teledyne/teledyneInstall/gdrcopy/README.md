@@ -40,33 +40,37 @@ A simple by-product of it is a copy library with the following characteristics:
   PCIE
 
 The library comes with a few tests like:
-- sanity, which contains unit tests for the library and the driver.
-- copybw, a minimal application which calculates the R/W bandwidth for a specific buffer size.
-- copylat, a benchmark application which calculates the R/W copy latency for a range of buffer sizes.
+- gdrcopy_sanity, which contains unit tests for the library and the driver.
+- gdrcopy_copybw, a minimal application which calculates the R/W bandwidth for a specific buffer size.
+- gdrcopy_copylat, a benchmark application which calculates the R/W copy latency for a range of buffer sizes.
+- gdrcopy_apiperf, an application for benchmarking the latency of each GDRCopy API call.
+- gdrcopy_pplat, a benchmark application which calculates the round-trip ping-pong latency between GPU and CPU.
 
 ## Requirements
 
-GPUDirect RDMA requires NVIDIA Tesla or Quadro class GPUs based on Kepler,
-Pascal, Volta, or Turing, see [GPUDirect
-RDMA](http://developer.nvidia.com/gpudirect).  For more technical informations,
+GPUDirect RDMA requires [NVIDIA Data Center GPU](https://www.nvidia.com/en-us/data-center/) or [NVIDIA RTX GPU](https://www.nvidia.com/en-us/design-visualization/rtx/) (formerly Tesla and Quadro) based on Kepler or newer generations, see [GPUDirect
+RDMA](http://developer.nvidia.com/gpudirect).  For more general information,
 please refer to the official GPUDirect RDMA [design
 document](http://docs.nvidia.com/cuda/gpudirect-rdma).
 
 The device driver requires GPU display driver >= 418.40 on ppc64le and >= 331.14 on other platforms. The library and tests
-require CUDA >= 6.0. Additionally, the _sanity_ test requires check >= 0.9.8 and
-subunit.
+require CUDA >= 6.0.
 
-DKMS is a prerequisite for installing GDRCopy kernel module package. On RHEL,
+DKMS is a prerequisite for installing GDRCopy kernel module package. On RHEL
+or SLE,
 however, users have an option to build kmod and install it instead of the DKMS
 package. See [Build and installation](#build-and-installation) section for more details.
 
 ```shell
 # On RHEL
 # dkms can be installed from epel-release. See https://fedoraproject.org/wiki/EPEL.
-$ sudo yum install dkms check check-devel subunit subunit-devel
+$ sudo yum install dkms
 
-# On Debian
-$ sudo apt install check libsubunit0 libsubunit-dev
+# On Debian - No additional dependency
+
+# On SLE / Leap
+# On SLE dkms can be installed from PackageHub.
+$ sudo zypper install dkms rpmbuild
 ```
 
 CUDA and GPU display driver must be installed before building and/or installing GDRCopy.
@@ -77,9 +81,11 @@ of the driver (or CUDA) installation with  *runfile*. If you install the driver
 via package management, we suggest
 - On RHEL, `sudo dnf module install nvidia-driver:latest-dkms`.
 - On Debian, `sudo apt install nvidia-dkms-<your-nvidia-driver-version>`.
+- On SLE, `sudo zypper install nvidia-gfx<your-nvidia-driver-version>-kmp`.
 
-The supported architectures are Linux x86_64, ppc64le, and arm64. The supported
-platforms are RHEL7, RHEL8, Ubuntu16_04, Ubuntu18_04, and Ubuntu20_04.
+The supported architectures are Linux x86\_64, ppc64le, and arm64. The supported
+platforms are RHEL8, RHEL9, Ubuntu20\_04, Ubuntu22\_04,
+SLE-15 (any SP) and Leap 15.x.
 
 Root privileges are necessary to load/install the kernel-mode device
 driver.
@@ -87,63 +93,82 @@ driver.
 
 ## Build and installation
 
-We provide three ways for building and installing GDRCopy.
-
-### rpm package
-
-```shell
-$ sudo yum groupinstall 'Development Tools'
-$ sudo yum install dkms rpm-build make check check-devel subunit subunit-devel
-$ cd packages
-$ CUDA=<cuda-install-top-dir> ./build-rpm-packages.sh
-$ sudo rpm -Uvh gdrcopy-kmod-<version>dkms.noarch.<platform>.rpm
-$ sudo rpm -Uvh gdrcopy-<version>.<arch>.<platform>.rpm
-$ sudo rpm -Uvh gdrcopy-devel-<version>.noarch.<platform>.rpm
+### Typical
+Build & install.
 ```
-DKMS package is the default kernel module package that `build-rpm-packages.sh`
-generates. To create kmod package, `-m` option must be passed to the script.
-Unlike the DKMS package, the kmod package contains a prebuilt GDRCopy kernel
-module which is specific to the NVIDIA driver version and the Linux kernel
-version used to build it.
-
-
-### deb package
-
-```shell
-$ sudo apt install build-essential devscripts debhelper check libsubunit-dev fakeroot pkg-config dkms
-$ cd packages
-$ CUDA=<cuda-install-top-dir> ./build-deb-packages.sh
-$ sudo dpkg -i gdrdrv-dkms_<version>_<arch>.<platform>.deb
-$ sudo dpkg -i libgdrapi_<version>_<arch>.<platform>.deb
-$ sudo dpkg -i gdrcopy-tests_<version>_<arch>.<platform>.deb
-$ sudo dpkg -i gdrcopy_<version>_<arch>.<platform>.deb
+$ make config driver lib
+$ sudo make lib_install && sudo ldconfig
+```
+Load gdrdrv, must be done after every system restart.
+```
+$ ./insmod.sh
 ```
 
-### from source
+### General
 
 ```shell
 $ make prefix=<install-to-this-location> CUDA=<cuda-install-top-dir> all install
 $ sudo ./insmod.sh
 ```
 
-If `libcheck` is installed in a non-standard path and therefore is not
-picked by `pkg-config`, you can set the `PKG_CONFIG_PATH` environment
-variable to the directory which contains the `check.pc` file and pass it
-down to make:
-```shell
-$ PKG_CONFIG_PATH=/check_install_path/lib/pkgconfig/ make <...>
-```
+
+### Notes
+
+Compiling the gdrdrv driver requires the NVIDIA driver source code, which is typically installed at
+`/usr/src/nvidia-<version>`. Our make file automatically detects and picks that source code. In case there are multiple
+versions installed, it is possible to pass the correct path by defining the NVIDIA_SRC_DIR variable, e.g. `export
+NVIDIA_SRC_DIR=/usr/src/nvidia-520.61.05/nvidia` before building the gdrdrv module.
+
+There are two major flavors of NVIDIA driver: 1) proprietary, and 2)
+[opensource](https://developer.nvidia.com/blog/nvidia-releases-open-source-gpu-kernel-modules/). We detect the flavor
+when compiling gdrdrv based on the source code of the NVIDIA driver. Different flavors come with different features and
+restrictions:
+- gdrdrv compiled with the opensource flavor will provide functionality and high performance on all platforms. However,
+  you will not be able to load this gdrdrv driver when the proprietary NVIDIA driver is loaded.
+- gdrdrv compiled with the proprietary flavor can always be loaded regardless of the flavor of NVIDIA driver you have
+  loaded. However, it may have suboptimal performance on coherent platforms such as Grace-Hopper. Functionally, it will not
+  work correctly on Intel CPUs with Linux kernel built with confidential compute (CC) support, i.e.
+  `CONFIG_ARCH_HAS_CC_PLATFORM=y`, *WHEN* CC is enabled at runtime.
 
 ## Tests
 
 Execute provided tests:
 ```shell
-$ sanity
-Running suite(s): Sanity
-100%: Checks: 27, Failures: 0, Errors: 0
+$ gdrcopy_sanity
+Total: 28, Passed: 28, Failed: 0, Waived: 0
+
+List of passed tests:
+    basic_child_thread_pins_buffer_cumemalloc
+    basic_child_thread_pins_buffer_vmmalloc
+    basic_cumemalloc
+    basic_small_buffers_mapping
+    basic_unaligned_mapping
+    basic_vmmalloc
+    basic_with_tokens
+    data_validation_cumemalloc
+    data_validation_vmmalloc
+    invalidation_access_after_free_cumemalloc
+    invalidation_access_after_free_vmmalloc
+    invalidation_access_after_gdr_close_cumemalloc
+    invalidation_access_after_gdr_close_vmmalloc
+    invalidation_fork_access_after_free_cumemalloc
+    invalidation_fork_access_after_free_vmmalloc
+    invalidation_fork_after_gdr_map_cumemalloc
+    invalidation_fork_after_gdr_map_vmmalloc
+    invalidation_fork_child_gdr_map_parent_cumemalloc
+    invalidation_fork_child_gdr_map_parent_vmmalloc
+    invalidation_fork_child_gdr_pin_parent_with_tokens
+    invalidation_fork_map_and_free_cumemalloc
+    invalidation_fork_map_and_free_vmmalloc
+    invalidation_two_mappings_cumemalloc
+    invalidation_two_mappings_vmmalloc
+    invalidation_unix_sock_shared_fd_gdr_map_cumemalloc
+    invalidation_unix_sock_shared_fd_gdr_map_vmmalloc
+    invalidation_unix_sock_shared_fd_gdr_pin_buffer_cumemalloc
+    invalidation_unix_sock_shared_fd_gdr_pin_buffer_vmmalloc
 
 
-$ copybw
+$ gdrcopy_copybw
 GPU id:0; name: Tesla V100-SXM2-32GB; Bus id: 0000:06:00
 GPU id:1; name: Tesla V100-SXM2-32GB; Bus id: 0000:07:00
 GPU id:2; name: Tesla V100-SXM2-32GB; Bus id: 0000:0a:00
@@ -174,7 +199,7 @@ unpinning buffer
 closing gdrdrv
 
 
-$ copylat
+$ gdrcopy_copylat
 GPU id:0; name: Tesla V100-SXM2-32GB; Bus id: 0000:06:00
 GPU id:1; name: Tesla V100-SXM2-32GB; Bus id: 0000:07:00
 GPU id:2; name: Tesla V100-SXM2-32GB; Bus id: 0000:0a:00
@@ -259,7 +284,7 @@ unpinning buffer
 closing gdrdrv
 
 
-$ apiperf -s 8
+$ gdrcopy_apiperf -s 8
 GPU id:0; name: Tesla V100-SXM2-32GB; Bus id: 0000:06:00
 GPU id:1; name: Tesla V100-SXM2-32GB; Bus id: 0000:07:00
 GPU id:2; name: Tesla V100-SXM2-32GB; Bus id: 0000:0a:00
@@ -287,6 +312,28 @@ Histogram of gdr_pin_buffer latency for 65536 bytes
 [13038.520000   -   14342.372000]   2
 
 closing gdrdrv
+
+
+
+$ numactl -N 1 -l gdrcopy_pplat
+GPU id:0; name: NVIDIA A40; Bus id: 0000:09:00
+selecting device 0
+device ptr: 0x7f99d2600000
+gpu alloc fn: cuMemAlloc
+map_d_ptr: 0x7f9a054fb000
+info.va: 7f99d2600000
+info.mapped_size: 4
+info.page_size: 65536
+info.mapped: 1
+info.wc_mapping: 1
+page offset: 0
+user-space pointer: 0x7f9a054fb000
+CPU does gdr_copy_to_mapping and GPU writes back via cuMemHostAlloc'd buffer.
+Running 1000 iterations with data size 4 bytes.
+Round-trip latency per iteration is 1.08762 us
+unmapping buffer
+unpinning buffer
+closing gdrdrv
 ```
 
 ## NUMA effects
@@ -301,7 +348,7 @@ CPU socket 0. By explicitly playing with the OS process and memory
 affinity, it is possible to run the test onto the optimal processor:
 
 ```shell
-$ numactl -N 0 -l copybw -d 0 -s $((64 * 1024)) -o $((0 * 1024)) -c $((64 * 1024))
+$ numactl -N 0 -l gdrcopy_copybw -d 0 -s $((64 * 1024)) -o $((0 * 1024)) -c $((64 * 1024))
 GPU id:0; name: Tesla V100-SXM2-32GB; Bus id: 0000:06:00
 GPU id:1; name: Tesla V100-SXM2-32GB; Bus id: 0000:07:00
 GPU id:2; name: Tesla V100-SXM2-32GB; Bus id: 0000:0a:00
@@ -334,7 +381,7 @@ closing gdrdrv
 
 or on the other socket:
 ```shell
-$ numactl -N 1 -l copybw -d 0 -s $((64 * 1024)) -o $((0 * 1024)) -c $((64 * 1024))
+$ numactl -N 1 -l gdrcopy_copybw -d 0 -s $((64 * 1024)) -o $((0 * 1024)) -c $((64 * 1024))
 GPU id:0; name: Tesla V100-SXM2-32GB; Bus id: 0000:06:00
 GPU id:1; name: Tesla V100-SXM2-32GB; Bus id: 0000:07:00
 GPU id:2; name: Tesla V100-SXM2-32GB; Bus id: 0000:0a:00
@@ -392,6 +439,16 @@ On POWER9 where CPU and GPU are connected via NVLink, CUDA9.2 and GPU Driver
 v396.37 are the minimum requirements in order to achieve the full performance.
 GDRCopy works with ealier CUDA and GPU driver versions but the achievable
 bandwidth is substantially lower.
+
+If gdrdrv is compiled with the proprietary flavor of NVIDIA driver, GDRCopy does not fully support Linux with the
+confidential computing (CC) configuration with Intel CPU. In particular, it does not functional if
+`CONFIG_ARCH_HAS_CC_PLATFORM=y` and CC is enabled at runtime. However, it works if CC is disabled or
+`CONFIG_ARCH_HAS_CC_PLATFORM=n`. This issue is not applied to AMD CPU. To avoid this issue, please compile and load
+gdrdrv with the opensource flavor of NVIDIA driver.
+
+To allow the loading of unsupported 3rd party modules in SLE, set `allow_unsupported_modules 1` in
+/etc/modprobe.d/unsupported-modules. After making this change, modules missing the "supported" flag, will be allowed to
+load.
 
 
 ## Bug filing

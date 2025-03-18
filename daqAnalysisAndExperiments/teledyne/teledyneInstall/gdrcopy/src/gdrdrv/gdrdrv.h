@@ -26,16 +26,32 @@
 #define GDRDRV_STRINGIFY(s)           #s
 #define GDRDRV_TOSTRING(s)            GDRDRV_STRINGIFY(s)
 
+#define GDRDRV_MAJOR_VERSION_SHIFT    16
+
 #define GDRDRV_MAJOR_VERSION    2
-#define GDRDRV_MINOR_VERSION    3
-#define GDRDRV_VERSION          ((GDRDRV_MAJOR_VERSION << 16) | GDRDRV_MINOR_VERSION)
+#define GDRDRV_MINOR_VERSION    5
+#define GDRDRV_VERSION          ((GDRDRV_MAJOR_VERSION << GDRDRV_MAJOR_VERSION_SHIFT) | GDRDRV_MINOR_VERSION)
 #define GDRDRV_VERSION_STRING   GDRDRV_TOSTRING(GDRDRV_MAJOR_VERSION) "." GDRDRV_TOSTRING(GDRDRV_MINOR_VERSION)
 
 #define MINIMUM_GDR_API_MAJOR_VERSION   2
 #define MINIMUM_GDR_API_MINOR_VERSION   0
 #define MINIMUM_GDR_API_VERSION         ((MINIMUM_GDR_API_MAJOR_VERSION << 16) | MINIMUM_GDR_API_MINOR_VERSION)
 
+#define GDRDRV_MINIMUM_VERSION_WITH_GET_INFO_V2 ((2 << GDRDRV_MAJOR_VERSION_SHIFT) | 4)
+#define GDRDRV_MINIMUM_VERSION_WITH_GET_ATTR    ((2 << GDRDRV_MAJOR_VERSION_SHIFT) | 5)
+
 #define GDRDRV_IOCTL                 0xDA
+
+typedef enum {
+    GDR_MR_NONE = 0,
+    GDR_MR_WC = 1,
+    GDR_MR_CACHING = 2,
+    GDR_MR_DEVICE = 3
+} gdr_mr_type_t;
+
+typedef enum {
+    GDRDRV_ATTR_USE_PERSISTENT_MAPPING = 1
+} gdrdrv_attr_t;
 
 typedef __u64 gdr_hnd_t;
 
@@ -97,6 +113,36 @@ struct GDRDRV_IOC_GET_INFO_PARAMS
 
 //-----------
 
+struct GDRDRV_IOC_GET_INFO_V2_PARAMS
+{
+    // in
+    gdr_hnd_t handle;
+    // out
+    __u64 va;
+    __u64 mapped_size;
+    __u32 page_size;
+    __u32 tsc_khz;
+    __u64 tm_cycles;
+    __u32 mapping_type;
+    __u64 physical;
+};
+
+#define GDRDRV_IOC_GET_INFO_V2 _IOWR(GDRDRV_IOCTL, 5, struct GDRDRV_IOC_GET_INFO_V2_PARAMS *)
+
+//-----------
+
+struct GDRDRV_IOC_GET_ATTR_PARAMS
+{
+    // in
+    __u32 attr; // gdrdrv_attr_t
+    // out
+    __u32 val;
+};
+
+#define GDRDRV_IOC_GET_ATTR _IOWR(GDRDRV_IOCTL, 6, struct GDRDRV_IOC_GET_ATTR_PARAMS *)
+
+//-----------
+
 struct GDRDRV_IOC_GET_VERSION_PARAMS
 {
     // out
@@ -116,7 +162,7 @@ struct GDRDRV_IOC_GET_PHYBAR_PARAMS
   __u64 physical;
 };
 
-#define GDRDRV_IOC_GET_PHYBAR _IOWR(GDRDRV_IOCTL, 5, struct GDRDRV_IOC_GET_PHYBAR_PARAMS *)
+#define GDRDRV_IOC_GET_PHYBAR _IOWR(GDRDRV_IOCTL, 250, struct GDRDRV_IOC_GET_PHYBAR_PARAMS *)
 
 //-----------
 

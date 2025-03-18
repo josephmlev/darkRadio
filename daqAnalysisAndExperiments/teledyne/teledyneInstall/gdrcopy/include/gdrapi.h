@@ -30,7 +30,7 @@
 #define MINOR_VERSION_MASK      (((uint32_t)1 << MAJOR_VERSION_SHIFT) - 1)
 
 #define GDR_API_MAJOR_VERSION    2
-#define GDR_API_MINOR_VERSION    3
+#define GDR_API_MINOR_VERSION    5
 #define GDR_API_VERSION          ((GDR_API_MAJOR_VERSION << MAJOR_VERSION_SHIFT) | GDR_API_MINOR_VERSION)
 
 #define MINIMUM_GDRDRV_MAJOR_VERSION    2
@@ -91,12 +91,19 @@ int gdr_unpin_buffer(gdr_t g, gdr_mh_t handle);
 // gdr_unpin_buffer.
 int gdr_get_callback_flag(gdr_t g, gdr_mh_t handle, int *flag);
 
+typedef enum gdr_mapping_type {
+    GDR_MAPPING_TYPE_NONE = 0,
+    GDR_MAPPING_TYPE_WC = 1,
+    GDR_MAPPING_TYPE_CACHING = 2,
+    GDR_MAPPING_TYPE_DEVICE = 3
+} gdr_mapping_type_t;
+
 // After pinning, info struct contains details of the mapped area.
 //
 // Note that both info->va and info->mapped_size might be different from
 // the original address passed to gdr_pin_buffer due to aligning happening
 // in the kernel-mode driver
-struct gdr_info {
+typedef struct gdr_info_v2 {
     uint64_t va;
     uint64_t mapped_size;
     uint32_t page_size;
@@ -106,9 +113,12 @@ struct gdr_info {
     uint64_t physical;
     unsigned mapped:1;
     unsigned wc_mapping:1;
-};
-typedef struct gdr_info gdr_info_t;
-int gdr_get_info(gdr_t g, gdr_mh_t handle, gdr_info_t *info);
+    gdr_mapping_type_t mapping_type;
+} gdr_info_v2_t;
+typedef gdr_info_v2_t gdr_info_t;
+int gdr_get_info_v2(gdr_t g, gdr_mh_t handle, gdr_info_v2_t *info);
+
+#define gdr_get_info gdr_get_info_v2
 
 struct gdr_phybar {
     uint64_t idx;
@@ -147,6 +157,20 @@ int gdr_validate_phybar(gdr_t g, gdr_mh_t mh);
 
 // Query the version of gdrdrv driver
 int gdr_driver_get_version(gdr_t g, int *major, int *minor);
+
+typedef enum gdr_attr {
+    GDR_ATTR_USE_PERSISTENT_MAPPING = 1,    // Query whether gdrdrv uses persistent mapping
+                                            // or traditional (non-persistent) mapping.
+
+    // For internal use only
+    GDR_ATTR_MAX
+} gdr_attr_t;
+
+// Query the attribute of GDRCopy.
+//
+// This is for querying a system-wide attribute.
+// To query an attribute associated with each memory handle, use gdr_get_info instead.
+int gdr_get_attribute(gdr_t g, gdr_attr_t attr, int *v);
 
 #ifdef __cplusplus
 }

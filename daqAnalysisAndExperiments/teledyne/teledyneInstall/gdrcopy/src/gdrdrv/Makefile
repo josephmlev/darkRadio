@@ -18,7 +18,8 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 # DEALINGS IN THE SOFTWARE.
 
-NVIDIA_SRC_DIR ?= $(shell find /usr/src/nvidia-* -name "nv-p2p.h"|head -1|xargs dirname || echo "NVIDIA_DRIVER_MISSING")
+NVIDIA_SRC_DIR ?= $(shell { find /usr/src/kernel-modules/nvidia-* /usr/src/nvidia-* -name "nv-p2p.c" -print -quit | xargs dirname || echo "NVIDIA_DRIVER_MISSING"; } 2>/dev/null)
+NVIDIA_IS_OPENSOURCE ?= $(shell grep -r "MODULE_LICENSE" $(NVIDIA_SRC_DIR)/ | grep -s -q "GPL" && echo "y")
 
 ifneq ($(KERNELRELEASE),)
 
@@ -28,6 +29,10 @@ obj-m := nv-p2p-dummy.o
 obj-m += gdrdrv.o
 
 ccflags-y += -I$(NVIDIA_SRC_DIR)
+
+ifeq ($(NVIDIA_IS_OPENSOURCE),y)
+ccflags-y += -DGDRDRV_OPENSOURCE_NVIDIA
+endif
 
 else
 
@@ -43,13 +48,14 @@ REL_MAJOR  := $(word 1,$(REL))
 REL_MEDIUM := $(word 2,$(REL))
 REL_MINOR  := $(word 3,$(REL))
 
-all: gdrdrv.ko
+all: build
 
-gdrdrv.ko:
+build:
 	@ echo "Picking NVIDIA driver sources from NVIDIA_SRC_DIR=$(NVIDIA_SRC_DIR). If that does not meet your expectation, you might have a stale driver still around and that might cause problems."
+	@ echo "Setting NVIDIA_IS_OPENSOURCE=$(NVIDIA_IS_OPENSOURCE)"
 	@ $(MAKE) -C $(KDIR) $(MAKE_PARAMS) M=$(PWD) modules
 
-install: gdrdrv.ko
+install: build
 	[ -d $(DESTDIR)/$(MODULE_DESTDIR) ] || mkdir -p $(DESTDIR)/$(MODULE_DESTDIR)
 	cp gdrdrv.ko $(DESTDIR)/$(MODULE_DESTDIR)
 	if [ ! -n "$(DESTDIR)" ]; then $(DEPMOD) -r -ae $(KVER); fi
@@ -58,11 +64,11 @@ help:
 	$(MAKE) -C $(KDIR) M=$$PWD help
 
 clean:
-	rm -rf *.o .*.o.d *.ko* *.mod.* .*.cmd Module.symvers modules.order .tmp_versions/ *~ core .depend TAGS .cache.mk
+	rm -rf *.o .*.o.d *.ko* *.mod.* .*.cmd Module.symvers modules.order .tmp_versions/ *~ core .depend TAGS .cache.mk  *.mod
 
 TAGS:
 	find $(KERNELDIR) -follow -name \*.h -o -name \*.c  |xargs etags
 
-.PHONY: clean all help install default linksyms nvidia_src_dir
+.PHONY: clean all help install default linksyms nvidia_src_dir build
 
 endif

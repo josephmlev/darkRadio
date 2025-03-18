@@ -21,6 +21,8 @@ SOLUTION: find nvcc (which). make symbolic link from directory make file is look
 ###############
 Assuming you have a working system on a given machine
 
+YOU MUST BOOT FROM KERNEL 5.15.0-101 AND UBUNTU 22.04.1!!!!!!
+
 Errors:
 Error 1.
 > pyadq.error.ApiError: ADQ_SetParameters failed. Expected 56 , got -9. See log file.
@@ -30,7 +32,13 @@ Expecting external clock, clock is off
 Error 2.
 > Segmentation fault (core dumped)
 Usually caused by not running insmod.sh. 
+
+#### OUT OF DATE ####
 Solved by darkRadio/daqAnalysisAndExperiments/teledyne/teledyneInstall/gdrcopy$ ./insmod.sh
+#####################
+#Sep 10 2024, directory was changed to the following
+Solved by ~/temp/adq32_fwdaq_2023.1.1/TSPD_SDK_linux_2023.1/examples/libs/gdrcopy$ ./insmod.sh
+
 
 If ./insmod.sh returns chmod: `cannot access '/dev/gdrdrv': No such file or directory`:
 1) Run "make clean" in the gdrcopy folder

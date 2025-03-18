@@ -31,12 +31,13 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
-#include <iostream>
 #include <cuda.h>
-#include <cuda_runtime_api.h>
-#include <check.h>
 #include <errno.h>
 #include <sys/queue.h>
+
+#include <iostream>
+#include <string>
+#include <vector>
 
 using namespace std;
 
@@ -44,10 +45,12 @@ using namespace std;
 #include "gdrapi_internal.h"
 #include "gdrconfig.h"
 #include "common.hpp"
+#include "testsuites/testsuite.hpp"
 
 using namespace gdrcopy::test;
 
 volatile bool expecting_exception_signal = false;
+int g_dev_id = 0;
 
 void exception_signal_handle(int sig)
 {
@@ -58,12 +61,21 @@ void exception_signal_handle(int sig)
     print_dbg("Unexpectedly get exception signal");
 }
 
-void init_cuda(int dev_id)
+void init_cuda(int dev_id, bool waive_if_not_in_default_compute_mode = false)
 {
     CUdevice dev;
     CUcontext dev_ctx;
     ASSERTDRV(cuInit(0));
     ASSERTDRV(cuDeviceGet(&dev, dev_id));
+
+    if (waive_if_not_in_default_compute_mode) {
+        int mode;
+        ASSERTDRV(cuDeviceGetAttribute(&mode, CU_DEVICE_ATTRIBUTE_COMPUTE_MODE, dev));
+        if (mode != CU_COMPUTEMODE_DEFAULT) {
+            print_dbg("Waive this test because GPU is not in the default compute mode.\n");
+            exit(EXIT_WAIVED);
+        }
+    }
 
     ASSERTDRV(cuDevicePrimaryCtxRetain(&dev_ctx, dev));
     ASSERTDRV(cuCtxSetCurrent(dev_ctx));
@@ -200,7 +212,7 @@ void basic()
     expecting_exception_signal = false;
     MB();
 
-    init_cuda(0);
+    init_cuda(g_dev_id);
     filter_fn();
 
     const size_t _size = 256*1024+16;
@@ -226,27 +238,28 @@ void basic()
 
     ASSERTDRV(gfree_fn(&mhandle));
 
-    finalize_cuda(0);
+    finalize_cuda(g_dev_id);
 }
 
-BEGIN_GDRCOPY_TEST(basic_cumemalloc)
+GDRCOPY_TEST(basic_cumemalloc)
 {
     basic<gpu_mem_alloc, gpu_mem_free, null_filter>();
 }
-END_GDRCOPY_TEST
 
-BEGIN_GDRCOPY_TEST(basic_vmmalloc)
+#if CUDA_VERSION >= 11000
+// VMM with GDR support is available from CUDA 11.0
+GDRCOPY_TEST(basic_vmmalloc)
 {
     basic<gpu_vmm_alloc, gpu_vmm_free, vmm_filter>();
 }
-END_GDRCOPY_TEST
+#endif
 
-BEGIN_GDRCOPY_TEST(basic_with_tokens)
+GDRCOPY_TEST(basic_with_tokens)
 {
     expecting_exception_signal = false;
     MB();
 
-    init_cuda(0);
+    init_cuda(g_dev_id);
 
     const size_t _size = 256*1024+16;
     const size_t size = PAGE_ROUND_UP(_size, GPU_PAGE_SIZE);
@@ -275,9 +288,8 @@ BEGIN_GDRCOPY_TEST(basic_with_tokens)
 
     ASSERTDRV(gpu_mem_free(&mhandle));
 
-    finalize_cuda(0);
+    finalize_cuda(g_dev_id);
 }
-END_GDRCOPY_TEST
 
 /**
  * This unit test ensures that gdrcopy returns error when trying to map
@@ -288,12 +300,12 @@ END_GDRCOPY_TEST
  * for cuMemAlloc only.
  *
  */
-BEGIN_GDRCOPY_TEST(basic_unaligned_mapping)
+GDRCOPY_TEST(basic_unaligned_mapping)
 {
     expecting_exception_signal = false;
     MB();
 
-    init_cuda(0);
+    init_cuda(g_dev_id);
 
     // Allocate for a few bytes so that cuMemAlloc returns an unaligned address
     // in the next allocation. This behavior is observed in GPU Driver 410 and
@@ -389,9 +401,75 @@ BEGIN_GDRCOPY_TEST(basic_unaligned_mapping)
     for (int i = 0; i < cnt; ++i)
         ASSERTDRV(gpu_mem_free(&A_mhandle[i]));
 
-    finalize_cuda(0);
+    finalize_cuda(g_dev_id);
 }
-END_GDRCOPY_TEST
+
+/**
+ * This unit test is for catching issue-244
+ * (https://github.com/NVIDIA/gdrcopy/issues/244).  The bug occurs when the
+ * first buffer is smaller than the GPU page size and the second buffer is
+ * within the same page.  We expect to be able to map the first buffer. The
+ * second buffer cannot be mapped because it is not aligned.
+ *
+ * cuMemCreate + cuMemMap always return an aligned address. So, this test is
+ * for cuMemAlloc only.
+ *
+ */
+GDRCOPY_TEST(basic_small_buffers_mapping)
+{
+    expecting_exception_signal = false;
+    MB();
+
+    init_cuda(g_dev_id);
+
+    const size_t fa_size = GPU_PAGE_SIZE;
+    CUdeviceptr d_fa;
+    gpu_mem_handle_t fa_mhandle;
+    ASSERTDRV(gpu_mem_alloc(&fa_mhandle, fa_size, true, true));
+    d_fa = fa_mhandle.ptr;
+    print_dbg("Allocated d_fa=%#llx, size=%zu\n", d_fa, fa_size);
+
+    const size_t buffer_size = sizeof(uint64_t);
+    CUdeviceptr d_A[2];
+    d_A[0] = d_fa;
+    d_A[1] = d_fa + buffer_size;
+
+    gdr_t g = gdr_open_safe();
+
+    // Pin both buffers.
+    print_dbg("Try pinning d_A[0] and d_A[1].\n");
+    gdr_mh_t A_mh[2];
+    A_mh[0] = null_mh;
+    A_mh[1] = null_mh;
+
+    ASSERT_EQ(gdr_pin_buffer(g, d_A[0], buffer_size, 0, 0, &A_mh[0]), 0);
+    ASSERT_EQ(gdr_pin_buffer(g, d_A[1], buffer_size, 0, 0, &A_mh[1]), 0);
+    ASSERT_NEQ(A_mh[0], null_mh);
+    ASSERT_NEQ(A_mh[1], null_mh);
+
+    void *A_bar_ptr[2];
+    A_bar_ptr[0] = NULL;
+    A_bar_ptr[1] = NULL;
+
+    // Expect gdr_map to pass
+    ASSERT_EQ(gdr_map(g, A_mh[0], &A_bar_ptr[0], buffer_size), 0);
+    print_dbg("Mapping d_A[0] passed as expected.\n");
+
+    // Expect gdr_map to fail due to unaligned mapping
+    ASSERT_NEQ(gdr_map(g, A_mh[1], &A_bar_ptr[1], buffer_size), 0);
+    print_dbg("Mapping d_A[1] failed as expected.\n");
+
+    ASSERT_EQ(gdr_unmap(g, A_mh[0], A_bar_ptr[0], buffer_size), 0);
+
+    ASSERT_EQ(gdr_unpin_buffer(g, A_mh[0]), 0);
+    ASSERT_EQ(gdr_unpin_buffer(g, A_mh[1]), 0);
+
+    ASSERT_EQ(gdr_close(g), 0);
+
+    ASSERTDRV(gpu_mem_free(&fa_mhandle));
+
+    finalize_cuda(g_dev_id);
+}
 
 template <gpu_memalloc_fn_t galloc_fn, gpu_memfree_fn_t gfree_fn, filter_fn_t filter_fn>
 void data_validation()
@@ -399,7 +477,7 @@ void data_validation()
     expecting_exception_signal = false;
     MB();
 
-    init_cuda(0);
+    init_cuda(g_dev_id);
     filter_fn();
 
     const size_t _size = 256*1024+16;
@@ -414,11 +492,11 @@ void data_validation()
     ASSERTDRV(cuMemsetD8(d_A, 0xA5, size));
     ASSERTDRV(cuCtxSynchronize());
 
-    uint32_t *init_buf = new uint32_t[size];
-    uint32_t *copy_buf = new uint32_t[size];
+    uint32_t *init_buf = new uint32_t[size / sizeof(uint32_t)];
+    uint32_t *copy_buf = new uint32_t[size / sizeof(uint32_t)];
 
     init_hbuf_walking_bit(init_buf, size);
-    memset(copy_buf, 0xA5, size * sizeof(*copy_buf));
+    memset(copy_buf, 0xA5, size);
 
     gdr_t g = gdr_open_safe();
 
@@ -449,7 +527,7 @@ void data_validation()
     init_hbuf_walking_bit(buf_ptr, size);
     ASSERTDRV(cuMemcpyDtoH(copy_buf, d_ptr, size));
     ASSERT_EQ(compare_buf(init_buf, copy_buf, size), 0);
-    memset(copy_buf, 0xA5, size * sizeof(*copy_buf));
+    memset(copy_buf, 0xA5, size);
     ASSERTDRV(cuMemsetD8(d_A, 0xA5, size));
     ASSERTDRV(cuCtxSynchronize());
 
@@ -457,7 +535,7 @@ void data_validation()
     gdr_copy_to_mapping(mh, buf_ptr, init_buf, size);
     ASSERTDRV(cuMemcpyDtoH(copy_buf, d_ptr, size));
     ASSERT_EQ(compare_buf(init_buf, copy_buf, size), 0);
-    memset(copy_buf, 0xA5, size * sizeof(*copy_buf));
+    memset(copy_buf, 0xA5, size);
     ASSERTDRV(cuMemsetD8(d_A, 0xA5, size));
     ASSERTDRV(cuCtxSynchronize());
 
@@ -465,25 +543,70 @@ void data_validation()
     gdr_copy_to_mapping(mh, buf_ptr, init_buf, size);
     gdr_copy_from_mapping(mh, copy_buf, buf_ptr, size);
     ASSERT_EQ(compare_buf(init_buf, copy_buf, size), 0);
-    memset(copy_buf, 0xA5, size * sizeof(*copy_buf));
+    memset(copy_buf, 0xA5, size);
     ASSERTDRV(cuMemsetD8(d_A, 0xA5, size));
     ASSERTDRV(cuCtxSynchronize());
 
-    int extra_dwords = 5;
-    int extra_off = extra_dwords * sizeof(uint32_t);
-    print_dbg("check 4: gdr_copy_to_bar() + read back via gdr_copy_from_bar() + %d dwords offset\n", extra_dwords);
-    gdr_copy_to_mapping(mh, buf_ptr + extra_dwords, init_buf, size - extra_off);
-    gdr_copy_from_mapping(mh, copy_buf, buf_ptr + extra_dwords, size - extra_off);
-    ASSERT_EQ(compare_buf(init_buf, copy_buf, size - extra_off), 0);
-    memset(copy_buf, 0xA5, size * sizeof(*copy_buf));
-    ASSERTDRV(cuMemsetD8(d_A, 0xA5, size));
-    ASSERTDRV(cuCtxSynchronize());
+    int offset_array[] = { 1, 2, 3, 4, 5, 6, 7, 11, 129, 1023 };
 
-    extra_off = 11;
-    print_dbg("check 5: gdr_copy_to_bar() + read back via gdr_copy_from_bar() + %d bytes offset\n", extra_off);
-    gdr_copy_to_mapping(mh, (char*)buf_ptr + extra_off, init_buf, size - extra_off);
-    gdr_copy_from_mapping(mh, copy_buf, (char*)buf_ptr + extra_off, size - extra_off);
-    ASSERT_EQ(compare_buf(init_buf, copy_buf, size - extra_off), 0);
+    for (int i = 0; i < sizeof(offset_array) / sizeof(offset_array[0]); ++i) {
+        int extra_dwords = offset_array[i];
+        int extra_off = extra_dwords * sizeof(uint32_t);
+        print_dbg("check 4.%d: gdr_copy_to_bar() + read back via gdr_copy_from_bar() + %d dwords offset on mapping\n", i, extra_dwords);
+        gdr_copy_to_mapping(mh, buf_ptr + extra_dwords, init_buf, size - extra_off);
+        gdr_copy_from_mapping(mh, copy_buf, buf_ptr + extra_dwords, size - extra_off);
+        ASSERT_EQ(compare_buf(init_buf, copy_buf, size - extra_off), 0);
+        memset(copy_buf, 0xA5, size);
+        ASSERTDRV(cuMemsetD8(d_A, 0xA5, size));
+        ASSERTDRV(cuCtxSynchronize());
+
+        extra_off = offset_array[i];
+        print_dbg("check 5.%d: gdr_copy_to_bar() + read back via gdr_copy_from_bar() + %d bytes offset on mapping\n", i, extra_off);
+        gdr_copy_to_mapping(mh, (char*)buf_ptr + extra_off, init_buf, size - extra_off);
+        gdr_copy_from_mapping(mh, copy_buf, (char*)buf_ptr + extra_off, size - extra_off);
+        ASSERT_EQ(compare_buf(init_buf, copy_buf, size - extra_off), 0);
+        memset(copy_buf, 0xA5, size);
+        ASSERTDRV(cuMemsetD8(d_A, 0xA5, size));
+        ASSERTDRV(cuCtxSynchronize());
+
+        extra_dwords = offset_array[i];
+        extra_off = extra_dwords * sizeof(uint32_t);
+        print_dbg("check 6.%d: gdr_copy_to_bar() + read back via gdr_copy_from_bar() + %d dwords offset on host buffer\n", i, extra_dwords);
+        gdr_copy_to_mapping(mh, buf_ptr, init_buf + extra_dwords, size - extra_off);
+        gdr_copy_from_mapping(mh, copy_buf + extra_dwords, buf_ptr, size - extra_off);
+        ASSERT_EQ(compare_buf(init_buf + extra_dwords, copy_buf + extra_dwords, size - extra_off), 0);
+        memset(copy_buf, 0xA5, size);
+        ASSERTDRV(cuMemsetD8(d_A, 0xA5, size));
+        ASSERTDRV(cuCtxSynchronize());
+
+        extra_off = offset_array[i];
+        print_dbg("check 7.%d: gdr_copy_to_bar() + read back via gdr_copy_from_bar() + %d bytes offset on host buffer\n", i, extra_off);
+        gdr_copy_to_mapping(mh, buf_ptr, (char *)init_buf + extra_off, size - extra_off);
+        gdr_copy_from_mapping(mh, (char *)copy_buf + extra_off, buf_ptr, size - extra_off);
+        ASSERT_EQ(compare_buf((uint32_t *)((uintptr_t)init_buf + extra_off), (uint32_t *)((uintptr_t)copy_buf + extra_off), size - extra_off), 0);
+        memset(copy_buf, 0xA5, size);
+        ASSERTDRV(cuMemsetD8(d_A, 0xA5, size));
+        ASSERTDRV(cuCtxSynchronize());
+
+        extra_dwords = offset_array[i];
+        extra_off = extra_dwords * sizeof(uint32_t);
+        print_dbg("check 8.%d: gdr_copy_to_bar() + read back via gdr_copy_from_bar() + %d dwords offset on both mapping and host buffer\n", i, extra_dwords);
+        gdr_copy_to_mapping(mh, buf_ptr + extra_dwords, init_buf + extra_dwords, size - extra_off);
+        gdr_copy_from_mapping(mh, copy_buf + extra_dwords, buf_ptr + extra_dwords, size - extra_off);
+        ASSERT_EQ(compare_buf(init_buf + extra_dwords, copy_buf + extra_dwords, size - extra_off), 0);
+        memset(copy_buf, 0xA5, size);
+        ASSERTDRV(cuMemsetD8(d_A, 0xA5, size));
+        ASSERTDRV(cuCtxSynchronize());
+
+        extra_off = offset_array[i];
+        print_dbg("check 9.%d: gdr_copy_to_bar() + read back via gdr_copy_from_bar() + %d bytes offset on both mapping and host buffer\n", i, extra_off);
+        gdr_copy_to_mapping(mh, (char *)buf_ptr + extra_off, (char *)init_buf + extra_off, size - extra_off);
+        gdr_copy_from_mapping(mh, (char *)copy_buf + extra_off, (char *)buf_ptr + extra_off, size - extra_off);
+        ASSERT_EQ(compare_buf((uint32_t *)((uintptr_t)init_buf + extra_off), (uint32_t *)((uintptr_t)copy_buf + extra_off), size - extra_off), 0);
+        memset(copy_buf, 0xA5, size);
+        ASSERTDRV(cuMemsetD8(d_A, 0xA5, size));
+        ASSERTDRV(cuCtxSynchronize());
+    }
 
     print_dbg("unmapping\n");
     ASSERT_EQ(gdr_unmap(g, mh, bar_ptr, size), 0);
@@ -491,23 +614,35 @@ void data_validation()
     ASSERT_EQ(gdr_unpin_buffer(g, mh), 0);
 
     ASSERT_EQ(gdr_close(g), 0);
+    if (copy_buf) {
+        delete [] copy_buf;
+        copy_buf = NULL;
+    }
+    if (init_buf) {
+        delete [] init_buf;
+        init_buf = NULL;
+    }
 
     ASSERTDRV(gfree_fn(&mhandle));
 
-    finalize_cuda(0);
+    delete init_buf;
+    delete copy_buf;
+
+    finalize_cuda(g_dev_id);
 }
 
-BEGIN_GDRCOPY_TEST(data_validation_cumemalloc)
+GDRCOPY_TEST(data_validation_cumemalloc)
 {
     data_validation<gpu_mem_alloc, gpu_mem_free, null_filter>();
 }
-END_GDRCOPY_TEST
 
-BEGIN_GDRCOPY_TEST(data_validation_vmmalloc)
+#if CUDA_VERSION >= 11000
+// VMM with GDR support is available from CUDA 11.0
+GDRCOPY_TEST(data_validation_vmmalloc)
 {
     data_validation<gpu_vmm_alloc, gpu_vmm_free, vmm_filter>();
 }
-END_GDRCOPY_TEST
+#endif
 
 /**
  * This unit test ensures that accessing to gdr_map'ed region is not possible
@@ -538,7 +673,7 @@ void invalidation_access_after_gdr_close()
 
     int mydata = (rand() % 1000) + 1;
 
-    init_cuda(0);
+    init_cuda(g_dev_id);
     filter_fn();
 
     CUdeviceptr d_A;
@@ -586,20 +721,21 @@ void invalidation_access_after_gdr_close()
 
     ASSERT_NEQ(data_from_buf_ptr, mydata);
 
-    finalize_cuda(0);
+    finalize_cuda(g_dev_id);
 }
 
-BEGIN_GDRCOPY_TEST(invalidation_access_after_gdr_close_cumemalloc)
+GDRCOPY_TEST(invalidation_access_after_gdr_close_cumemalloc)
 {
     invalidation_access_after_gdr_close<gpu_mem_alloc, gpu_mem_free, null_filter>();
 }
-END_GDRCOPY_TEST
 
-BEGIN_GDRCOPY_TEST(invalidation_access_after_gdr_close_vmmalloc)
+#if CUDA_VERSION >= 11000
+// VMM with GDR support is available from CUDA 11.0
+GDRCOPY_TEST(invalidation_access_after_gdr_close_vmmalloc)
 {
     invalidation_access_after_gdr_close<gpu_vmm_alloc, gpu_vmm_free, vmm_filter>();
 }
-END_GDRCOPY_TEST
+#endif
 
 /**
  * This unit test ensures that accessing to gdr_map'ed region is not possible
@@ -630,7 +766,7 @@ void invalidation_access_after_free()
 
     int mydata = (rand() % 1000) + 1;
 
-    init_cuda(0);
+    init_cuda(g_dev_id);
     filter_fn();
 
     CUdeviceptr d_A;
@@ -642,6 +778,9 @@ void invalidation_access_after_free()
     ASSERTDRV(cuCtxSynchronize());
 
     gdr_t g = gdr_open_safe();
+
+    int use_persistent_mapping;
+    ASSERT_EQ(gdr_get_attribute(g, GDR_ATTR_USE_PERSISTENT_MAPPING, &use_persistent_mapping), 0);
 
     gdr_mh_t mh;
     CUdeviceptr d_ptr = d_A;
@@ -660,6 +799,7 @@ void invalidation_access_after_free()
     int off = d_ptr - info.va;
 
     volatile int *buf_ptr = (volatile int *)((char *)bar_ptr + off);
+    int data_from_buf_ptr = 0;
 
     // Write data
     print_dbg("Writing %d into buf_ptr[0]\n", mydata);
@@ -669,33 +809,41 @@ void invalidation_access_after_free()
     ASSERTDRV(gfree_fn(&mhandle));
 
     print_dbg("Trying to read buf_ptr[0] after gpuMemFree\n");
-    expecting_exception_signal = true;
+    if (use_persistent_mapping)
+        print_dbg("Expect that we could still read buf_ptr[0] because persistent mapping is supported and enabled\n");
+    else
+        print_dbg("Expect an error because we are using traditional mapping\n");
+    expecting_exception_signal = !use_persistent_mapping;
     MB();
-    int data_from_buf_ptr = buf_ptr[0];
+    data_from_buf_ptr = buf_ptr[0];
     MB();
     expecting_exception_signal = false;
     MB();
 
-    ASSERT_NEQ(data_from_buf_ptr, mydata);
+    if (use_persistent_mapping)
+        ASSERT_EQ(data_from_buf_ptr, mydata);
+    else
+        ASSERT_NEQ(data_from_buf_ptr, mydata);
 
     ASSERT_EQ(gdr_unmap(g, mh, bar_ptr, size), 0);
     ASSERT_EQ(gdr_unpin_buffer(g, mh), 0);
     ASSERT_EQ(gdr_close(g), 0);
 
-    finalize_cuda(0);
+    finalize_cuda(g_dev_id);
 }
 
-BEGIN_GDRCOPY_TEST(invalidation_access_after_free_cumemalloc)
+GDRCOPY_TEST(invalidation_access_after_free_cumemalloc)
 {
     invalidation_access_after_free<gpu_mem_alloc, gpu_mem_free, null_filter>();
 }
-END_GDRCOPY_TEST
 
-BEGIN_GDRCOPY_TEST(invalidation_access_after_free_vmmalloc)
+#if CUDA_VERSION >= 11000
+// VMM with GDR support is available from CUDA 11.0
+GDRCOPY_TEST(invalidation_access_after_free_vmmalloc)
 {
     invalidation_access_after_free<gpu_vmm_alloc, gpu_vmm_free, vmm_filter>();
 }
-END_GDRCOPY_TEST
+#endif
 
 
 /**
@@ -723,7 +871,7 @@ void invalidation_two_mappings()
 
     int mydata = (rand() % 1000) + 1;
 
-    init_cuda(0);
+    init_cuda(g_dev_id);
     filter_fn();
 
     CUdeviceptr d_A[2];
@@ -787,20 +935,21 @@ void invalidation_two_mappings()
 
     ASSERT_EQ(gdr_close(g), 0);
 
-    finalize_cuda(0);
+    finalize_cuda(g_dev_id);
 }
 
-BEGIN_GDRCOPY_TEST(invalidation_two_mappings_cumemalloc)
+GDRCOPY_TEST(invalidation_two_mappings_cumemalloc)
 {
     invalidation_two_mappings<gpu_mem_alloc, gpu_mem_free, null_filter>();
 }
-END_GDRCOPY_TEST
 
-BEGIN_GDRCOPY_TEST(invalidation_two_mappings_vmmalloc)
+#if CUDA_VERSION >= 11000
+// VMM with GDR support is available from CUDA 11.0
+GDRCOPY_TEST(invalidation_two_mappings_vmmalloc)
 {
     invalidation_two_mappings<gpu_vmm_alloc, gpu_vmm_free, vmm_filter>();
 }
-END_GDRCOPY_TEST
+#endif
 
 /**
  * This unit test is intended to check the security hole originated from not
@@ -840,6 +989,7 @@ void invalidation_fork_access_after_free()
     const size_t _size = sizeof(int) * 16;
     const size_t size = PAGE_ROUND_UP(_size, GPU_PAGE_SIZE);
     const char *myname;
+    bool error_in_first_signal = false;
 
     fflush(stdout);
     fflush(stderr);
@@ -862,9 +1012,10 @@ void invalidation_fork_access_after_free()
 
         do {
             print_dbg("%s: waiting for cont signal from parent\n", myname);
-            ASSERT_EQ(read(read_fd, &cont, sizeof(int)), sizeof(int));
+            // The parent process may waive out if the GPU compute mode is not default.
+            error_in_first_signal = (read(read_fd, &cont, sizeof(int)) != sizeof(int));
             print_dbg("%s: receive cont signal %d from parent\n", myname, cont);
-        } while (cont != 1);
+        } while (cont != 1 && !error_in_first_signal);
     }
     else {
         close(filedes_0[1]);
@@ -887,8 +1038,10 @@ void invalidation_fork_access_after_free()
     if (pid == 0)
         mydata += 10;
 
-    init_cuda(0);
+    init_cuda(g_dev_id, true);
     filter_fn();
+
+    ASSERT(!error_in_first_signal);
 
     CUdeviceptr d_A;
     gpu_mem_handle_t mhandle;
@@ -965,20 +1118,21 @@ void invalidation_fork_access_after_free()
 
     ASSERT_EQ(gdr_close(g), 0);
 
-    finalize_cuda(0);
+    finalize_cuda(g_dev_id);
 }
 
-BEGIN_GDRCOPY_TEST(invalidation_fork_access_after_free_cumemalloc)
+GDRCOPY_TEST(invalidation_fork_access_after_free_cumemalloc)
 {
     invalidation_fork_access_after_free<gpu_mem_alloc, gpu_mem_free, null_filter>();
 }
-END_GDRCOPY_TEST
 
-BEGIN_GDRCOPY_TEST(invalidation_fork_access_after_free_vmmalloc)
+#if CUDA_VERSION >= 11000
+// VMM with GDR support is available from CUDA 11.0
+GDRCOPY_TEST(invalidation_fork_access_after_free_vmmalloc)
 {
     invalidation_fork_access_after_free<gpu_vmm_alloc, gpu_vmm_free, vmm_filter>();
 }
-END_GDRCOPY_TEST
+#endif
 
 /**
  * This unit test makes sure that child processes cannot spy on the parent
@@ -1012,7 +1166,7 @@ void invalidation_fork_after_gdr_map()
     const size_t size = PAGE_ROUND_UP(_size, GPU_PAGE_SIZE);
     const char *myname;
 
-    init_cuda(0);
+    init_cuda(g_dev_id);
     filter_fn();
 
     CUdeviceptr d_A;
@@ -1127,20 +1281,21 @@ void invalidation_fork_after_gdr_map()
         ASSERT_EQ(gdr_close(g), 0);
     }
 
-    finalize_cuda(0);
+    finalize_cuda(g_dev_id);
 }
 
-BEGIN_GDRCOPY_TEST(invalidation_fork_after_gdr_map_cumemalloc)
+GDRCOPY_TEST(invalidation_fork_after_gdr_map_cumemalloc)
 {
     invalidation_fork_after_gdr_map<gpu_mem_alloc, gpu_mem_free, null_filter>();
 }
-END_GDRCOPY_TEST
 
-BEGIN_GDRCOPY_TEST(invalidation_fork_after_gdr_map_vmmalloc)
+#if CUDA_VERSION >= 11000
+// VMM with GDR support is available from CUDA 11.0
+GDRCOPY_TEST(invalidation_fork_after_gdr_map_vmmalloc)
 {
     invalidation_fork_after_gdr_map<gpu_vmm_alloc, gpu_vmm_free, vmm_filter>();
 }
-END_GDRCOPY_TEST
+#endif
 
 /**
  * This unit test ensures that child cannot do gdr_map on what parent has
@@ -1168,7 +1323,7 @@ void invalidation_fork_child_gdr_map_parent()
     const size_t size = PAGE_ROUND_UP(_size, GPU_PAGE_SIZE);
     const char *myname;
 
-    init_cuda(0);
+    init_cuda(g_dev_id);
     filter_fn();
 
     CUdeviceptr d_A;
@@ -1215,21 +1370,22 @@ void invalidation_fork_child_gdr_map_parent()
         ASSERTDRV(gfree_fn(&mhandle));
         ASSERT_EQ(gdr_close(g), 0);
 
-        finalize_cuda(0);
+        finalize_cuda(g_dev_id);
     }
 }
 
-BEGIN_GDRCOPY_TEST(invalidation_fork_child_gdr_map_parent_cumemalloc)
+GDRCOPY_TEST(invalidation_fork_child_gdr_map_parent_cumemalloc)
 {
     invalidation_fork_child_gdr_map_parent<gpu_mem_alloc, gpu_mem_free, null_filter>();
 }
-END_GDRCOPY_TEST
 
-BEGIN_GDRCOPY_TEST(invalidation_fork_child_gdr_map_parent_vmmalloc)
+#if CUDA_VERSION >= 11000
+// VMM with GDR support is available from CUDA 11.0
+GDRCOPY_TEST(invalidation_fork_child_gdr_map_parent_vmmalloc)
 {
     invalidation_fork_child_gdr_map_parent<gpu_vmm_alloc, gpu_vmm_free, vmm_filter>();
 }
-END_GDRCOPY_TEST
+#endif
 
 /**
  * This unit test verifies that gpuMemFree of one process will not
@@ -1297,7 +1453,7 @@ void invalidation_fork_map_and_free()
 
     int mydata = (rand() % 1000) + 1;
 
-    init_cuda(0);
+    init_cuda(g_dev_id, true);
     filter_fn();
 
     CUdeviceptr d_A;
@@ -1361,20 +1517,21 @@ void invalidation_fork_map_and_free()
 
     ASSERT_EQ(gdr_close(g), 0);
 
-    finalize_cuda(0);
+    finalize_cuda(g_dev_id);
 }
 
-BEGIN_GDRCOPY_TEST(invalidation_fork_map_and_free_cumemalloc)
+GDRCOPY_TEST(invalidation_fork_map_and_free_cumemalloc)
 {
     invalidation_fork_map_and_free<gpu_mem_alloc, gpu_mem_free, null_filter>();
 }
-END_GDRCOPY_TEST
 
-BEGIN_GDRCOPY_TEST(invalidation_fork_map_and_free_vmmalloc)
+#if CUDA_VERSION >= 11000
+// VMM with GDR support is available from CUDA 11.0
+GDRCOPY_TEST(invalidation_fork_map_and_free_vmmalloc)
 {
     invalidation_fork_map_and_free<gpu_vmm_alloc, gpu_vmm_free, vmm_filter>();
 }
-END_GDRCOPY_TEST
+#endif
 
 /**
  * Process A can intentionally share fd with Process B through unix socket.
@@ -1418,7 +1575,7 @@ void invalidation_unix_sock_shared_fd_gdr_pin_buffer()
 
     print_dbg("%s: Start\n", myname);
 
-    init_cuda(0);
+    init_cuda(g_dev_id, true);
     filter_fn();
 
     CUdeviceptr d_A;
@@ -1468,20 +1625,21 @@ void invalidation_unix_sock_shared_fd_gdr_pin_buffer()
         ASSERT_EQ(child_exit_status, EXIT_SUCCESS);
     }
 
-    finalize_cuda(0);
+    finalize_cuda(g_dev_id);
 }
 
-BEGIN_GDRCOPY_TEST(invalidation_unix_sock_shared_fd_gdr_pin_buffer_cumemalloc)
+GDRCOPY_TEST(invalidation_unix_sock_shared_fd_gdr_pin_buffer_cumemalloc)
 {
     invalidation_unix_sock_shared_fd_gdr_pin_buffer<gpu_mem_alloc, gpu_mem_free, null_filter>();
 }
-END_GDRCOPY_TEST
 
-BEGIN_GDRCOPY_TEST(invalidation_unix_sock_shared_fd_gdr_pin_buffer_vmmalloc)
+#if CUDA_VERSION >= 11000
+// VMM with GDR support is available from CUDA 11.0
+GDRCOPY_TEST(invalidation_unix_sock_shared_fd_gdr_pin_buffer_vmmalloc)
 {
     invalidation_unix_sock_shared_fd_gdr_pin_buffer<gpu_vmm_alloc, gpu_vmm_free, vmm_filter>();
 }
-END_GDRCOPY_TEST
+#endif
 
 /**
  * Process A can intentionally share fd with Process B through unix socket.
@@ -1549,7 +1707,7 @@ void invalidation_unix_sock_shared_fd_gdr_map()
         write_fd = filedes_1[1];
     }
 
-    init_cuda(0);
+    init_cuda(g_dev_id, true);
     filter_fn();
 
     CUdeviceptr d_A;
@@ -1619,20 +1777,21 @@ void invalidation_unix_sock_shared_fd_gdr_map()
         ASSERT_EQ(child_exit_status, EXIT_SUCCESS);
     }
 
-    finalize_cuda(0);
+    finalize_cuda(g_dev_id);
 }
 
-BEGIN_GDRCOPY_TEST(invalidation_unix_sock_shared_fd_gdr_map_cumemalloc)
+GDRCOPY_TEST(invalidation_unix_sock_shared_fd_gdr_map_cumemalloc)
 {
     invalidation_unix_sock_shared_fd_gdr_map<gpu_mem_alloc, gpu_mem_free, null_filter>();
 }
-END_GDRCOPY_TEST
 
-BEGIN_GDRCOPY_TEST(invalidation_unix_sock_shared_fd_gdr_map_vmmalloc)
+#if CUDA_VERSION >= 11000
+// VMM with GDR support is available from CUDA 11.0
+GDRCOPY_TEST(invalidation_unix_sock_shared_fd_gdr_map_vmmalloc)
 {
     invalidation_unix_sock_shared_fd_gdr_map<gpu_vmm_alloc, gpu_vmm_free, vmm_filter>();
 }
-END_GDRCOPY_TEST
+#endif
 
 /**
  * Although the use of P2P tokens has been marked as depricated, CUDA still
@@ -1650,7 +1809,7 @@ END_GDRCOPY_TEST
  * 3.C Child: Attempt gdr_pin_buffer with the ptr and tokens. We expect that
  *     gdr_pin_buffer would fail
  */
-BEGIN_GDRCOPY_TEST(invalidation_fork_child_gdr_pin_parent_with_tokens)
+GDRCOPY_TEST(invalidation_fork_child_gdr_pin_parent_with_tokens)
 {
     expecting_exception_signal = false;
     MB();
@@ -1706,7 +1865,7 @@ BEGIN_GDRCOPY_TEST(invalidation_fork_child_gdr_pin_parent_with_tokens)
         read_fd = filedes_0[0];
         write_fd = filedes_1[1];
 
-        init_cuda(0);
+        init_cuda(g_dev_id);
 
         gpu_mem_handle_t mhandle;
         ASSERTDRV(gpu_mem_alloc(&mhandle, size, true, true));
@@ -1725,10 +1884,9 @@ BEGIN_GDRCOPY_TEST(invalidation_fork_child_gdr_pin_parent_with_tokens)
 
         ASSERTDRV(gpu_mem_free(&mhandle));
 
-        finalize_cuda(0);
+        finalize_cuda(g_dev_id);
     }
 }
-END_GDRCOPY_TEST
 
 
 struct mt_test_info {
@@ -1801,7 +1959,7 @@ void basic_child_thread_pins_buffer()
     memset(&t, 0, sizeof(mt_test_info));
     t.size = PAGE_ROUND_UP(_size, GPU_PAGE_SIZE);
 
-    init_cuda(0);
+    init_cuda(g_dev_id);
     filter_fn();
 
     t.gfree_fn = gfree_fn;
@@ -1846,107 +2004,87 @@ void basic_child_thread_pins_buffer()
         ASSERT_EQ(pthread_create(&tid, NULL, thr_fun_cleanup, &t), 0);
         ASSERT_EQ(pthread_join(tid, NULL), 0);
     }
-    finalize_cuda(0);
+    finalize_cuda(g_dev_id);
 }
 
-BEGIN_GDRCOPY_TEST(basic_child_thread_pins_buffer_cumemalloc)
+GDRCOPY_TEST(basic_child_thread_pins_buffer_cumemalloc)
 {
     basic_child_thread_pins_buffer<gpu_mem_alloc, gpu_mem_free, null_filter>();
 }
-END_GDRCOPY_TEST
 
-BEGIN_GDRCOPY_TEST(basic_child_thread_pins_buffer_vmmalloc)
+#if CUDA_VERSION >= 11000
+// VMM with GDR support is available from CUDA 11.0
+GDRCOPY_TEST(basic_child_thread_pins_buffer_vmmalloc)
 {
     basic_child_thread_pins_buffer<gpu_vmm_alloc, gpu_vmm_free, vmm_filter>();
 }
-END_GDRCOPY_TEST
+#endif
 
+void print_usage(const char *path)
+{
+    cout << "Usage: " << path << " [-h][-v][-s][-l][-t <test>]" << endl;
+    cout << endl;
+    cout << "Options:" << endl;
+    cout << "   -h              Print this help text." << endl;
+    cout << "   -v              Increase report verbosity." << endl;
+    cout << "   -s              DON'T print summary report." << endl;
+    cout << "   -l              List all available tests." << endl;
+    cout << "   -t <test>       Run the specified test only." << endl;
+    cout << "   -d <gpu>        GPU ID (default: " << g_dev_id << ")" << endl;
+}
+
+void print_all_tests()
+{
+    vector<string> tests;
+    gdrcopy::testsuite::get_all_test_names(tests);
+    cout << "List of all available tests:" << endl;
+    for (vector<string>::iterator it = tests.begin(); it != tests.end(); ++it)
+        cout << "    " << *it << endl;
+}
 
 int main(int argc, char *argv[])
 {
     int c;
+    bool print_summary = true;
+    int status;
+    vector<string> tests;
 
-    while ((c = getopt(argc, argv, "vh")) != -1) {
+    while ((c = getopt(argc, argv, "hvslt:d:")) != -1) {
         switch (c) {
+            case 'h':
+                print_usage(argv[0]);
+                return EXIT_SUCCESS;
             case 'v':
                 gdrcopy::test::print_dbg_msg = true;
                 break;
-            case 'h':
-                cout << "Usage: " << argv[0] << " [-v] [-h]" << endl;
+            case 's':
+                print_summary = false;
+                break;
+            case 'l':
+                print_all_tests();
                 return EXIT_SUCCESS;
-            case '?':
-                if (isprint(optopt))
-                    fprintf(stderr, "Unknown option `-%c'.\n", optopt);
-                else
-                    fprintf(stderr,
-                            "Unknown option character `\\x%x'.\n",
-                            optopt);
-                return EXIT_FAILURE;
+            case 't':
+                tests.emplace_back(optarg);
+                break;
+            case 'd':
+                g_dev_id = strtol(optarg, NULL, 0);
+                break;
             default:
-                abort();
+                cerr << "Invalid option" << endl;
+                return EXIT_FAILURE;
         }
     }
 
-    Suite *s = suite_create("Sanity");
+    if (tests.size() > 0)
+        status = gdrcopy::testsuite::run_tests(print_summary, tests);
+    else
+        status = gdrcopy::testsuite::run_all_tests(print_summary);
+    if (status) {
+        cerr << "Error: Encountered an error or a test failure with status=" << status << endl;
+        return EXIT_FAILURE;
+    }
 
-    TCase *tc_basic = tcase_create("Basic");
-    TCase *tc_data_validation = tcase_create("Data Validation");
-    TCase *tc_invalidation = tcase_create("Invalidation");
-
-    SRunner *sr = srunner_create(s);
-
-    int nf;
-
-    suite_add_tcase(s, tc_basic);
-    suite_add_tcase(s, tc_data_validation);
-    suite_add_tcase(s, tc_invalidation);
-
-    tcase_add_test(tc_basic, basic_cumemalloc);
-    tcase_add_test(tc_basic, basic_with_tokens);
-    tcase_add_test(tc_basic, basic_unaligned_mapping);
-    tcase_add_test(tc_basic, basic_child_thread_pins_buffer_cumemalloc);
-
-    tcase_add_test(tc_data_validation, data_validation_cumemalloc);
-
-    tcase_add_test(tc_invalidation, invalidation_access_after_gdr_close_cumemalloc);
-    tcase_add_test(tc_invalidation, invalidation_access_after_free_cumemalloc);
-    tcase_add_test(tc_invalidation, invalidation_two_mappings_cumemalloc);
-    tcase_add_test(tc_invalidation, invalidation_fork_access_after_free_cumemalloc);
-    tcase_add_test(tc_invalidation, invalidation_fork_after_gdr_map_cumemalloc);
-    tcase_add_test(tc_invalidation, invalidation_fork_child_gdr_map_parent_cumemalloc);
-    tcase_add_test(tc_invalidation, invalidation_fork_map_and_free_cumemalloc);
-    tcase_add_test(tc_invalidation, invalidation_unix_sock_shared_fd_gdr_pin_buffer_cumemalloc);
-    tcase_add_test(tc_invalidation, invalidation_unix_sock_shared_fd_gdr_map_cumemalloc);
-    tcase_add_test(tc_invalidation, invalidation_fork_child_gdr_pin_parent_with_tokens);
-
-
-    #if CUDA_VERSION >= 11000
-    // VMM with GDR support is available from CUDA 11.0
-    tcase_add_test(tc_basic, basic_vmmalloc);
-    tcase_add_test(tc_basic, basic_child_thread_pins_buffer_vmmalloc);
-
-    tcase_add_test(tc_data_validation, data_validation_vmmalloc);
-
-    tcase_add_test(tc_invalidation, invalidation_access_after_gdr_close_vmmalloc);
-    tcase_add_test(tc_invalidation, invalidation_access_after_free_vmmalloc);
-    tcase_add_test(tc_invalidation, invalidation_two_mappings_vmmalloc);
-    tcase_add_test(tc_invalidation, invalidation_fork_access_after_free_vmmalloc);
-    tcase_add_test(tc_invalidation, invalidation_fork_after_gdr_map_vmmalloc);
-    tcase_add_test(tc_invalidation, invalidation_fork_child_gdr_map_parent_vmmalloc);
-    tcase_add_test(tc_invalidation, invalidation_fork_map_and_free_vmmalloc);
-    tcase_add_test(tc_invalidation, invalidation_unix_sock_shared_fd_gdr_pin_buffer_vmmalloc);
-    tcase_add_test(tc_invalidation, invalidation_unix_sock_shared_fd_gdr_map_vmmalloc);
-    #endif
-
-    tcase_set_timeout(tc_basic, 60);
-    tcase_set_timeout(tc_data_validation, 60);
-    tcase_set_timeout(tc_invalidation, 180);
-
-    srunner_run_all(sr, CK_ENV);
-    nf = srunner_ntests_failed(sr);
-    srunner_free(sr);
-
-    return nf == 0 ? 0 : 1;
+    return EXIT_SUCCESS;
 }
 
 

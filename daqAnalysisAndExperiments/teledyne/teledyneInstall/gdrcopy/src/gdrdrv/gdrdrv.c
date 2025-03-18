@@ -36,9 +36,17 @@
 #include <linux/sched.h>
 #include <linux/timex.h>
 #include <linux/timer.h>
+#include <linux/pci.h>
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(4,11,0)
 #include <linux/sched/signal.h>
+#endif
+
+/**
+ * This is needed for round_up()
+ */
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 11, 0)
+#include <linux/math.h>
 #endif
 
 /**
@@ -53,8 +61,14 @@
 
 //-----------------------------------------------------------------------------
 
+static const unsigned int GDRDRV_BF3_PCI_ROOT_DEV_VENDOR_ID = 0x15b3;
+static const unsigned int GDRDRV_BF3_PCI_ROOT_DEV_DEVICE_ID[2] = {0xa2da, 0xa2db};
+
+//-----------------------------------------------------------------------------
+
 static int gdrdrv_major = 0;
 static int gdrdrv_cpu_can_cache_gpu_mappings = 0;
+static int gdrdrv_cpu_must_use_device_mapping = 0;
 
 //-----------------------------------------------------------------------------
 
@@ -86,6 +100,19 @@ void address_space_init_once(struct address_space *mapping)
 }
 #endif
 
+
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6,3,0)
+/**
+ * This API requires Linux kernel 6.3.
+ * See https://github.com/torvalds/linux/commit/bc292ab00f6c7a661a8a605c714e8a148f629ef6
+ */
+static inline void vm_flags_set(struct vm_area_struct *vma, vm_flags_t flags)
+{
+    vma->vm_flags |= flags;
+}
+#endif
+
+
 #if defined(CONFIG_X86_64) || defined(CONFIG_X86_32)
 static inline pgprot_t pgprot_modify_writecombine(pgprot_t old_prot)
 {
@@ -93,6 +120,12 @@ static inline pgprot_t pgprot_modify_writecombine(pgprot_t old_prot)
     pgprot_val(new_prot) &= ~(_PAGE_PSE | _PAGE_PCD | _PAGE_PWT);
     new_prot = __pgprot(pgprot_val(new_prot) | _PAGE_PWT);
     return new_prot;
+}
+static inline pgprot_t pgprot_modify_device(pgprot_t old_prot)
+{
+    // Device mapping should never be called on x86
+    BUG_ON(1);
+    return old_prot;
 }
 #define get_tsc_khz() cpu_khz // tsc_khz
 static inline int gdr_pfn_is_ram(unsigned long pfn)
@@ -109,15 +142,22 @@ static inline pgprot_t pgprot_modify_writecombine(pgprot_t old_prot)
 {
     return pgprot_writecombine(old_prot);
 }
+static inline pgprot_t pgprot_modify_device(pgprot_t old_prot)
+{
+    // Device mapping should never be called on PPC64
+    BUG_ON(1);
+    return old_prot;
+}
 #define get_tsc_khz() (get_cycles()/1000) // dirty hack
 static inline int gdr_pfn_is_ram(unsigned long pfn)
 {
     // catch platforms, e.g. POWER8, POWER9 with GPUs not attached via NVLink,
     // where GPU memory is non-coherent
-#if 0
-    // unfortunately this module is MIT, and page_is_ram is GPL-only.
+#ifdef GDRDRV_OPENSOURCE_NVIDIA
+    // page_is_ram is a GPL symbol. We can use it with the open flavor of NVIDIA driver.
     return page_is_ram(pfn);
 #else
+    // For the proprietary flavor, we approximate using the following algorithm.
     unsigned long start = pfn << PAGE_SHIFT;
     unsigned long mask_47bits = (1UL<<47)-1;
     return gdrdrv_cpu_can_cache_gpu_mappings && (0 == (start & ~mask_47bits));
@@ -129,12 +169,19 @@ static inline pgprot_t pgprot_modify_writecombine(pgprot_t old_prot)
 {
     return pgprot_writecombine(old_prot);
 }
+static inline pgprot_t pgprot_modify_device(pgprot_t old_prot)
+{
+    return pgprot_device(old_prot);
+}
 static inline int gdr_pfn_is_ram(unsigned long pfn)
 {
-    // page_is_ram is GPL-only. Regardless there are no ARM64
-    // platforms supporting coherent GPU mappings, so we would not use
-    // this function anyway.
+#ifdef GDRDRV_OPENSOURCE_NVIDIA
+    // page_is_ram is a GPL symbol. We can use it with the open flavor.
+    return page_is_ram(pfn);
+#else
+    // For the proprietary flavor of NVIDIA driver, we use WC mapping.
     return 0;
+#endif
 }
 
 #else
@@ -179,6 +226,12 @@ static inline int gdr_pfn_is_ram(unsigned long pfn)
     NVIDIA_P2P_VERSION_COMPATIBLE(p, NVIDIA_P2P_PAGE_TABLE_VERSION)
 #endif
 
+#ifdef GDRDRV_OPENSOURCE_NVIDIA
+#define GDRDRV_BUILT_FOR_NVIDIA_FLAVOR_STRING "opensource"
+#else
+#define GDRDRV_BUILT_FOR_NVIDIA_FLAVOR_STRING "proprietary"
+#endif
+
 //-----------------------------------------------------------------------------
 
 #define DEVNAME "gdrdrv"
@@ -203,16 +256,20 @@ static int info_enabled = 0;
 #define gdr_err(FMT, ARGS...)                               \
     gdr_msg(KERN_DEBUG, FMT, ## ARGS)
 
+static int use_persistent_mapping = 0;
+
 //-----------------------------------------------------------------------------
 
 MODULE_AUTHOR("drossetti@nvidia.com");
-MODULE_LICENSE("MIT");
-MODULE_DESCRIPTION("GDRCopy kernel-mode driver");
+MODULE_LICENSE("Dual MIT/GPL");
+MODULE_DESCRIPTION("GDRCopy kernel-mode driver built for " GDRDRV_BUILT_FOR_NVIDIA_FLAVOR_STRING " NVIDIA driver");
 MODULE_VERSION(GDRDRV_VERSION_STRING);
 module_param(dbg_enabled, int, 0000);
 MODULE_PARM_DESC(dbg_enabled, "enable debug tracing");
 module_param(info_enabled, int, 0000);
 MODULE_PARM_DESC(info_enabled, "enable info tracing");
+module_param(use_persistent_mapping, int, 0000);
+MODULE_PARM_DESC(user_persistent_mapping, "use persistent mapping instead of traditional (non-persistent) mapping");
 
 //-----------------------------------------------------------------------------
 
@@ -222,11 +279,11 @@ MODULE_PARM_DESC(info_enabled, "enable info tracing");
 #define GPU_PAGE_MASK    (~GPU_PAGE_OFFSET)
 
 #ifndef MAX
-#define MAX(a,b) ((a) > (b) ? a : b)
+#define MAX(a,b) ((a) > (b) ? (a) : (b))
 #endif
 
 #ifndef MIN
-#define MIN(a,b) ((a) < (b) ? a : b)
+#define MIN(a,b) ((a) < (b) ? (a) : (b))
 #endif
 
 
@@ -246,13 +303,12 @@ struct gdr_mr {
     struct list_head node;
     gdr_hnd_t handle;
     u64 offset;
-    u64 length;
     u64 p2p_token;
     u32 va_space;
     u32 page_size;
     u64 va;
     u64 mapped_size;
-    enum { GDR_MR_NONE, GDR_MR_WC, GDR_MR_CACHING } cpu_mapping_type;
+    gdr_mr_type_t cpu_mapping_type;
     nvidia_p2p_page_table_t *page_table;
     int cb_flag;
     cycles_t tm_cycles;
@@ -270,15 +326,6 @@ typedef struct gdr_mr gdr_mr_t;
 static int gdr_mr_is_mapped(gdr_mr_t *mr)
 {
     return mr->cpu_mapping_type != GDR_MR_NONE;
-}
-
-/**
- * Prerequisite:
- * - mr must be protected by down_read(mr->sem) or stronger.
- */
-static int gdr_mr_is_wc_mapping(gdr_mr_t *mr)
-{
-    return (mr->cpu_mapping_type == GDR_MR_WC) ? 1 : 0;
 }
 
 static inline void gdrdrv_zap_vma(struct address_space *mapping, struct vm_area_struct *vma)
@@ -326,6 +373,8 @@ struct gdr_info {
 };
 typedef struct gdr_info gdr_info_t;
 
+//-----------------------------------------------------------------------------
+
 static int gdrdrv_check_same_process(gdr_info_t *info, struct task_struct *tsk)
 {
     int same_proc;
@@ -337,6 +386,24 @@ static int gdrdrv_check_same_process(gdr_info_t *info, struct task_struct *tsk)
                 info->tgid, task_tgid(tsk));
     }
     return same_proc;
+}
+
+//-----------------------------------------------------------------------------
+
+static inline int gdr_support_persistent_mapping(void)
+{
+#if defined(NVIDIA_P2P_CAP_GET_PAGES_PERSISTENT_API)
+    return 1;
+#elif defined(NVIDIA_P2P_CAP_PERSISTENT_PAGES)
+    return !!(nvidia_p2p_cap_persistent_pages);
+#else
+    return 0;
+#endif
+}
+
+static inline int gdr_use_persistent_mapping(void)
+{
+    return use_persistent_mapping && gdr_support_persistent_mapping();
 }
 
 //-----------------------------------------------------------------------------
@@ -414,10 +481,24 @@ static void gdr_free_mr_unlocked(gdr_mr_t *mr)
         up_write(&mr->sem);
 
         // In case gdrdrv_get_pages_free_callback is inflight, nvidia_p2p_put_pages will be blocked.
+        #ifdef NVIDIA_P2P_CAP_GET_PAGES_PERSISTENT_API
+        if (gdr_use_persistent_mapping()) {
+            status = nvidia_p2p_put_pages_persistent(mr->va, page_table, 0);
+            if (status) {
+                gdr_err("nvidia_p2p_put_pages_persistent error %d\n", status);
+            }
+        } else {
+            status = nvidia_p2p_put_pages(mr->p2p_token, mr->va_space, mr->va, page_table);
+            if (status) {
+                gdr_err("nvidia_p2p_put_pages error %d, async callback may have been fired\n", status);
+            }
+        }
+        #else
         status = nvidia_p2p_put_pages(mr->p2p_token, mr->va_space, mr->va, page_table);
         if (status) {
             gdr_err("nvidia_p2p_put_pages error %d, async callback may have been fired\n", status);
         }
+        #endif
     } else {
         gdr_dbg("invoking unpin_buffer while callback has already been fired\n");
 
@@ -547,6 +628,8 @@ static gdr_hnd_t gdrdrv_handle_from_off(unsigned long off)
 
 //-----------------------------------------------------------------------------
 
+typedef void (*gdr_free_callback_fn_t)(void *);
+
 static void gdrdrv_get_pages_free_callback(void *data)
 {
     gdr_mr_t *mr = data;
@@ -596,7 +679,7 @@ static inline int gdr_generate_mr_handle(gdr_info_t *info, gdr_mr_t *mr)
     if (unlikely(info->next_handle_overflow))
         return -1;
 
-    next_handle = info->next_handle + (mr->mapped_size >> PAGE_SHIFT);
+    next_handle = info->next_handle + MAX(1, mr->mapped_size >> PAGE_SHIFT);
 
     // The next handle will be overflowed, so we mark it.
     if (unlikely((next_handle & ((gdr_hnd_t)(-1) >> PAGE_SHIFT)) < info->next_handle))
@@ -618,6 +701,7 @@ static int __gdrdrv_pin_buffer(gdr_info_t *info, u64 addr, u64 size, u64 p2p_tok
     u64 page_virt_end;
     size_t rounded_size;
     gdr_mr_t *mr = NULL;
+    gdr_free_callback_fn_t free_callback_fn;
     #ifndef CONFIG_ARM64
     cycles_t ta, tb;
     #endif
@@ -630,25 +714,30 @@ static int __gdrdrv_pin_buffer(gdr_info_t *info, u64 addr, u64 size, u64 p2p_tok
     }
     memset(mr, 0, sizeof(*mr));
 
-    // do proper alignment, as required by RM
+    // do proper alignment, as required by NVIDIA driver.
+    // align both size and addr as it is a requirement of nvidia_p2p_get_pages* API
     page_virt_start  = addr & GPU_PAGE_MASK;
-    page_virt_end    = addr + size - 1;
-    rounded_size     = page_virt_end - page_virt_start + 1;
+    page_virt_end    = round_up((addr + size), GPU_PAGE_SIZE);
+    rounded_size     = page_virt_end - page_virt_start;
 
     init_rwsem(&mr->sem);
 
+    free_callback_fn = gdr_use_persistent_mapping() ? NULL : gdrdrv_get_pages_free_callback;
+
     mr->offset       = addr & GPU_PAGE_OFFSET;
-    mr->length       = size;
-    mr->p2p_token    = p2p_token;
-    mr->va_space     = va_space;
+    if (free_callback_fn) {
+        mr->p2p_token    = p2p_token;
+        mr->va_space     = va_space;
+    } else {
+        // Token cannot be used with persistent mapping.
+        mr->p2p_token    = 0;
+        mr->va_space     = 0;
+    }
     mr->va           = page_virt_start;
     mr->mapped_size  = rounded_size;
     mr->cpu_mapping_type = GDR_MR_NONE;
     mr->page_table   = NULL;
     mr->cb_flag      = 0;
-
-    gdr_info("invoking nvidia_p2p_get_pages(va=0x%llx len=%lld p2p_tok=%llx va_tok=%x)\n",
-             mr->va, mr->mapped_size, mr->p2p_token, mr->va_space);
 
     #ifndef CONFIG_ARM64
     ta = get_cycles();
@@ -660,14 +749,30 @@ static int __gdrdrv_pin_buffer(gdr_info_t *info, u64 addr, u64 size, u64 p2p_tok
     // We take this semaphore to prevent race with gdrdrv_get_pages_free_callback.
     down_write(&mr->sem);
 
+    #ifdef NVIDIA_P2P_CAP_GET_PAGES_PERSISTENT_API
+    if (free_callback_fn) {
+        ret = nvidia_p2p_get_pages(mr->p2p_token, mr->va_space, mr->va, mr->mapped_size, &page_table,
+                                   free_callback_fn, mr);
+        gdr_info("invoking nvidia_p2p_get_pages(va=0x%llx len=%lld p2p_tok=%llx va_tok=%x callback=%px)\n",
+                 mr->va, mr->mapped_size, mr->p2p_token, mr->va_space, free_callback_fn);
+    } else {
+        ret = nvidia_p2p_get_pages_persistent(mr->va, mr->mapped_size, &page_table, 0);
+        gdr_info("invoking nvidia_p2p_get_pages_persistent(va=0x%llx len=%lld)\n",
+                 mr->va, mr->mapped_size);
+    }
+    #else
     ret = nvidia_p2p_get_pages(mr->p2p_token, mr->va_space, mr->va, mr->mapped_size, &page_table,
-                               gdrdrv_get_pages_free_callback, mr);
+                               free_callback_fn, mr);
+    gdr_info("invoking nvidia_p2p_get_pages(va=0x%llx len=%lld p2p_tok=%llx va_tok=%x callback=%px)\n",
+             mr->va, mr->mapped_size, mr->p2p_token, mr->va_space, free_callback_fn);
+    #endif
+
     #ifndef CONFIG_ARM64
     tb = get_cycles();
     #endif
     if (ret < 0) {
-        gdr_err("nvidia_p2p_get_pages(va=%llx len=%lld p2p_token=%llx va_space=%x) failed [ret = %d]\n",
-                mr->va, mr->mapped_size, mr->p2p_token, mr->va_space, ret);
+        gdr_err("nvidia_p2p_get_pages(va=%llx len=%lld p2p_token=%llx va_space=%x callback=%px) failed [ret = %d]\n",
+                mr->va, mr->mapped_size, mr->p2p_token, mr->va_space, free_callback_fn, ret);
         goto out;
     }
     mr->page_table = page_table;
@@ -893,13 +998,52 @@ static int gdrdrv_get_info(gdr_info_t *info, void __user *_params)
         goto out;
     }
 
-    params.va          = mr->va;
-    params.mapped_size = mr->mapped_size;
-    params.page_size   = mr->page_size;
-    params.tm_cycles   = mr->tm_cycles;
-    params.tsc_khz     = mr->tsc_khz;
-    params.mapped      = gdr_mr_is_mapped(mr);
-    params.wc_mapping  = gdr_mr_is_wc_mapping(mr);
+    params.va           = mr->va;
+    params.mapped_size  = mr->mapped_size;
+    params.page_size    = mr->page_size;
+    params.tm_cycles    = mr->tm_cycles;
+    params.tsc_khz      = mr->tsc_khz;
+    params.mapped       = gdr_mr_is_mapped(mr);
+    params.wc_mapping   = (mr->cpu_mapping_type == GDR_MR_WC);
+    params.physical    = mr->page_table->pages[0]->physical_address;
+
+    gdr_put_mr_read(mr);
+
+    if (copy_to_user(_params, &params, sizeof(params))) {
+        gdr_err("copy_to_user failed on user pointer 0x%px\n", _params);
+        ret = -EFAULT;
+    }
+ out:
+    return ret;
+}
+
+//-----------------------------------------------------------------------------
+
+static int gdrdrv_get_info_v2(gdr_info_t *info, void __user *_params)
+{
+    struct GDRDRV_IOC_GET_INFO_V2_PARAMS params = {0};
+    int ret = 0;
+    gdr_mr_t *mr = NULL;
+
+    if (copy_from_user(&params, _params, sizeof(params))) {
+        gdr_err("copy_from_user failed on user pointer 0x%px\n", _params);
+        ret = -EFAULT;
+        goto out;
+    }
+
+    mr = gdr_get_mr_from_handle_read(info, params.handle);
+    if (NULL == mr) {
+        gdr_err("unexpected handle %llx in get_cb_flag\n", params.handle);
+        ret = -EINVAL;
+        goto out;
+    }
+
+    params.va           = mr->va;
+    params.mapped_size  = mr->mapped_size;
+    params.page_size    = mr->page_size;
+    params.tm_cycles    = mr->tm_cycles;
+    params.tsc_khz      = mr->tsc_khz;
+    params.mapping_type = mr->cpu_mapping_type;
     params.physical    = mr->page_table->pages[0]->physical_address;
 
     gdr_put_mr_read(mr);
@@ -945,6 +1089,36 @@ static int gdrdrv_get_phybar(gdr_info_t *info, void __user *_params)
         ret = -EFAULT;
     }
 
+    return ret;
+}
+
+//-----------------------------------------------------------------------------
+
+static int gdrdrv_get_attr(gdr_info_t *info, void __user *_params)
+{
+    struct GDRDRV_IOC_GET_ATTR_PARAMS params = {0};
+    int ret = 0;
+
+    if (copy_from_user(&params, _params, sizeof(params))) {
+        gdr_err("copy_from_user failed on user pointer 0x%px\n", _params);
+        ret = -EFAULT;
+        goto out;
+    }
+
+    switch (params.attr) {
+    case GDRDRV_ATTR_USE_PERSISTENT_MAPPING:
+        params.val = gdr_use_persistent_mapping();
+        break;
+    default:
+        ret = -EINVAL;
+    }
+
+    if (copy_to_user(_params, &params, sizeof(params))) {
+        gdr_err("copy_to_user failed on user pointer 0x%px\n", _params);
+        ret = -EFAULT;
+    }
+
+ out:
     return ret;
 }
 
@@ -1008,6 +1182,14 @@ static int gdrdrv_ioctl(struct inode *inode, struct file *filp, unsigned int cmd
         ret = gdrdrv_get_info(info, argp);
         break;
 
+    case GDRDRV_IOC_GET_INFO_V2:
+        ret = gdrdrv_get_info_v2(info, argp);
+        break;
+
+    case GDRDRV_IOC_GET_ATTR:
+        ret = gdrdrv_get_attr(info, argp);
+        break;
+
     case GDRDRV_IOC_GET_VERSION:
         ret = gdrdrv_get_version(info, argp);
         break;
@@ -1053,23 +1235,29 @@ static const struct vm_operations_struct gdrdrv_vm_ops = {
 /**
  * Starting from kernel version 5.18-rc1, io_remap_pfn_range may use a GPL
  * function. This happens on x86 platforms that have
- * CONFIG_ARCH_HAS_CC_PLATFORM defined. The root cause is from
- * pgprot_decrypted implementation that has been changed to use cc_mkdec. To
- * avoid the GPL-incompatibility issue with our module, which is MIT, we
- * emulate how io_remap_pfn_range originally works here.
+ * CONFIG_ARCH_HAS_CC_PLATFORM defined. The root cause is from pgprot_decrypted
+ * implementation that has been changed to use cc_mkdec. To avoid the
+ * GPL-incompatibility issue with the proprietary flavor of NVIDIA driver, we
+ * reimplement io_remap_pfn_range according to the Linux kernel 5.17.15, which
+ * predates support for Intel CC.
  */
 static inline int gdrdrv_io_remap_pfn_range(struct vm_area_struct *vma, unsigned long vaddr, unsigned long pfn, size_t size, pgprot_t prot)
 {
-#if (defined(CONFIG_X86_64) || defined(CONFIG_X86_32)) && IS_ENABLED(CONFIG_ARCH_HAS_CC_PLATFORM)
-    return remap_pfn_range(vma, vaddr, pfn, size, __pgprot(__sme_clr(pgprot_val(prot))));
-#else
+#if defined(GDRDRV_OPENSOURCE_NVIDIA) || !((defined(CONFIG_X86_64) || defined(CONFIG_X86_32)) && IS_ENABLED(CONFIG_ARCH_HAS_CC_PLATFORM))
     return io_remap_pfn_range(vma, vaddr, pfn, size, prot);
+#else
+
+#ifndef CONFIG_AMD_MEM_ENCRYPT
+#warning "CC is not fully functional in gdrdrv with the proprietary flavor of NVIDIA driver on Intel CPU. Use the open-source flavor if you want full support."
+#endif
+
+    return remap_pfn_range(vma, vaddr, pfn, size, __pgprot(__sme_clr(pgprot_val(prot))));
 #endif
 }
 
 /*----------------------------------------------------------------------------*/
 
-static int gdrdrv_remap_gpu_mem(struct vm_area_struct *vma, unsigned long vaddr, unsigned long paddr, size_t size, int is_wcomb)
+static int gdrdrv_remap_gpu_mem(struct vm_area_struct *vma, unsigned long vaddr, unsigned long paddr, size_t size, gdr_mr_type_t mapping_type)
 {
     int ret = 0;
     unsigned long pfn;
@@ -1095,11 +1283,14 @@ static int gdrdrv_remap_gpu_mem(struct vm_area_struct *vma, unsigned long vaddr,
     pfn = paddr >> PAGE_SHIFT;
 
     // Disallow mmapped VMA to propagate to children processes
-    vma->vm_flags |= VM_DONTCOPY;
+    vm_flags_set(vma, VM_DONTCOPY);
 
-    if (is_wcomb) {
+    if (mapping_type == GDR_MR_WC) {
         // override prot to create non-coherent WC mappings
         vma->vm_page_prot = pgprot_modify_writecombine(vma->vm_page_prot);
+    } else if (mapping_type == GDR_MR_DEVICE) {
+        // override prot to create non-coherent device mappings
+        vma->vm_page_prot = pgprot_modify_device(vma->vm_page_prot);
     } else {
         // by default, vm_page_prot should be set to create cached mappings
     }
@@ -1126,6 +1317,7 @@ static int gdrdrv_mmap(struct file *filp, struct vm_area_struct *vma)
     u64 offset;
     int p = 0;
     unsigned long vaddr;
+    gdr_mr_type_t cpu_mapping_type = GDR_MR_NONE;
 
     gdr_info("mmap filp=0x%px vma=0x%px vm_file=0x%px start=0x%lx size=%zu off=0x%lx\n", filp, vma, vma->vm_file, vma->vm_start, size, vma->vm_pgoff);
 
@@ -1185,9 +1377,9 @@ static int gdrdrv_mmap(struct file *filp, struct vm_area_struct *vma)
     if (size % PAGE_SIZE != 0) {
         gdr_dbg("size is not multiple of PAGE_SIZE\n");
     }
-    // let's assume this mapping is not WC
-    // this also works as the mapped flag for this mr
-    mr->cpu_mapping_type = GDR_MR_CACHING;
+
+    // Set to None first
+    mr->cpu_mapping_type = GDR_MR_NONE;
     vma->vm_ops = &gdrdrv_vm_ops;
     gdr_dbg("overwriting vma->vm_private_data=%px with mr=%px\n", vma->vm_private_data, mr);
     vma->vm_private_data = mr;
@@ -1200,7 +1392,7 @@ static int gdrdrv_mmap(struct file *filp, struct vm_area_struct *vma)
         unsigned long paddr = mr->page_table->pages[p]->physical_address;
         unsigned nentries = 1;
         size_t len;
-        int is_wcomb;
+        gdr_mr_type_t chunk_mapping_type = GDR_MR_NONE;
 
         gdr_dbg("range start with p=%d vaddr=%lx page_paddr=%lx\n", p, vaddr, paddr);
 
@@ -1229,13 +1421,22 @@ static int gdrdrv_mmap(struct file *filp, struct vm_area_struct *vma)
                 p, nentries, offset, len, vaddr, paddr);
         if (gdr_pfn_is_ram(paddr >> PAGE_SHIFT)) {
             WARN_ON_ONCE(!gdrdrv_cpu_can_cache_gpu_mappings);
-            is_wcomb = 0;
+            chunk_mapping_type = GDR_MR_CACHING;
+        } else if (gdrdrv_cpu_must_use_device_mapping) {
+            chunk_mapping_type = GDR_MR_DEVICE;
         } else {
-            is_wcomb = 1;
             // flagging the whole mr as a WC mapping if at least one chunk is WC
-            mr->cpu_mapping_type = GDR_MR_WC;
+            chunk_mapping_type = GDR_MR_WC;
         }
-        ret = gdrdrv_remap_gpu_mem(vma, vaddr, paddr, len, is_wcomb);
+
+        if (cpu_mapping_type == GDR_MR_NONE)
+            cpu_mapping_type = chunk_mapping_type;
+
+        // We don't handle when different chunks have different mapping types.
+        // This scenario should never happen.
+        BUG_ON(cpu_mapping_type != chunk_mapping_type);
+
+        ret = gdrdrv_remap_gpu_mem(vma, vaddr, paddr, len, cpu_mapping_type);
         if (ret) {
             gdr_err("error %d in gdrdrv_remap_gpu_mem\n", ret);
             goto out;
@@ -1260,6 +1461,10 @@ out:
     } else {
         mr->vma = vma;
         mr->mapping = filp->f_mapping;
+
+        BUG_ON(cpu_mapping_type == GDR_MR_NONE);
+        mr->cpu_mapping_type = cpu_mapping_type;
+
         gdr_dbg("mr vma=0x%px mapping=0x%px\n", mr->vma, mr->mapping);
     }
 
@@ -1297,6 +1502,7 @@ static int __init gdrdrv_init(void)
     }
     if (gdrdrv_major == 0) gdrdrv_major = result; /* dynamic */
 
+    gdr_msg(KERN_INFO, "loading gdrdrv version %s built for %s NVIDIA driver\n", GDRDRV_VERSION_STRING, GDRDRV_BUILT_FOR_NVIDIA_FLAVOR_STRING);
     gdr_msg(KERN_INFO, "device registered with major number %d\n", gdrdrv_major);
     gdr_msg(KERN_INFO, "dbg traces %s, info traces %s", dbg_enabled ? "enabled" : "disabled", info_enabled ? "enabled" : "disabled");
 
@@ -1308,10 +1514,37 @@ static int __init gdrdrv_init(void)
         // verify that all GPUs are connected through those
         gdrdrv_cpu_can_cache_gpu_mappings = 1;
     }
+#elif defined(CONFIG_ARM64)
+    // Grace-Hopper supports CPU cached mapping. But this feature might be disabled at runtime.
+    // gdrdrv_pin_buffer will do the right thing.
+    gdrdrv_cpu_can_cache_gpu_mappings = 1;
 #endif
 
     if (gdrdrv_cpu_can_cache_gpu_mappings)
-        gdr_msg(KERN_INFO, "enabling use of CPU cached mappings\n");
+        gdr_msg(KERN_INFO, "The platform may support CPU cached mappings. Decision to use cached mappings is left to the pinning function.\n");
+
+#if defined(CONFIG_ARM64)
+    {
+        // Some compilers are strict and do not allow us to declare a variable
+        // in the for statement.
+        int i;
+        for (i = 0; i < ARRAY_SIZE(GDRDRV_BF3_PCI_ROOT_DEV_DEVICE_ID); ++i)
+        {
+            struct pci_dev *pdev = pci_get_device(GDRDRV_BF3_PCI_ROOT_DEV_VENDOR_ID, GDRDRV_BF3_PCI_ROOT_DEV_DEVICE_ID[i], NULL);
+            if (pdev) {
+                pci_dev_put(pdev);
+                gdrdrv_cpu_must_use_device_mapping = 1;
+                break;
+            }
+        }
+    }
+#endif
+
+    if (gdrdrv_cpu_must_use_device_mapping)
+        gdr_msg(KERN_INFO, "enabling use of CPU device mappings\n");
+
+    if (gdr_use_persistent_mapping())
+        gdr_msg(KERN_INFO, "Persistent mapping will be used\n");
 
     return 0;
 }
