@@ -8,6 +8,7 @@ COMSOL simulations/demos/
 4Ghz-2MCs-1e6-1e5-dclosed-LR5.csv
 MPHR*
 *trace.log
+daqAnalysisAndExperiments/run1p4/injectionTesting/data/
 
 #raw text comsol output
 allE_NearField.txt
@@ -17,4 +18,4 @@ avgE_NearField.txt
 avgE_all_64pts.txt
 EAll_NearField.txt
 
-
+!./comsolSimulations/run1A_simulation_10_3_23/moveAnt_vs_modeStir/data_gitignore/40_310MHz_500Q_moveAnt_18pos_3wallDrive_steelWalls_10_8_23/dataDf.npy
