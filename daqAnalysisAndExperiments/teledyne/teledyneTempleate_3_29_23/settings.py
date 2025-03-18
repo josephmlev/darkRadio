@@ -7,10 +7,10 @@ import pyadq
 NOF_CHANNELS                    = 2 #can't currently change. Need to load 1 ch firmware
 
 #Can't go highter than 2^24 on DR2 without modifying bios settings. Stay above 2^16
-CH0_RECORD_LEN                  = int(2**18) 
+CH0_RECORD_LEN                  = int(2**24) 
 CH1_RECORD_LEN                  = CH0_RECORD_LEN #Different lengths not currently accepted
 
-NOF_BUFFERS_TO_RECEIVE          = 100000 #for each call of avgFFT()
+NOF_BUFFERS_TO_RECEIVE          = 100 #for each call of avgFFT()
 NOF_ACQUISITIONS_TO_TAKE        = 1 #number of times to call avgFFT()
 
 NOF_GPU_BUFFERS                 = 2 #per channel. Crashes if not 2.
@@ -24,20 +24,20 @@ ADQ_CLOCK_SOURCE                = 1 # 0 = INTERNAL, 1 = EXTERNAL
 				    # If external clock is used, it must be set up seperatly!!!
 				    # See valon_Init.py
 
-CH0_SAMPLE_SKIP_FACTOR          = 1  #For factors below 8, only power-of-two values are allowed 
+CH0_SAMPLE_SKIP_FACTOR          = 2  #For factors below 8, only power-of-two values are allowed 
 CH1_SAMPLE_SKIP_FACTOR          = CH0_SAMPLE_SKIP_FACTOR #Different values are untested
 
 # Must be 2.5e9 if ADQ_CLOCK_SOURCE==0
 # Else, must be between 1e9 and 2.5e9. 
 # Use sample skip to get lower than 1GHz
 # Should be a multple of 20MHz for best performance
-CLOCK_RATE                      = 2.5e9 #Hz
+CLOCK_RATE                      = 1.6e9 #Hz
 
 VALON_EXT_10MHZ                 = 1
 
 SAMPLE_RATE                     = CLOCK_RATE/CH0_SAMPLE_SKIP_FACTOR 
 
-PERIODIC_EVENT_SOURCE_PERIOD    = int(CH0_RECORD_LEN*2.2 + 100)  
+PERIODIC_EVENT_SOURCE_PERIOD    = int(CH0_RECORD_LEN*1 + 100)  
 
 ##########################################################
 # SAVING
@@ -45,8 +45,8 @@ PERIODIC_EVENT_SOURCE_PERIOD    = int(CH0_RECORD_LEN*2.2 + 100)
 
 # Save a single spectrum for testing or simple DAQ stuff
 # NOF_ACQUISITIONS_TO_TAKE should be 1
-SAVE_W_SPEC                     = 1 #Saves last spec to .npy.
-PATH_TO_SAVE_SINGLE_SPEC        ='/drBigBoy/darkRadio/daqAnalysisAndExperiments/run1p4/thermalNoiseVsH/data_10_15_23_gitignore/term_extra10dBMcAmp_49' #Where to save above
+SAVE_W_SPEC                     = 0 #Saves last spec to .npy.
+PATH_TO_SAVE_SINGLE_SPEC        ='/drBigBoy/darkRadio/daqAnalysisAndExperiments/run1p4/injectionTesting/data/testspec' #Where to save above
 
 NUM_SPEC_PER_FILE               = 25 #How many spectra to put in a file. Keep files around 1GB. 16 is good
 SAVE_DIRECTORY                  = '/drBiggerBoy/run1p4_termRun/' #directory to save data. Note this needs to be created ahead of time
