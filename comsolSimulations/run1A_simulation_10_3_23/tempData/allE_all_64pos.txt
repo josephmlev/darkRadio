@@ -1,0 +1,4 @@
+% Model:              noresRoom_monopoleDrive_moveAnt_v1_bicon_frame_antenna_2_23_23_v2.mph
+% Version:            COMSOL 5.6.0.401
+% Date:               Mar 18 2025, 14:27
+% Table:              E all - E all
