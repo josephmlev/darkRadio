@@ -28,24 +28,20 @@ int chopPos = 0;
 elapsedMillis timeElapsed;    // creating timer for startup
 
 // these bools control position control after finding zero
-bool start = false;
+bool start = false; //
 bool initialization = false;
 bool relativeStepping = false;
-bool zeroFlag = true;
-bool stopFlag = true;
-bool pwrCycleFlag = false; //when finding zero, commands a pc after stopping at true zero
-
-
+bool zeroFlag = true; //ensures that the initialization code for starting the zero-finding procedure runs only once 
+bool stopFlag = false; //used to manage the transition immediately after the encoder (chop) is detected
+bool pwrCycleFlag = false; //when finding zero, commands a pwr cycle after stopping at true zero
 void stopAndStabilize(){ // This stops motion of the stirrer, stabilizes the position with holding torque by switching the power on and off, and then sets position to zero
   //myStepper.stop();
   //myStepper.setSpeed(0); // if chop detected, stop motion
   //
   long stepsAfterChop = 480;
   long targetAfterChop = myStepper.currentPosition() + stepsAfterChop;
-
   myStepper.move(48);
   //
-
   //delay(1000);
   //digitalWrite(swPin, LOW);
   //delay(1000);
@@ -57,8 +53,6 @@ void stopAndStabilize(){ // This stops motion of the stirrer, stabilizes the pos
   myStepper.setCurrentPosition(0); // sets the definite zero position
   timeElapsed = 0; // resetting time counter, just in case may be useful in future. timeElapsed starts counting at conclusion of startup
 }
-
-
 void moveToPosition(int pos){ 
   //desiredPosition = pos.toInt();
   Serial.println("Moving to position: " + String(pos));
@@ -68,25 +62,49 @@ void moveToPosition(int pos){
   myStepper.moveTo(pos); // moveTo will move the stepper in ABSOLUTE coordinates to "pos" number. it goes from position 0 -> position "pos"
 }
 
-
 void setup() {
   Serial.begin(9600);
   myStepper.setMaxSpeed(400);    // must be equal to or greater than desired speed.
   myStepper.setAcceleration(40);
-  //myStepper.setCurrentPosition(0);
 
   pinMode(swPin, OUTPUT);
   pinMode(encoderPin, INPUT_PULLUP);
   pinMode(LED_BUILTIN, OUTPUT);
-
-
 }
 
 void loop() {
-
+  encoderSignal = digitalRead(encoderPin);
   if (Serial.available() > 0){ // this code runs if data is being sent via serial connection
-    String command = Serial.readString();
+  /*================================================================================
+  Serial Command Descriptions:
+    1. "step <num>"
+        - Moves the stepper motor by a relative number of steps.
+    2. "position <num>" Needs work
+        - Initiates a routine where the motor first finds the zero (using the chopper sensor)
+          and then moves to an absolute target position.
+        - Includes an initialization phase for additional stabilization after zero detection.
+    3. "zero"
+        - Starts the zero-finding routine to detect the chop (zero) signal.
+          - Steps until the chop is detected. 
+          - Decelearates to a stop. 
+          - Moves to zero. 
+          - Power cycles. 
+          - Prints "Stopped at A+ zero"
+    4. "quit"
+        - Disables the power relay, effectively stopping the motor.
+        - Closes the serial communication by signaling a shutdown of the system.
+    5. "power"
+        - Turns off the relay powering the stepper motor.
+        - The motor can be re-enabled with any command other than 'quit'.
+    6. "pcycle"
+        - Executes a power cycle by turning the power off then on again.
+        - This action is used to latch the system to the proper A+ zero position.
+    7. "getPos"
+        - Queries and prints the current position of the stepper motor.
 
+    Any unrecognized command causes the system to prompt for re-entry of a valid command.
+  ================================================================================*/
+    String command = Serial.readString();
     if (command.substring(0, 5) == "step "){ // command should be of form "step #"; causes stepper to step by "#" number of steps; "#" should not be entered in microsteps; stepper will NOT find zero first before moving
       stepNum = command.substring(5).toInt();
       stepNum = stepNum * microstepNum;
@@ -97,8 +115,6 @@ void loop() {
       myStepper.move(stepNum); //  will move the stepper in RELATIVE coordinates from (current position) -> (current position + stepNum)
       //timeElapsed = 0;
     }
-
-
     else if (command.substring(0, 9) == "position "){ // command should be of form "position #"; causes stepper to find zero, then move to "#" position; "#" should not be entered in microsteps
       stepNum = command.substring(9).toInt(); // logs step number for later
       stepNum = stepNum * microstepNum; // +3 accounts for the fact that there may be a consistent drift of 1 (or 3) microsteps when the stepper finds zero with chopper (current should be ~0.85A for non microstep holding power)
@@ -107,16 +123,14 @@ void loop() {
       timeElapsed = 0;
       initialization = true;
     }
-
     else if (command.substring(0, 4) == "zero"){ // makes stepper find zero using chopper (will not move to position after zeroing)
       stepNum = 0;
       start = true;
       digitalWrite(swPin, HIGH);
-      delay(100);
+      delay(500);
       timeElapsed = 0;
       initialization = false;
     }
-
     else if(String(command) == "quit"){ // quit command disables power and closes serial connection
       digitalWrite(swPin, LOW);
       start = false;
@@ -126,7 +140,6 @@ void loop() {
       
       Serial.println("Sayonara!");
     }
-
     else if (command.substring(0, 5) == "power"){ // this is command to turn off relay (disables power to mode stirrer system), this will cause issues if ran when stepper motor is not in an integer position (in between positions)
       digitalWrite(swPin, LOW); // power can be restored by running any of the other commands (except quit) as they enable power by default.
       start = false;
@@ -135,7 +148,6 @@ void loop() {
       
       Serial.println("Power turning off...");
     }
-
     else if (command.substring(0, 2) == "pc"){ // This turns off and on the power to find the proper A+ zero
       delay(1000);
       digitalWrite(swPin, LOW);
@@ -145,30 +157,20 @@ void loop() {
       
       Serial.println("Power cycle complete. Power is off");
     }
-
-
     else if (command.substring(0, 6) == "getPos"){ // Query the position
       Serial.println(String("Current position = ") + myStepper.currentPosition());
     }
-
     else { // input not recognized
       Serial.println("Input not recognized, please try again, sir");
     }
   }
-  encoderSignal = digitalRead(encoderPin);
-
-
-
   if(start == true){ // this code runs if the stepper is finding zero, it checks after every step taken to see if a chop is detected
-    //myStepper.setSpeed(50); // move stepper at constant speed
-
     if(zeroFlag == true){
-      Serial.println("here ");
+      //Serial.println("here ");
       myStepper.setCurrentPosition(1); //prevents having to mod 
       myStepper.move(9999);
       zeroFlag = false;
     }
-    
     if (encoderSignal == LOW and timeElapsed > (1 * 1000) and initialization == false){ // check if chop has been found within 5 seconds of startup, this code run if stepper is finding zero only
       chopPos = myStepper.currentPosition();
       myStepper.stop();
@@ -193,13 +195,11 @@ void loop() {
       digitalWrite(swPin, LOW);
       Serial.println("Stepper ran for 10 mins and did not detect chop. Check on system.");
     } 
-    //myStepper.runSpeed(); // move at constant speed
-    
   }
   if(start == false && stopFlag == true && !myStepper.isRunning()) { //it is stopped at chopPos past zero. Command move to true zero
     long stepsPastChop = myStepper.currentPosition() - chopPos;
     delay(1000);
-    Serial.println("moving to true zero ");
+    //Serial.println("moving to true zero ");
     myStepper.move(4800 - stepsPastChop);
     stopFlag = false;
     zeroFlag = true;
@@ -215,10 +215,7 @@ void loop() {
     myStepper.setCurrentPosition(0);
     pwrCycleFlag = false;
   }
-
-
   myStepper.run();
-  
 }
 
 
