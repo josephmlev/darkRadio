@@ -44,6 +44,20 @@ ser = serial.Serial(portName, 9600)
 
 
 while True: #waits for an input command then sends it via serial connection to the arduino, also waits for serial data sent back from arduino
+    command = input("Arduino command (step # / position # / zero / quit): ") # takes command input
+    ser.write(command.encode('utf-8')) # sends command via serial
+    #while ser.in_waiting < 0: # checks if data is being sent back through the serial pipeline
+    #    time.sleep(.1)
+    if ser.in_waiting > 0:
+        data = ser.readline().decode('utf-8').strip()
+        print(f"LOG: {data}") 
+        # prints the data, NOTE: this is not 100% functional since it prints data from arduino only when you input a command. 
+        # The commands still do what they are supposed to do, but the print statements dont function as intended
+    
+    if command == 'quit':
+        break
+'''
+while True: #waits for an input command then sends it via serial connection to the arduino, also waits for serial data sent back from arduino
     command = input("Arduino command (desired position # / step / position / quit): ")
     ser.write(command.encode('utf-8'))
     time.sleep(1)
@@ -55,7 +69,7 @@ while True: #waits for an input command then sends it via serial connection to t
     
     if command == 'quit':
         break
-'''
+
 while True:
         response        = ser.readline()
         responseClean  = response.decode('utf-8')
