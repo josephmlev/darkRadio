@@ -56,27 +56,3 @@ while True: #waits for an input command then sends it via serial connection to t
     
     if command == 'quit':
         break
-'''
-while True: #waits for an input command then sends it via serial connection to the arduino, also waits for serial data sent back from arduino
-    command = input("Arduino command (desired position # / step / position / quit): ")
-    ser.write(command.encode('utf-8'))
-    time.sleep(1)
-    data = ser.readline().decode('utf-8').strip()
-    #if data:
-    print(f"Arduino says: {data}")
-    print('help')
-
-    
-    if command == 'quit':
-        break
-
-while True:
-        response        = ser.readline()
-        responseClean  = response.decode('utf-8')
-        responseStrip  = responseClean.strip()
-        if not responseStrip:
-            break
-        print(f'Command Received: {responseStrip}')
-        if 'error' in responseStrip:
-            print('******** Error recieved from valon ********')
-            raise ValueError'''
