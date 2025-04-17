@@ -4,6 +4,8 @@ import getpass
 import os
 import time
 
+######### NOTE 4/17/25: This uses arduino code reverbChamberTesting/norrisArduino/arduinoStepperControl_4_10_25/
+
 class arduino():
     def __init__(self):
         # Get the current username
