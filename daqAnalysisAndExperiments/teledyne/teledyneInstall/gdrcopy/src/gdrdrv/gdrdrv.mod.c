@@ -27,10 +27,10 @@ MODULE_INFO(retpoline, "Y");
 
 static const struct modversion_info ____versions[]
 __used __section("__versions") = {
-	{ 0x30ff7695, "module_layout" },
-	{ 0xf9418c06, "param_ops_int" },
+	{ 0x2c635209, "module_layout" },
+	{ 0xae2ae519, "param_ops_int" },
 	{ 0x6bc3fbc0, "__unregister_chrdev" },
-	{ 0x23295fe0, "__register_chrdev" },
+	{ 0x8120e312, "__register_chrdev" },
 	{ 0xd0da656b, "__stack_chk_fail" },
 	{ 0x970adefe, "nvidia_p2p_get_pages_persistent" },
 	{ 0x364c23ad, "mutex_is_locked" },
@@ -41,16 +41,16 @@ __used __section("__versions") = {
 	{ 0x53b954a2, "up_read" },
 	{ 0x668b19a1, "down_read" },
 	{ 0x13c49cc2, "_copy_from_user" },
-	{ 0xdb8acb90, "remap_pfn_range" },
+	{ 0x7394b519, "remap_pfn_range" },
 	{ 0x8a35b432, "sme_me_mask" },
 	{ 0x3213f038, "mutex_unlock" },
 	{ 0x4dfa8d4b, "mutex_lock" },
-	{ 0x631d6bbe, "address_space_init_once" },
-	{ 0xa22a96f7, "current_task" },
+	{ 0x2c5d5f4d, "address_space_init_once" },
+	{ 0x4c9f47a5, "current_task" },
 	{ 0xcefb0c9f, "__mutex_init" },
-	{ 0x4f00afd3, "kmem_cache_alloc_trace" },
-	{ 0xac1c4313, "kmalloc_caches" },
-	{ 0x14a2a34c, "unmap_mapping_range" },
+	{ 0xaf88e69b, "kmem_cache_alloc_trace" },
+	{ 0x30a93ed, "kmalloc_caches" },
+	{ 0x774ef4ec, "unmap_mapping_range" },
 	{ 0xf42ca687, "nvidia_p2p_free_page_table" },
 	{ 0x57bc19d2, "down_write" },
 	{ 0xacdf3914, "nvidia_p2p_put_pages_persistent" },
@@ -65,4 +65,4 @@ __used __section("__versions") = {
 MODULE_INFO(depends, "nv-p2p-dummy");
 
 
-MODULE_INFO(srcversion, "B55D7686ABDA82419DDC88B");
+MODULE_INFO(srcversion, "84716C676E09CE90CAC24EE");

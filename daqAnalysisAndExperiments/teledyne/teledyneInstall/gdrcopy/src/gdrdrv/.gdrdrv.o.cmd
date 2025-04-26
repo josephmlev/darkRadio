@@ -1,4 +1,4 @@
-cmd_/drBigBoy/darkRadio/daqAnalysisAndExperiments/teledyne/teledyneInstall/gdrcopy/src/gdrdrv/gdrdrv.o := gcc -Wp,-MMD,/drBigBoy/darkRadio/daqAnalysisAndExperiments/teledyne/teledyneInstall/gdrcopy/src/gdrdrv/.gdrdrv.o.d -nostdinc -isystem /usr/lib/gcc/x86_64-linux-gnu/11/include -I./arch/x86/include -I./arch/x86/include/generated  -I./include -I./arch/x86/include/uapi -I./arch/x86/include/generated/uapi -I./include/uapi -I./include/generated/uapi -include ./include/linux/compiler-version.h -include ./include/linux/kconfig.h -I./ubuntu/include -include ./include/linux/compiler_types.h -D__KERNEL__ -fmacro-prefix-map=./= -Wall -Wundef -Werror=strict-prototypes -Wno-trigraphs -fno-strict-aliasing -fno-common -fshort-wchar -fno-PIE -Werror=implicit-function-declaration -Werror=implicit-int -Werror=return-type -Wno-format-security -std=gnu89 -mno-sse -mno-mmx -mno-sse2 -mno-3dnow -mno-avx -fcf-protection=none -m64 -falign-jumps=1 -falign-loops=1 -mno-80387 -mno-fp-ret-in-387 -mpreferred-stack-boundary=3 -mskip-rax-setup -mtune=generic -mno-red-zone -mcmodel=kernel -DCONFIG_X86_X32_ABI -Wno-sign-compare -fno-asynchronous-unwind-tables -mindirect-branch=thunk-extern -mindirect-branch-register -mindirect-branch-cs-prefix -mfunction-return=thunk-extern -fno-jump-tables -mharden-sls=all -fno-delete-null-pointer-checks -Wno-frame-address -Wno-format-truncation -Wno-format-overflow -Wno-address-of-packed-member -O2 -fno-allow-store-data-races -Wframe-larger-than=1024 -fstack-protector-strong -Wimplicit-fallthrough=5 -Wno-main -Wno-unused-but-set-variable -Wno-unused-const-variable -fno-omit-frame-pointer -fno-optimize-sibling-calls -fno-stack-clash-protection -g -gdwarf-5 -pg -mrecord-mcount -mfentry -DCC_USING_FENTRY -Wdeclaration-after-statement -Wvla -Wno-pointer-sign -Wno-stringop-truncation -Wno-zero-length-bounds -Wno-array-bounds -Wno-stringop-overflow -Wno-restrict -Wno-maybe-uninitialized -Wno-alloc-size-larger-than -fno-strict-overflow -fno-stack-check -fconserve-stack -Werror=date-time -Werror=incompatible-pointer-types -Werror=designated-init -Wno-packed-not-aligned -I/usr/src/nvidia-srv-525.147.05/nvidia  -fsanitize=bounds -fsanitize=shift -fsanitize=bool -fsanitize=enum  -DMODULE  -DKBUILD_BASENAME='"gdrdrv"' -DKBUILD_MODNAME='"gdrdrv"' -D__KBUILD_MODNAME=kmod_gdrdrv -c -o /drBigBoy/darkRadio/daqAnalysisAndExperiments/teledyne/teledyneInstall/gdrcopy/src/gdrdrv/gdrdrv.o /drBigBoy/darkRadio/daqAnalysisAndExperiments/teledyne/teledyneInstall/gdrcopy/src/gdrdrv/gdrdrv.c
+cmd_/drBigBoy/darkRadio/daqAnalysisAndExperiments/teledyne/teledyneInstall/gdrcopy/src/gdrdrv/gdrdrv.o := gcc -Wp,-MMD,/drBigBoy/darkRadio/daqAnalysisAndExperiments/teledyne/teledyneInstall/gdrcopy/src/gdrdrv/.gdrdrv.o.d -nostdinc -isystem /usr/lib/gcc/x86_64-linux-gnu/11/include -I./arch/x86/include -I./arch/x86/include/generated  -I./include -I./arch/x86/include/uapi -I./arch/x86/include/generated/uapi -I./include/uapi -I./include/generated/uapi -include ./include/linux/compiler-version.h -include ./include/linux/kconfig.h -I./ubuntu/include -include ./include/linux/compiler_types.h -D__KERNEL__ -fmacro-prefix-map=./= -Wall -Wundef -Werror=strict-prototypes -Wno-trigraphs -fno-strict-aliasing -fno-common -fshort-wchar -fno-PIE -Werror=implicit-function-declaration -Werror=implicit-int -Werror=return-type -Wno-format-security -std=gnu89 -mno-sse -mno-mmx -mno-sse2 -mno-3dnow -mno-avx -fcf-protection=none -m64 -falign-jumps=1 -falign-loops=1 -mno-80387 -mno-fp-ret-in-387 -mpreferred-stack-boundary=3 -mskip-rax-setup -mtune=generic -mno-red-zone -mcmodel=kernel -DCONFIG_X86_X32_ABI -Wno-sign-compare -fno-asynchronous-unwind-tables -mindirect-branch=thunk-extern -mindirect-branch-register -mindirect-branch-cs-prefix -mfunction-return=thunk-extern -fno-jump-tables -mharden-sls=all -fno-delete-null-pointer-checks -Wno-frame-address -Wno-format-truncation -Wno-format-overflow -Wno-address-of-packed-member -O2 -fno-allow-store-data-races -Wframe-larger-than=1024 -fstack-protector-strong -Wimplicit-fallthrough=5 -Wno-main -Wno-unused-but-set-variable -Wno-unused-const-variable -fno-omit-frame-pointer -fno-optimize-sibling-calls -fno-stack-clash-protection -g -gdwarf-5 -pg -mrecord-mcount -mfentry -DCC_USING_FENTRY -falign-functions=16 -Wdeclaration-after-statement -Wvla -Wno-pointer-sign -Wno-stringop-truncation -Wno-zero-length-bounds -Wno-array-bounds -Wno-stringop-overflow -Wno-restrict -Wno-maybe-uninitialized -Wno-alloc-size-larger-than -fno-strict-overflow -fno-stack-check -fconserve-stack -Werror=date-time -Werror=incompatible-pointer-types -Werror=designated-init -Wno-packed-not-aligned -I/usr/src/nvidia-srv-535.230.02/nvidia  -fsanitize=bounds -fsanitize=shift -fsanitize=bool -fsanitize=enum  -DMODULE  -DKBUILD_BASENAME='"gdrdrv"' -DKBUILD_MODNAME='"gdrdrv"' -D__KBUILD_MODNAME=kmod_gdrdrv -c -o /drBigBoy/darkRadio/daqAnalysisAndExperiments/teledyne/teledyneInstall/gdrcopy/src/gdrdrv/gdrdrv.o /drBigBoy/darkRadio/daqAnalysisAndExperiments/teledyne/teledyneInstall/gdrcopy/src/gdrdrv/gdrdrv.c
 
 source_/drBigBoy/darkRadio/daqAnalysisAndExperiments/teledyne/teledyneInstall/gdrcopy/src/gdrdrv/gdrdrv.o := /drBigBoy/darkRadio/daqAnalysisAndExperiments/teledyne/teledyneInstall/gdrcopy/src/gdrdrv/gdrdrv.c
 
@@ -91,6 +91,7 @@ deps_/drBigBoy/darkRadio/daqAnalysisAndExperiments/teledyne/teledyneInstall/gdrc
   include/uapi/linux/limits.h \
   include/vdso/limits.h \
   include/linux/linkage.h \
+    $(wildcard include/config/FUNCTION_ALIGNMENT) \
     $(wildcard include/config/ARCH_USE_SYM_ANNOTATIONS) \
   include/linux/stringify.h \
   include/linux/export.h \
@@ -111,7 +112,6 @@ deps_/drBigBoy/darkRadio/daqAnalysisAndExperiments/teledyne/teledyneInstall/gdrc
     $(wildcard include/config/KCSAN) \
     $(wildcard include/config/KCSAN_IGNORE_ATOMICS) \
   arch/x86/include/asm/linkage.h \
-    $(wildcard include/config/X86_ALIGNMENT_16) \
     $(wildcard include/config/RETHUNK) \
     $(wildcard include/config/SLS) \
   include/linux/bitops.h \
@@ -573,6 +573,7 @@ deps_/drBigBoy/darkRadio/daqAnalysisAndExperiments/teledyne/teledyneInstall/gdrc
     $(wildcard include/config/ZONE_DMA) \
     $(wildcard include/config/ZONE_DMA32) \
     $(wildcard include/config/ZONE_DEVICE) \
+    $(wildcard include/config/COMPACTION) \
     $(wildcard include/config/PM_SLEEP) \
     $(wildcard include/config/CONTIG_ALLOC) \
     $(wildcard include/config/CMA) \
@@ -585,7 +586,6 @@ deps_/drBigBoy/darkRadio/daqAnalysisAndExperiments/teledyne/teledyneInstall/gdrc
     $(wildcard include/config/ZSMALLOC) \
     $(wildcard include/config/SHADOW_CALL_STACK) \
     $(wildcard include/config/MEMORY_HOTPLUG) \
-    $(wildcard include/config/COMPACTION) \
     $(wildcard include/config/PAGE_EXTENSION) \
     $(wildcard include/config/DEFERRED_STRUCT_PAGE_INIT) \
     $(wildcard include/config/HAVE_MEMORYLESS_NODES) \
@@ -816,7 +816,6 @@ deps_/drBigBoy/darkRadio/daqAnalysisAndExperiments/teledyne/teledyneInstall/gdrc
     $(wildcard include/config/FAULT_INJECTION_USERCOPY) \
   arch/x86/include/asm/uaccess.h \
     $(wildcard include/config/CC_HAS_ASM_GOTO_OUTPUT) \
-    $(wildcard include/config/CC_ASM_GOTO_OUTPUT) \
     $(wildcard include/config/CC_HAS_ASM_GOTO_TIED_OUTPUT) \
     $(wildcard include/config/ARCH_HAS_COPY_MC) \
     $(wildcard include/config/X86_INTEL_USERCOPY) \
@@ -1116,7 +1115,7 @@ deps_/drBigBoy/darkRadio/daqAnalysisAndExperiments/teledyne/teledyneInstall/gdrc
     $(wildcard include/config/NEED_DMA_MAP_STATE) \
   include/linux/dma-direction.h \
   /drBigBoy/darkRadio/daqAnalysisAndExperiments/teledyne/teledyneInstall/gdrcopy/src/gdrdrv/gdrdrv.h \
-  /usr/src/nvidia-srv-525.147.05/nvidia/nv-p2p.h \
+  /usr/src/nvidia-srv-535.230.02/nvidia/nv-p2p.h \
 
 /drBigBoy/darkRadio/daqAnalysisAndExperiments/teledyne/teledyneInstall/gdrcopy/src/gdrdrv/gdrdrv.o: $(deps_/drBigBoy/darkRadio/daqAnalysisAndExperiments/teledyne/teledyneInstall/gdrcopy/src/gdrdrv/gdrdrv.o)
 
