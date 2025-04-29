@@ -30,7 +30,7 @@ else:
 # Simple trace data extraction
 
 #init
-totalSteps = 2
+totalSteps = 100
 stepsToTake = 4800/totalSteps
 freqPoints = 4501
 dwellTime = 5 #[seconds] Time to sleep after moving stirrer
@@ -130,7 +130,7 @@ for i in range(totalSteps):
 # Save the complete DataFrame to a CSV file.
 #df.to_csv("antennaFacingEachOther_200Step_5secDwell_250_1050MHz_4501freq_2p5kHzRBW_avg1_4_16_25.csv", index=False)
 path = ""
-filename = "test_4_17_25.csv"
+filename = "2portRCTest_250_1050MHz_200steps_DeltaQ_nopanel_4_28_25.csv"
 df.to_csv(path + filename, index=False)
 print("Data saved to vna_data.csv")
 stepArduino.writeCmd('power off')
