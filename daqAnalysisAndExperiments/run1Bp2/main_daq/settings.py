@@ -53,10 +53,10 @@ SAVE_W_SPEC                     = 0 #Saves last spec to .npy.
 PATH_TO_SAVE_SINGLE_SPEC        ='/drBigBoy/darkRadio/daqAnalysisAndExperiments/run1B/daq/systemTesting/data_gitignore/antSpec28asdf' #Where to save above
 
 NUM_SPEC_PER_FILE               = 32 #How many spectra to put in a file. Keep files around 1GB. 16 is good
-SAVE_DIRECTORY                  = '/drBiggerBoy/run1Bp1/' #directory to save data. Note this needs to be created ahead of time
+SAVE_DIRECTORY                  = '/drBiggerBoy/run1Bp1_TEMP/' #directory to save data. Note this needs to be created ahead of time
                                                                 #and there should be a subdirectory called data. 
 
-SAVE_H5                         = 1 # Should h5 be saved AND database.txt be updated. 
+SAVE_H5                         = 0 # Should h5 be saved AND database.txt be updated. 
 
 SWITCH                          = 1 #Controlls if a switch should be used. Requires Arduino to be connected. Should configure automatically
 SWITCH_SLEEP_TIME		= .5 #Time in seconds to sleep after switching
